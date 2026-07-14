@@ -3,8 +3,7 @@ import { ArrowRight, Cookie, Handshake, Heart, Lightbulb, Rocket, Users } from "
 import { Button } from "@/components/ui/button";
 import { SERVICE_AREA_COPY } from "@shared/bakery";
 
-const STORY_URL = "/manus-storage/tas-story_effcc053.png";
-const HERO_URL = "/manus-storage/tas-hero_abd5c266.png";
+import ImagePlaceholder from "@/components/ImagePlaceholder";
 
 const VALUES = [
   {
@@ -44,10 +43,10 @@ export default function OurStory() {
       </section>
 
       <section className="container max-w-3xl py-12">
-        <img
-          src={STORY_URL}
-          alt="Young baker rolling cookie dough with family helping"
-          className="mx-auto rounded-3xl shadow-md"
+        <ImagePlaceholder
+          label="Founder portrait or baking photo goes here"
+          ratio="wide"
+          className="mx-auto"
         />
         <div className="prose prose-lg mt-10 max-w-none">
           <p className="text-lg leading-relaxed">
@@ -55,7 +54,7 @@ export default function OurStory() {
             long days ahead and lots of energy to spend, she decided to do something productive —
             and something delicious. What started as an afternoon of baking with family quickly
             turned into recipe experiments, taste tests with neighbors, and finally a real business
-            with real customers.
+            with real customers across Charlotte.
           </p>
           <p className="text-lg leading-relaxed">
             Today, every cookie and treat is still mixed, scooped, and decorated by hand in small
@@ -92,10 +91,10 @@ export default function OurStory() {
 
       <section className="bg-secondary/40 py-14">
         <div className="container grid items-center gap-8 md:grid-cols-2">
-          <img
-            src={HERO_URL}
-            alt="Fresh cookies and milk on a wooden table"
-            className="mx-auto max-w-md rounded-3xl shadow-md"
+          <ImagePlaceholder
+            label="Real TakeASweet treats photo goes here"
+            ratio="wide"
+            className="mx-auto w-full max-w-md"
           />
           <div className="text-center md:text-left">
             <Cookie className="text-primary mx-auto size-10 md:mx-0" />

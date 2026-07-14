@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
-import { Menu, Minus, Plus, ShoppingBag, Trash2, X } from "lucide-react";
+import { Facebook, Instagram, Menu, Minus, Plus, ShoppingBag, Trash2, X } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,15 +17,27 @@ import { trpc } from "@/lib/trpc";
 import { ANNOUNCEMENT_COPY, SERVICE_AREA_COPY, formatPrice } from "@shared/bakery";
 import { useAuth } from "@/_core/hooks/useAuth";
 
-const LOGO_URL = "/manus-storage/tas-logo_11f76fe4.png";
-
 const NAV_LINKS = [
   { href: "/", label: "Home" },
-  { href: "/shop", label: "Shop All" },
+  { href: "/shop", label: "Shop" },
+  { href: "/shop", label: "Menu", key: "menu" },
   { href: "/custom-orders", label: "Custom Orders" },
   { href: "/our-story", label: "Our Story" },
+  { href: "/faq", label: "FAQ" },
   { href: "/contact", label: "Contact" },
 ];
+
+/** Logo placeholder — replace with the real TakeASweet logo file when provided. */
+function LogoMark({ className = "size-9" }: { className?: string }) {
+  return (
+    <span
+      aria-hidden
+      className={`bg-primary text-primary-foreground font-display flex shrink-0 items-center justify-center rounded-full text-base font-extrabold ${className}`}
+    >
+      TS
+    </span>
+  );
+}
 
 function AnnouncementBanner() {
   const copy = ANNOUNCEMENT_COPY;
@@ -236,7 +248,7 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
           </div>
 
           <Link href="/" className="flex items-center gap-2">
-            <img src={LOGO_URL} alt="TakeASweet logo" className="size-9" />
+            <LogoMark />
             <span className="font-display text-lg leading-none font-bold sm:text-xl">
               TakeASweet
               <span className="text-muted-foreground block text-[10px] font-semibold tracking-widest uppercase">
@@ -248,10 +260,10 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
           <nav className="hidden items-center gap-1 md:flex">
             {NAV_LINKS.map(link => (
               <Link
-                key={link.href}
+                key={link.key ?? link.href}
                 href={link.href}
-                className={`rounded-full px-3.5 py-1.5 text-sm font-semibold transition-colors ${
-                  location === link.href
+                className={`rounded-full px-3 py-1.5 text-sm font-semibold transition-colors ${
+                  location === link.href && !link.key
                     ? "bg-primary text-primary-foreground"
                     : "hover:bg-muted text-foreground"
                 }`}
@@ -282,11 +294,13 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
           <nav className="fade-up border-t px-4 pt-2 pb-4 md:hidden">
             {NAV_LINKS.map(link => (
               <Link
-                key={link.href}
+                key={link.key ?? link.href}
                 href={link.href}
                 onClick={() => setMobileOpen(false)}
                 className={`block rounded-xl px-3 py-2.5 text-base font-semibold ${
-                  location === link.href ? "bg-primary text-primary-foreground" : "hover:bg-muted"
+                  location === link.href && !link.key
+                    ? "bg-primary text-primary-foreground"
+                    : "hover:bg-muted"
                 }`}
               >
                 {link.label}
@@ -312,26 +326,55 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
         <div className="container grid gap-10 py-12 md:grid-cols-3">
           <div>
             <div className="flex items-center gap-2">
-              <img src={LOGO_URL} alt="" className="size-10" />
+              <LogoMark className="size-10" />
               <span className="font-display text-lg font-bold">TakeASweet</span>
             </div>
             <p className="text-muted-foreground mt-3 max-w-xs text-sm">
               Handmade cookies and treats baked with big dreams by a young Charlotte entrepreneur.
             </p>
             <p className="mt-3 text-sm font-bold">{SERVICE_AREA_COPY}</p>
+            <div className="mt-4 flex gap-2">
+              <a
+                href="https://www.facebook.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="TakeASweet on Facebook"
+                className="bg-card border-border hover:bg-muted flex size-9 items-center justify-center rounded-full border"
+              >
+                <Facebook className="size-4" />
+              </a>
+              <a
+                href="https://www.instagram.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="TakeASweet on Instagram"
+                className="bg-card border-border hover:bg-muted flex size-9 items-center justify-center rounded-full border"
+              >
+                <Instagram className="size-4" />
+              </a>
+            </div>
           </div>
           <div>
             <h3 className="font-display mb-3 text-sm font-bold tracking-widest uppercase">
               Explore
             </h3>
             <ul className="space-y-2 text-sm">
-              {NAV_LINKS.map(link => (
+              {NAV_LINKS.filter(link => !link.key).map(link => (
                 <li key={link.href}>
                   <Link href={link.href} className="hover:text-secondary-foreground hover:underline">
                     {link.label}
                   </Link>
                 </li>
               ))}
+            </ul>
+            <h3 className="font-display mt-5 mb-2 text-sm font-bold tracking-widest uppercase">
+              Policies
+            </h3>
+            <ul className="text-muted-foreground space-y-1.5 text-xs">
+              <li>Custom orders are reviewed before payment.</li>
+              <li>Large orders may require a deposit.</li>
+              <li>Wedding orders are not accepted.</li>
+              <li>No shipping — local pickup and delivery only.</li>
             </ul>
           </div>
           <div>

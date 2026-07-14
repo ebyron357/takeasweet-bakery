@@ -15,7 +15,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { trpc } from "@/lib/trpc";
 import { containsWeddingKeyword, CUSTOM_EVENT_TYPES } from "@shared/bakery";
 
-const CUSTOM_URL = "/manus-storage/tas-custom_ac28d285.png";
+import ImagePlaceholder from "@/components/ImagePlaceholder";
 
 const STEPS = [
   {
@@ -136,10 +136,10 @@ export default function CustomOrders() {
               <strong>wedding orders</strong> at this time.
             </p>
           </div>
-          <img
-            src={CUSTOM_URL}
-            alt="Decorated custom cookies and treats for a celebration"
-            className="mx-auto max-w-md rounded-3xl shadow-md"
+          <ImagePlaceholder
+            label="Real custom-order photo goes here"
+            ratio="wide"
+            className="mx-auto w-full max-w-md"
           />
         </div>
       </section>

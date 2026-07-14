@@ -36,4 +36,24 @@
 - [x] No residential/pickup address on any public page
 - [x] Mobile-first responsive verification (375px + desktop)
 - [x] Vitest tests for key server procedures (products, custom order wedding block, checkout)
-- [ ] Checkpoint and deliver
+- [x] Checkpoint and deliver
+
+## Homepage Rebuild (Client Brief v2)
+- [x] Announcement bar: "Fresh treats made in Charlotte — pickup and local delivery available."
+- [x] Header nav: logo placeholder, Home, Shop, Menu, Custom Orders, Our Story, FAQ, Cart, mobile menu
+- [x] Hero: image placeholder (no AI food imagery), headline "Big Dreams. Seriously Sweet Treats.", supporting copy, Shop the Menu + Meet the Founder buttons, kid-owned line
+- [x] Featured Favorites cards: Banana Pudding, Cookies, Four Corners Cheesecake, Treat Cups (placeholders only, no invented prices/descriptions)
+- [x] Shop by Category cards: Limber, Treat Cups, Cookies, Cheesecake, Seasonal Treats
+- [x] Four Corners Cheesecake feature: $20, up to 4 flavors, flavors chosen before checkout, flavor-selection preview
+- [x] Our Story section: "Built from a Big Idea", portrait placeholder, no age
+- [x] Community section with booth/event photo placeholder
+- [x] Custom Orders section (no weddings, review before payment, deposit for large orders)
+- [x] Pickup & Delivery section (Charlotte, pickup after confirmation, local delivery in approved area, no shipping)
+- [x] Testimonial component built but empty (no fake testimonials)
+- [x] Social media links (Facebook, Instagram), no heavy feeds
+- [x] FAQ preview section with editable Q&A (advance notice, pickup, delivery, payments, deposits, allergens, custom orders)
+- [x] Footer: navigation, service area, contact links, social links, policies, copyright
+- [x] Replace AI product imagery with neutral placeholders; update categories in DB (limber, treat-cups, cookies, cheesecake, seasonal)
+- [x] FAQ page with full Q&A list
+- [x] Design: mobile-first, large type, clean white space, playful organic shapes sparingly, no summer theme, no clutter
+- [x] Test, checkpoint, deliver v2

@@ -35,7 +35,7 @@ type ProductFormState = {
   slug: string;
   description: string;
   price: string;
-  category: "cookies" | "treats" | "seasonal";
+  category: "limber" | "treat-cups" | "cookies" | "cheesecake" | "seasonal";
   imageUrl: string;
   inStock: boolean;
   isSeasonalActive: boolean;
@@ -197,9 +197,11 @@ function ProductsTab() {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
+                      <SelectItem value="limber">Limber</SelectItem>
+                      <SelectItem value="treat-cups">Treat Cups</SelectItem>
                       <SelectItem value="cookies">Cookies</SelectItem>
-                      <SelectItem value="treats">Treats</SelectItem>
-                      <SelectItem value="seasonal">Seasonal</SelectItem>
+                      <SelectItem value="cheesecake">Cheesecake</SelectItem>
+                      <SelectItem value="seasonal">Seasonal Treats</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>

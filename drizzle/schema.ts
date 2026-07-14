@@ -41,7 +41,13 @@ export const products = mysqlTable("products", {
   description: text("description"),
   /** Price in cents (USD) to avoid floating point issues. */
   priceCents: int("priceCents").notNull(),
-  category: mysqlEnum("category", ["cookies", "treats", "seasonal"]).notNull(),
+  category: mysqlEnum("category", [
+    "limber",
+    "treat-cups",
+    "cookies",
+    "cheesecake",
+    "seasonal",
+  ]).notNull(),
   imageUrl: varchar("imageUrl", { length: 500 }),
   inStock: boolean("inStock").default(true).notNull(),
   /** Seasonal availability flag — seasonal items can be toggled off-season. */

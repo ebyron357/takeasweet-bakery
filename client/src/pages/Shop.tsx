@@ -4,7 +4,7 @@ import ProductCard from "@/components/ProductCard";
 import { trpc } from "@/lib/trpc";
 import { CATEGORY_LABELS } from "@shared/bakery";
 
-const CATEGORIES = ["all", "cookies", "treats", "seasonal"] as const;
+const CATEGORIES = ["all", "limber", "treat-cups", "cookies", "cheesecake", "seasonal"] as const;
 
 export default function Shop() {
   const { data: products, isLoading } = trpc.products.list.useQuery();
@@ -22,7 +22,9 @@ export default function Shop() {
     return groups;
   }, [products, activeCategory]);
 
-  const orderedCategories = ["cookies", "treats", "seasonal"].filter(c => grouped[c]?.length);
+  const orderedCategories = ["cookies", "cheesecake", "treat-cups", "limber", "seasonal"].filter(
+    c => grouped[c]?.length,
+  );
 
   return (
     <div className="container py-10 md:py-14">

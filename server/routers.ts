@@ -27,7 +27,7 @@ const productInputSchema = z.object({
     .regex(/^[a-z0-9-]+$/),
   description: z.string().max(2000).optional(),
   priceCents: z.number().int().min(50),
-  category: z.enum(["cookies", "treats", "seasonal"]),
+  category: z.enum(["limber", "treat-cups", "cookies", "cheesecake", "seasonal"]),
   imageUrl: z.string().max(500).optional(),
   inStock: z.boolean().optional(),
   isSeasonalActive: z.boolean().optional(),

@@ -10,6 +10,7 @@ import Admin from "./pages/Admin";
 import CartPage from "./pages/CartPage";
 import Contact from "./pages/Contact";
 import CustomOrders from "./pages/CustomOrders";
+import Faq from "./pages/Faq";
 import Home from "./pages/Home";
 import OrderConfirmation from "./pages/OrderConfirmation";
 import OurStory from "./pages/OurStory";
@@ -27,6 +28,7 @@ function Router() {
         <Route path={"/order/confirmation"} component={OrderConfirmation} />
         <Route path={"/custom-orders"} component={CustomOrders} />
         <Route path={"/our-story"} component={OurStory} />
+        <Route path={"/faq"} component={Faq} />
         <Route path={"/contact"} component={Contact} />
         <Route path={"/admin"} component={Admin} />
         <Route path={"/404"} component={NotFound} />

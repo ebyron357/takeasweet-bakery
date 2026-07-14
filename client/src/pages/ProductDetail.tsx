@@ -1,13 +1,28 @@
 import { useState } from "react";
 import { Link, useParams } from "wouter";
-import { ArrowLeft, Minus, Plus, ShoppingBag } from "lucide-react";
+import { ArrowLeft, Camera, Check, Minus, Plus, ShoppingBag } from "lucide-react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useCart } from "@/contexts/CartContext";
 import { trpc } from "@/lib/trpc";
-import { CATEGORY_LABELS, formatPrice, SERVICE_AREA_COPY } from "@shared/bakery";
+import {
+  CATEGORY_LABELS,
+  FOUR_CORNERS_MAX_FLAVORS,
+  formatPrice,
+  SERVICE_AREA_COPY,
+} from "@shared/bakery";
+
+/** Flavor options for the Four Corners Cheesecake — editable by the owner. */
+const CHEESECAKE_FLAVORS = [
+  "Classic",
+  "Strawberry",
+  "Oreo",
+  "Caramel",
+  "Lemon",
+  "Chocolate",
+];
 
 export default function ProductDetail() {
   const { slug } = useParams<{ slug: string }>();
@@ -17,6 +32,19 @@ export default function ProductDetail() {
   );
   const { addItem } = useCart();
   const [quantity, setQuantityState] = useState(1);
+  const [flavors, setFlavors] = useState<string[]>([]);
+
+  const isFourCorners = product?.slug === "four-corners-cheesecake";
+
+  const toggleFlavor = (flavor: string) => {
+    setFlavors(prev =>
+      prev.includes(flavor)
+        ? prev.filter(f => f !== flavor)
+        : prev.length < FOUR_CORNERS_MAX_FLAVORS
+          ? [...prev, flavor]
+          : prev,
+    );
+  };
 
   if (isLoading) {
     return (
@@ -66,8 +94,13 @@ export default function ProductDetail() {
               className="aspect-square w-full object-cover"
             />
           ) : (
-            <div className="bg-muted flex aspect-square items-center justify-center text-6xl">
-              🍪
+            <div
+              role="img"
+              aria-label={`Photo placeholder for ${product.name}`}
+              className="bg-muted text-muted-foreground flex aspect-square flex-col items-center justify-center gap-2"
+            >
+              <Camera className="size-8 opacity-60" />
+              <span className="text-sm font-semibold">Real photo coming soon</span>
             </div>
           )}
         </div>
@@ -85,12 +118,48 @@ export default function ProductDetail() {
           </div>
           <h1 className="font-display mt-3 text-3xl font-extrabold sm:text-4xl">{product.name}</h1>
           <p className="font-display text-secondary-foreground mt-2 text-2xl font-bold">
-            {formatPrice(product.priceCents)}
+            {product.priceCents > 0 ? (
+              formatPrice(product.priceCents)
+            ) : (
+              <span className="text-muted-foreground text-lg">Price to be announced</span>
+            )}
           </p>
           {product.description && (
             <p className="text-muted-foreground mt-4 text-base leading-relaxed">
               {product.description}
             </p>
+          )}
+
+          {isFourCorners && (
+            <div className="bg-muted mt-6 rounded-2xl p-4">
+              <p className="text-sm font-bold">
+                Choose up to {FOUR_CORNERS_MAX_FLAVORS} flavors ({flavors.length}/
+                {FOUR_CORNERS_MAX_FLAVORS} selected) *
+              </p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {CHEESECAKE_FLAVORS.map(flavor => {
+                  const active = flavors.includes(flavor);
+                  return (
+                    <button
+                      key={flavor}
+                      onClick={() => toggleFlavor(flavor)}
+                      className={`inline-flex items-center gap-1 rounded-full px-3.5 py-1.5 text-sm font-bold transition-colors ${
+                        active
+                          ? "bg-primary text-primary-foreground"
+                          : "bg-card border-border hover:bg-border border"
+                      }`}
+                      aria-pressed={active}
+                    >
+                      {active && <Check className="size-3.5" />}
+                      {flavor}
+                    </button>
+                  );
+                })}
+              </div>
+              <p className="text-muted-foreground mt-2 text-xs">
+                Flavors must be chosen before checkout.
+              </p>
+            </div>
           )}
 
           <div className="mt-8 flex items-center gap-4">
@@ -114,12 +183,18 @@ export default function ProductDetail() {
             <Button
               size="lg"
               className="flex-1 rounded-full text-base font-bold"
-              disabled={!product.inStock}
+              disabled={!product.inStock || product.priceCents <= 0}
               onClick={() => {
+                if (isFourCorners && flavors.length === 0) {
+                  toast.error("Please choose at least one flavor before adding to your bag.");
+                  return;
+                }
                 addItem(
                   {
                     productId: product.id,
-                    name: product.name,
+                    name: isFourCorners
+                      ? `${product.name} (${flavors.join(", ")})`
+                      : product.name,
                     priceCents: product.priceCents,
                     imageUrl: product.imageUrl,
                   },
@@ -129,7 +204,11 @@ export default function ProductDetail() {
               }}
             >
               <ShoppingBag className="size-5" />
-              {product.inStock ? "Add to Bag" : "Sold Out"}
+              {!product.inStock
+                ? "Sold Out"
+                : product.priceCents <= 0
+                  ? "Coming Soon"
+                  : "Add to Bag"}
             </Button>
           </div>
 
