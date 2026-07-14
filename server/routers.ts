@@ -18,6 +18,38 @@ const adminProcedure = protectedProcedure.use(({ ctx, next }) => {
   return next({ ctx });
 });
 
+/**
+ * Strips internal-only fields (which may contain "CLIENT APPROVAL REQUIRED"
+ * placeholders) from products before sending to the public storefront.
+ * Fields whose values equal the placeholder are nulled; genuinely approved
+ * content passes through.
+ */
+const INTERNAL_PLACEHOLDER = "CLIENT APPROVAL REQUIRED";
+
+function cleanField(value: string | null): string | null {
+  if (!value) return null;
+  return value.trim() === INTERNAL_PLACEHOLDER ? null : value;
+}
+
+export function sanitizeProduct<
+  T extends {
+    description: string | null;
+    leadTime: string | null;
+    ingredients: string | null;
+    allergens: string | null;
+    storageInstructions: string | null;
+  },
+>(product: T): T {
+  return {
+    ...product,
+    description: cleanField(product.description),
+    leadTime: cleanField(product.leadTime),
+    ingredients: cleanField(product.ingredients),
+    allergens: cleanField(product.allergens),
+    storageInstructions: cleanField(product.storageInstructions),
+  };
+}
+
 const productInputSchema = z.object({
   name: z.string().min(1).max(200),
   slug: z
@@ -29,7 +61,19 @@ const productInputSchema = z.object({
   priceCents: z.number().int().min(50),
   category: z.enum(["limber", "treat-cups", "cookies", "cheesecake", "seasonal"]),
   imageUrl: z.string().max(500).optional(),
+  size: z.string().max(60).optional(),
+  flavorOptions: z.array(z.string().max(100)).optional(),
+  maxFlavorSelections: z.number().int().min(1).max(20).nullable().optional(),
+  quantityOptions: z.array(z.number().int().min(1)).optional(),
+  leadTime: z.string().max(200).optional(),
+  pickupEligible: z.boolean().optional(),
+  deliveryEligible: z.boolean().optional(),
+  ingredients: z.string().max(3000).optional(),
+  allergens: z.string().max(3000).optional(),
+  storageInstructions: z.string().max(3000).optional(),
+  relatedSlugs: z.array(z.string().max(220)).optional(),
   inStock: z.boolean().optional(),
+  isSeasonal: z.boolean().optional(),
   isSeasonalActive: z.boolean().optional(),
   featured: z.boolean().optional(),
   sortOrder: z.number().int().optional(),
@@ -49,8 +93,11 @@ export const appRouter = router({
   }),
 
   products: router({
-    /** Public storefront list — only seasonal-active products. */
-    list: publicProcedure.query(() => dbf.listActiveProducts()),
+    /** Public storefront list — only seasonal-active products, internal fields stripped. */
+    list: publicProcedure.query(async () => {
+      const rows = await dbf.listActiveProducts();
+      return rows.map(sanitizeProduct);
+    }),
     bySlug: publicProcedure
       .input(z.object({ slug: z.string() }))
       .query(async ({ input }) => {
@@ -58,7 +105,13 @@ export const appRouter = router({
         if (!product || !product.isSeasonalActive) {
           throw new TRPCError({ code: "NOT_FOUND", message: "Product not found" });
         }
-        return product;
+        const related =
+          product.relatedSlugs && product.relatedSlugs.length > 0
+            ? (await dbf.getProductsBySlugs(product.relatedSlugs))
+                .filter(p => p.isSeasonalActive)
+                .map(sanitizeProduct)
+            : [];
+        return { ...sanitizeProduct(product), related };
       }),
   }),
 

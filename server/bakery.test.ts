@@ -7,16 +7,32 @@ vi.mock("./db-features", () => ({
   listActiveProducts: vi.fn().mockResolvedValue([
     {
       id: 1,
-      name: "Classic Chocolate Chip",
-      slug: "classic-chocolate-chip",
-      priceCents: 350,
-      category: "cookies",
+      name: "Limber",
+      slug: "limber",
+      priceCents: 150,
+      category: "limber",
       inStock: true,
       isSeasonalActive: true,
+      description: null,
+      leadTime: "CLIENT APPROVAL REQUIRED",
+      ingredients: "CLIENT APPROVAL REQUIRED",
+      allergens: "CLIENT APPROVAL REQUIRED",
+      storageInstructions: "CLIENT APPROVAL REQUIRED",
+      flavorOptions: [
+        "Coconut",
+        "Cherry",
+        "Mango",
+        "Pineapple",
+        "Pina Colada",
+        "Lemon",
+        "Grape",
+        "Tamarin",
+      ],
     },
   ]),
   getProductBySlug: vi.fn().mockResolvedValue(undefined),
   getProductsByIds: vi.fn().mockResolvedValue([]),
+  getProductsBySlugs: vi.fn().mockResolvedValue([]),
   listAllProducts: vi.fn().mockResolvedValue([]),
   createProduct: vi.fn(),
   updateProduct: vi.fn(),
@@ -105,7 +121,19 @@ describe("products.list", () => {
     const caller = appRouter.createCaller(createContext());
     const products = await caller.products.list();
     expect(products).toHaveLength(1);
-    expect(products[0].name).toBe("Classic Chocolate Chip");
+    expect(products[0].name).toBe("Limber");
+    expect(products[0].flavorOptions).toContain("Tamarin");
+  });
+
+  it("never exposes CLIENT APPROVAL REQUIRED placeholders publicly", async () => {
+    const caller = appRouter.createCaller(createContext());
+    const products = await caller.products.list();
+    const serialized = JSON.stringify(products);
+    expect(serialized).not.toContain("CLIENT APPROVAL REQUIRED");
+    expect(products[0].ingredients).toBeNull();
+    expect(products[0].allergens).toBeNull();
+    expect(products[0].leadTime).toBeNull();
+    expect(products[0].storageInstructions).toBeNull();
   });
 });
 

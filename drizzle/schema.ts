@@ -1,6 +1,7 @@
 import {
   boolean,
   int,
+  json,
   mysqlEnum,
   mysqlTable,
   text,
@@ -49,7 +50,27 @@ export const products = mysqlTable("products", {
     "seasonal",
   ]).notNull(),
   imageUrl: varchar("imageUrl", { length: 500 }),
+  /** Serving size, e.g. "5 oz". Null when not applicable / not confirmed. */
+  size: varchar("size", { length: 60 }),
+  /** Selectable flavor options (JSON array of strings). */
+  flavorOptions: json("flavorOptions").$type<string[]>(),
+  /** Max flavors a customer may select (e.g. 4 for Four Corners). Null = single/no selection. */
+  maxFlavorSelections: int("maxFlavorSelections"),
+  /** Quantity options offered (JSON array of numbers), e.g. [1,6,12]. */
+  quantityOptions: json("quantityOptions").$type<number[]>(),
+  /** Lead time text, e.g. "48 hours notice". Internal placeholder until confirmed. */
+  leadTime: varchar("leadTime", { length: 200 }),
+  pickupEligible: boolean("pickupEligible").default(true).notNull(),
+  deliveryEligible: boolean("deliveryEligible").default(true).notNull(),
+  /** Internal-only fields — may contain "CLIENT APPROVAL REQUIRED"; never render publicly. */
+  ingredients: text("ingredients"),
+  allergens: text("allergens"),
+  storageInstructions: text("storageInstructions"),
+  /** Related product slugs (JSON array of strings). */
+  relatedSlugs: json("relatedSlugs").$type<string[]>(),
   inStock: boolean("inStock").default(true).notNull(),
+  /** Seasonal item flag (shows the Seasonal badge). */
+  isSeasonal: boolean("isSeasonal").default(false).notNull(),
   /** Seasonal availability flag — seasonal items can be toggled off-season. */
   isSeasonalActive: boolean("isSeasonalActive").default(true).notNull(),
   featured: boolean("featured").default(false).notNull(),

@@ -37,7 +37,19 @@ type ProductFormState = {
   price: string;
   category: "limber" | "treat-cups" | "cookies" | "cheesecake" | "seasonal";
   imageUrl: string;
+  size: string;
+  flavorOptions: string; // comma-separated in the form
+  maxFlavorSelections: string;
+  leadTime: string;
+  quantityOptions: string; // comma-separated numbers
+  relatedSlugs: string; // comma-separated slugs
+  pickupEligible: boolean;
+  deliveryEligible: boolean;
+  ingredients: string;
+  allergens: string;
+  storageInstructions: string;
   inStock: boolean;
+  isSeasonal: boolean;
   isSeasonalActive: boolean;
   featured: boolean;
 };
@@ -49,7 +61,19 @@ const EMPTY_FORM: ProductFormState = {
   price: "",
   category: "cookies",
   imageUrl: "",
+  size: "",
+  flavorOptions: "",
+  maxFlavorSelections: "",
+  leadTime: "",
+  quantityOptions: "",
+  relatedSlugs: "",
+  pickupEligible: true,
+  deliveryEligible: true,
+  ingredients: "",
+  allergens: "",
+  storageInstructions: "",
   inStock: true,
+  isSeasonal: false,
   isSeasonalActive: true,
   featured: false,
 };
@@ -110,7 +134,19 @@ function ProductsTab() {
       price: (p.priceCents / 100).toFixed(2),
       category: p.category,
       imageUrl: p.imageUrl ?? "",
+      size: p.size ?? "",
+      flavorOptions: (p.flavorOptions ?? []).join(", "),
+      maxFlavorSelections: p.maxFlavorSelections ? String(p.maxFlavorSelections) : "",
+      leadTime: p.leadTime ?? "",
+      quantityOptions: (p.quantityOptions ?? []).join(", "),
+      relatedSlugs: (p.relatedSlugs ?? []).join(", "),
+      pickupEligible: p.pickupEligible,
+      deliveryEligible: p.deliveryEligible,
+      ingredients: p.ingredients ?? "",
+      allergens: p.allergens ?? "",
+      storageInstructions: p.storageInstructions ?? "",
       inStock: p.inStock,
+      isSeasonal: p.isSeasonal,
       isSeasonalActive: p.isSeasonalActive,
       featured: p.featured,
     });
@@ -124,6 +160,18 @@ function ProductsTab() {
       toast.error("Price must be at least $0.50");
       return;
     }
+    const flavorList = form.flavorOptions
+      .split(",")
+      .map(f => f.trim())
+      .filter(Boolean);
+    const quantityList = form.quantityOptions
+      .split(",")
+      .map(q => parseInt(q.trim(), 10))
+      .filter(n => Number.isInteger(n) && n > 0);
+    const relatedList = form.relatedSlugs
+      .split(",")
+      .map(s => s.trim())
+      .filter(Boolean);
     const payload = {
       name: form.name.trim(),
       slug: form.slug.trim() || slugify(form.name),
@@ -131,7 +179,21 @@ function ProductsTab() {
       priceCents,
       category: form.category,
       imageUrl: form.imageUrl.trim() || undefined,
+      size: form.size.trim() || undefined,
+      flavorOptions: flavorList.length > 0 ? flavorList : undefined,
+      maxFlavorSelections: form.maxFlavorSelections
+        ? parseInt(form.maxFlavorSelections, 10)
+        : null,
+      leadTime: form.leadTime.trim() || undefined,
+      quantityOptions: quantityList.length > 0 ? quantityList : undefined,
+      relatedSlugs: relatedList.length > 0 ? relatedList : undefined,
+      pickupEligible: form.pickupEligible,
+      deliveryEligible: form.deliveryEligible,
+      ingredients: form.ingredients.trim() || undefined,
+      allergens: form.allergens.trim() || undefined,
+      storageInstructions: form.storageInstructions.trim() || undefined,
       inStock: form.inStock,
+      isSeasonal: form.isSeasonal,
       isSeasonalActive: form.isSeasonalActive,
       featured: form.featured,
     };
@@ -224,7 +286,101 @@ function ProductsTab() {
                   placeholder="/manus-storage/…"
                 />
               </div>
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="space-y-1.5">
+                  <Label htmlFor="p-size">Size (e.g. 5 oz)</Label>
+                  <Input
+                    id="p-size"
+                    value={form.size}
+                    onChange={e => setForm(f => ({ ...f, size: e.target.value }))}
+                    placeholder="5 oz"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="p-max-flavors">Max flavor selections</Label>
+                  <Input
+                    id="p-max-flavors"
+                    type="number"
+                    min={1}
+                    value={form.maxFlavorSelections}
+                    onChange={e => setForm(f => ({ ...f, maxFlavorSelections: e.target.value }))}
+                    placeholder="e.g. 4"
+                  />
+                </div>
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="p-flavors">Flavor options (comma-separated)</Label>
+                <Textarea
+                  id="p-flavors"
+                  rows={2}
+                  value={form.flavorOptions}
+                  onChange={e => setForm(f => ({ ...f, flavorOptions: e.target.value }))}
+                  placeholder="Coconut, Cherry, Mango…"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="p-leadtime">Lead time</Label>
+                <Input
+                  id="p-leadtime"
+                  value={form.leadTime}
+                  onChange={e => setForm(f => ({ ...f, leadTime: e.target.value }))}
+                  placeholder="e.g. 48 hours notice — or CLIENT APPROVAL REQUIRED"
+                />
+              </div>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="space-y-1.5">
+                  <Label htmlFor="p-quantities">Quantity options (comma-separated)</Label>
+                  <Input
+                    id="p-quantities"
+                    value={form.quantityOptions}
+                    onChange={e => setForm(f => ({ ...f, quantityOptions: e.target.value }))}
+                    placeholder="e.g. 1, 6, 12"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="p-related">Related product slugs (comma-separated)</Label>
+                  <Input
+                    id="p-related"
+                    value={form.relatedSlugs}
+                    onChange={e => setForm(f => ({ ...f, relatedSlugs: e.target.value }))}
+                    placeholder="e.g. banana-pudding, oreo"
+                  />
+                </div>
+              </div>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="space-y-1.5">
+                  <Label htmlFor="p-ingredients">Ingredients (internal until approved)</Label>
+                  <Textarea
+                    id="p-ingredients"
+                    rows={2}
+                    value={form.ingredients}
+                    onChange={e => setForm(f => ({ ...f, ingredients: e.target.value }))}
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="p-allergens">Allergens (internal until approved)</Label>
+                  <Textarea
+                    id="p-allergens"
+                    rows={2}
+                    value={form.allergens}
+                    onChange={e => setForm(f => ({ ...f, allergens: e.target.value }))}
+                  />
+                </div>
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="p-storage">Storage instructions (internal until approved)</Label>
+                <Textarea
+                  id="p-storage"
+                  rows={2}
+                  value={form.storageInstructions}
+                  onChange={e => setForm(f => ({ ...f, storageInstructions: e.target.value }))}
+                />
+              </div>
+              <p className="text-muted-foreground text-xs">
+                Fields containing exactly “CLIENT APPROVAL REQUIRED” are hidden from customers
+                automatically.
+              </p>
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
                 <label className="bg-muted flex items-center justify-between gap-2 rounded-xl p-3 text-sm font-semibold">
                   In stock
                   <Switch
@@ -244,6 +400,27 @@ function ProductsTab() {
                   <Switch
                     checked={form.featured}
                     onCheckedChange={v => setForm(f => ({ ...f, featured: v }))}
+                  />
+                </label>
+                <label className="bg-muted flex items-center justify-between gap-2 rounded-xl p-3 text-sm font-semibold">
+                  Seasonal badge
+                  <Switch
+                    checked={form.isSeasonal}
+                    onCheckedChange={v => setForm(f => ({ ...f, isSeasonal: v }))}
+                  />
+                </label>
+                <label className="bg-muted flex items-center justify-between gap-2 rounded-xl p-3 text-sm font-semibold">
+                  Pickup
+                  <Switch
+                    checked={form.pickupEligible}
+                    onCheckedChange={v => setForm(f => ({ ...f, pickupEligible: v }))}
+                  />
+                </label>
+                <label className="bg-muted flex items-center justify-between gap-2 rounded-xl p-3 text-sm font-semibold">
+                  Delivery
+                  <Switch
+                    checked={form.deliveryEligible}
+                    onCheckedChange={v => setForm(f => ({ ...f, deliveryEligible: v }))}
                   />
                 </label>
               </div>

@@ -57,3 +57,15 @@
 - [x] FAQ page with full Q&A list
 - [x] Design: mobile-first, large type, clean white space, playful organic shapes sparingly, no summer theme, no clutter
 - [x] Test, checkpoint, deliver v2
+
+## Verified Menu Catalog (Client Brief v3)
+- [x] Extend products schema: size, flavorOptions, quantityOptions, leadTime, pickupEligible, deliveryEligible, ingredients, allergens, storage, relatedSlugs
+- [x] Seed verified menu: 8 Limber flavors ($1.50/5oz), 5 Treat Cups ($3.00/5oz), 5 Cookies ($5.00), Four Corners Cheesecake ($20, 8 flavors)
+- [x] Preserve "Tamarin" spelling until client confirms
+- [x] Store "CLIENT APPROVAL REQUIRED" for missing data (admin-only, never shown publicly)
+- [x] Menu page: category nav, search, filtering, product cards with price/flavors/availability/seasonal badge/pickup-delivery eligibility, order button, empty + sold-out states
+- [x] Reusable ProductCard/CategorySection components driven by data (no layout editing needed to add products)
+- [x] Update product detail page for flavor options from DB and new fields
+- [x] Update admin panel for extended fields
+- [x] Accessibility: semantic HTML, labels, keyboard nav
+- [x] Update tests, checkpoint, deliver v3

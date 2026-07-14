@@ -44,6 +44,12 @@ export async function getProductsByIds(ids: number[]) {
   return db.select().from(products).where(inArray(products.id, ids));
 }
 
+export async function getProductsBySlugs(slugs: string[]) {
+  const db = await getDb();
+  if (!db || slugs.length === 0) return [];
+  return db.select().from(products).where(inArray(products.slug, slugs));
+}
+
 export async function createProduct(data: InsertProduct) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
