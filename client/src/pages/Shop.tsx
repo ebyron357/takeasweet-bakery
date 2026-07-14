@@ -93,22 +93,27 @@ export default function Shop() {
         </div>
       </div>
 
-      {/* Category filter navigation */}
-      <nav aria-label="Menu categories" className="mb-10 flex flex-wrap justify-center gap-2">
-        {FILTERS.map(filter => (
-          <button
-            key={filter}
-            onClick={() => setActiveFilter(filter)}
-            aria-pressed={activeFilter === filter}
-            className={`rounded-full px-4 py-2 text-sm font-bold transition-colors sm:px-5 ${
-              activeFilter === filter
-                ? "bg-primary text-primary-foreground shadow-sm"
-                : "bg-card hover:bg-muted border"
-            }`}
-          >
-            {filter === "all" ? "Everything" : CATEGORY_LABELS[filter]}
-          </button>
-        ))}
+      {/* Category filter navigation — horizontally scrollable on mobile */}
+      <nav
+        aria-label="Menu categories"
+        className="scrollbar-none -mx-4 mb-10 overflow-x-auto px-4 sm:mx-0 sm:px-0"
+      >
+        <div className="flex w-max gap-2 sm:w-auto sm:flex-wrap sm:justify-center">
+          {FILTERS.map(filter => (
+            <button
+              key={filter}
+              onClick={() => setActiveFilter(filter)}
+              aria-pressed={activeFilter === filter}
+              className={`focus-visible:ring-ring min-h-11 shrink-0 rounded-full px-4 py-2 text-sm font-bold transition-colors focus-visible:ring-2 focus-visible:outline-none sm:px-5 ${
+                activeFilter === filter
+                  ? "bg-primary text-primary-foreground shadow-sm"
+                  : "bg-card hover:bg-muted border"
+              }`}
+            >
+              {filter === "all" ? "Everything" : CATEGORY_LABELS[filter]}
+            </button>
+          ))}
+        </div>
       </nav>
 
       {isLoading ? (

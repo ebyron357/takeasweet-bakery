@@ -34,7 +34,7 @@ export default function ProductCard({ product }: { product: ProductCardData }) {
   const requiresOptions = (product.flavorOptions?.length ?? 0) > 0;
 
   return (
-    <article className="group bg-card border-border/60 flex flex-col overflow-hidden rounded-2xl border shadow-sm transition-shadow hover:shadow-md">
+    <article className="group bg-card border-border/60 flex flex-col overflow-hidden rounded-xl border shadow-sm transition-shadow hover:shadow-md">
       <Link href={`/product/${product.slug}`} className="relative block overflow-hidden">
         <div className="bg-muted aspect-square w-full overflow-hidden">
           {product.imageUrl ? (
@@ -42,10 +42,12 @@ export default function ProductCard({ product }: { product: ProductCardData }) {
               src={product.imageUrl}
               alt={product.name}
               loading="lazy"
-              className="size-full object-cover transition-transform duration-300 group-hover:scale-105"
+              className={`size-full object-cover transition-transform duration-300 group-hover:scale-105 ${
+                !product.inStock ? "opacity-60 grayscale-[35%]" : ""
+              }`}
             />
           ) : (
-            <div className="text-muted-foreground border-border m-3 flex h-[calc(100%-1.5rem)] flex-col items-center justify-center gap-1.5 rounded-xl border-2 border-dashed text-center">
+            <div className="text-muted-foreground border-border m-3 flex h-[calc(100%-1.5rem)] flex-col items-center justify-center gap-1.5 rounded-lg border-2 border-dashed text-center">
               <Camera className="size-6 opacity-60" aria-hidden />
               <span className="px-3 text-[11px] leading-snug font-semibold">
                 Real photo coming soon
@@ -79,7 +81,7 @@ export default function ProductCard({ product }: { product: ProductCardData }) {
           </p>
         )}
         <div
-          className="text-muted-foreground mt-0.5 flex items-center gap-2 text-[11px]"
+          className="text-muted-foreground mt-0.5 flex items-center gap-2 text-xs"
           aria-label="Fulfillment options"
         >
           {product.pickupEligible && (
@@ -103,7 +105,7 @@ export default function ProductCard({ product }: { product: ProductCardData }) {
           </span>
           <Button
             size="sm"
-            className="rounded-full font-bold"
+            className="min-h-9 rounded-full px-4 font-bold"
             disabled={!product.inStock || product.priceCents <= 0}
             aria-label={
               requiresOptions

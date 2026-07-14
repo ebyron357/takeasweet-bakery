@@ -69,3 +69,14 @@
 - [x] Update admin panel for extended fields
 - [x] Accessibility: semantic HTML, labels, keyboard nav
 - [x] Update tests, checkpoint, deliver v3
+
+## Targeted Refinement Pass (Client Brief v4 — no rebuilds, no image gen)
+- [x] Audit current pages via screenshots before changing anything
+- [x] Header/nav: deduplicate Shop vs Menu links, tidy mobile menu, focus states
+- [x] Product cards: consistent ratios, reduce rounding, scannable price/options, cleaner sold-out state
+- [x] Menu page: improved category nav and seasonal/sold-out states, price scanning
+- [x] Product page: hierarchy, prominent add-to-cart, mobile-friendly option selectors
+- [x] Custom order form: spacing, labels, validation, mobile usability (workflow unchanged)
+- [x] Accessibility: contrast, focus-visible rings, touch targets (44px), heading hierarchy, reduced motion, form error states
+- [x] Footer: contact/social/service area/policies easy to find (no address)
+- [x] Verify desktop + mobile, checkpoint, report changes once

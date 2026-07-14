@@ -17,10 +17,9 @@ import { trpc } from "@/lib/trpc";
 import { ANNOUNCEMENT_COPY, SERVICE_AREA_COPY, formatPrice } from "@shared/bakery";
 import { useAuth } from "@/_core/hooks/useAuth";
 
-const NAV_LINKS = [
+const NAV_LINKS: { href: string; label: string; key?: string }[] = [
   { href: "/", label: "Home" },
-  { href: "/shop", label: "Shop" },
-  { href: "/shop", label: "Menu", key: "menu" },
+  { href: "/shop", label: "Menu" },
   { href: "/custom-orders", label: "Custom Orders" },
   { href: "/our-story", label: "Our Story" },
   { href: "/faq", label: "FAQ" },
@@ -240,7 +239,8 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
             <Button
               variant="ghost"
               size="icon"
-              aria-label="Open menu"
+              aria-label={mobileOpen ? "Close menu" : "Open menu"}
+              aria-expanded={mobileOpen}
               onClick={() => setMobileOpen(v => !v)}
             >
               {mobileOpen ? <X className="size-5" /> : <Menu className="size-5" />}
@@ -262,7 +262,8 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
               <Link
                 key={link.key ?? link.href}
                 href={link.href}
-                className={`rounded-full px-3 py-1.5 text-sm font-semibold transition-colors ${
+                aria-current={location === link.href ? "page" : undefined}
+                className={`focus-visible:ring-ring rounded-full px-3 py-2 text-sm font-semibold transition-colors focus-visible:ring-2 focus-visible:outline-none ${
                   location === link.href && !link.key
                     ? "bg-primary text-primary-foreground"
                     : "hover:bg-muted text-foreground"
@@ -297,7 +298,8 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
                 key={link.key ?? link.href}
                 href={link.href}
                 onClick={() => setMobileOpen(false)}
-                className={`block rounded-xl px-3 py-2.5 text-base font-semibold ${
+                aria-current={location === link.href ? "page" : undefined}
+                className={`focus-visible:ring-ring block min-h-11 rounded-xl px-3 py-2.5 text-base font-semibold focus-visible:ring-2 focus-visible:outline-none ${
                   location === link.href && !link.key
                     ? "bg-primary text-primary-foreground"
                     : "hover:bg-muted"

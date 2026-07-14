@@ -159,9 +159,9 @@ export default function ProductDetail() {
                       key={flavor}
                       type="button"
                       onClick={() => toggleFlavor(flavor)}
-                      className={`inline-flex items-center gap-1 rounded-full px-3.5 py-1.5 text-sm font-bold transition-colors ${
+                      className={`focus-visible:ring-ring inline-flex min-h-11 items-center gap-1 rounded-full px-4 py-2 text-sm font-bold transition-colors focus-visible:ring-2 focus-visible:outline-none ${
                         active
-                          ? "bg-primary text-primary-foreground"
+                          ? "bg-primary text-primary-foreground ring-primary/40 shadow-sm ring-2"
                           : "bg-card border-border hover:bg-border border"
                       }`}
                       aria-pressed={active}
@@ -181,14 +181,14 @@ export default function ProductDetail() {
           )}
 
           <div className="mt-8 flex items-center gap-4">
-            <div
-              className="border-border flex items-center gap-3 rounded-full border px-3 py-1.5"
-              role="group"
-              aria-label="Quantity"
-            >
+          <div
+            className="border-border flex items-center gap-2 rounded-full border px-2 py-1"
+            role="group"
+            aria-label="Quantity"
+          >
               <button
                 onClick={() => setQuantityState(q => Math.max(1, q - 1))}
-                className="hover:bg-muted flex size-7 items-center justify-center rounded-full"
+                className="hover:bg-muted focus-visible:ring-ring flex size-10 items-center justify-center rounded-full focus-visible:ring-2 focus-visible:outline-none"
                 aria-label="Decrease quantity"
               >
                 <Minus className="size-4" aria-hidden />
@@ -198,7 +198,7 @@ export default function ProductDetail() {
               </span>
               <button
                 onClick={() => setQuantityState(q => Math.min(50, q + 1))}
-                className="hover:bg-muted flex size-7 items-center justify-center rounded-full"
+                className="hover:bg-muted focus-visible:ring-ring flex size-10 items-center justify-center rounded-full focus-visible:ring-2 focus-visible:outline-none"
                 aria-label="Increase quantity"
               >
                 <Plus className="size-4" aria-hidden />

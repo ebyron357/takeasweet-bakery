@@ -60,17 +60,22 @@ export default function CustomOrders() {
     onError: err => toast.error(err.message),
   });
 
+  const [fieldError, setFieldError] = useState<string | null>(null);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setFieldError(null);
     // Client-side wedding block for instant feedback
     if (containsWeddingKeyword(`${form.eventType} ${form.details}`)) {
-      toast.error(
-        "We're flattered, but we aren't able to take wedding orders right now. We'd love to help with birthdays, showers, and other celebrations!",
+      setFieldError(
+        "We aren't able to take wedding orders right now — but we'd love to help with birthdays, showers, and other celebrations!",
       );
+      toast.error("Wedding orders aren't accepted.");
       return;
     }
     const quantity = parseInt(form.quantity, 10);
     if (!quantity || quantity < 1) {
+      setFieldError("Please enter how many treats you need (at least 1).");
       toast.error("Please enter how many treats you need.");
       return;
     }
@@ -258,14 +263,22 @@ export default function CustomOrders() {
                 placeholder="Theme, colors, flavors, allergies to avoid, anything else we should know…"
               />
             </div>
+            {fieldError && (
+              <p
+                role="alert"
+                className="bg-destructive/10 text-destructive rounded-xl px-4 py-3 text-sm font-semibold"
+              >
+                {fieldError}
+              </p>
+            )}
             <p className="text-muted-foreground text-xs">
               Large and custom orders may require approval and a deposit. We aren't able to accept
-              wedding orders.
+              wedding orders. Fields marked * are required.
             </p>
             <Button
               type="submit"
               size="lg"
-              className="w-full rounded-full text-base font-bold"
+              className="min-h-12 w-full rounded-full text-base font-bold"
               disabled={submit.isPending || !form.eventType}
             >
               {submit.isPending ? "Sending…" : "Send My Request"}
