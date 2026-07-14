@@ -40,42 +40,49 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+  --font-sans: var(--font-sans);
+  --font-display: var(--font-display);
 }
 
 :root {
-  --primary: var(--color-blue-700);
-  --primary-foreground: var(--color-blue-50);
-  --sidebar-primary: var(--color-blue-600);
-  --sidebar-primary-foreground: var(--color-blue-50);
-  --chart-1: var(--color-blue-300);
-  --chart-2: var(--color-blue-500);
-  --chart-3: var(--color-blue-600);
-  --chart-4: var(--color-blue-700);
-  --chart-5: var(--color-blue-800);
-  --radius: 0.65rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.235 0.015 65);
+  /* TakeASweet brand palette — warm white base, cocoa text, sunshine/pink/sky accents */
+  --radius: 1rem;
+  --background: oklch(0.985 0.012 85); /* warm white */
+  --foreground: oklch(0.32 0.045 55); /* dark cocoa brown */
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.235 0.015 65);
+  --card-foreground: oklch(0.32 0.045 55);
   --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.235 0.015 65);
-  --secondary: oklch(0.98 0.001 286.375);
-  --secondary-foreground: oklch(0.4 0.015 65);
-  --muted: oklch(0.967 0.001 286.375);
-  --muted-foreground: oklch(0.552 0.016 285.938);
-  --accent: oklch(0.967 0.001 286.375);
-  --accent-foreground: oklch(0.141 0.005 285.823);
+  --popover-foreground: oklch(0.32 0.045 55);
+  --primary: oklch(0.85 0.16 90); /* sunshine yellow */
+  --primary-foreground: oklch(0.3 0.05 55);
+  --secondary: oklch(0.92 0.045 5); /* soft pink */
+  --secondary-foreground: oklch(0.38 0.06 20);
+  --muted: oklch(0.955 0.015 85);
+  --muted-foreground: oklch(0.5 0.03 55);
+  --accent: oklch(0.9 0.05 230); /* light sky blue */
+  --accent-foreground: oklch(0.35 0.06 245);
   --destructive: oklch(0.577 0.245 27.325);
   --destructive-foreground: oklch(0.985 0 0);
-  --border: oklch(0.92 0.004 286.32);
-  --input: oklch(0.92 0.004 286.32);
-  --ring: oklch(0.623 0.214 259.815);
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.235 0.015 65);
-  --sidebar-accent: oklch(0.967 0.001 286.375);
-  --sidebar-accent-foreground: oklch(0.141 0.005 285.823);
-  --sidebar-border: oklch(0.92 0.004 286.32);
-  --sidebar-ring: oklch(0.623 0.214 259.815);
+  --border: oklch(0.9 0.025 75);
+  --input: oklch(0.9 0.025 75);
+  --ring: oklch(0.78 0.14 90);
+  --chart-1: oklch(0.85 0.16 90);
+  --chart-2: oklch(0.92 0.045 5);
+  --chart-3: oklch(0.9 0.05 230);
+  --chart-4: oklch(0.32 0.045 55);
+  --chart-5: oklch(0.7 0.1 60);
+  --sidebar: oklch(0.985 0.012 85);
+  --sidebar-foreground: oklch(0.32 0.045 55);
+  --sidebar-primary: oklch(0.85 0.16 90);
+  --sidebar-primary-foreground: oklch(0.3 0.05 55);
+  --sidebar-accent: oklch(0.92 0.045 5);
+  --sidebar-accent-foreground: oklch(0.38 0.06 20);
+  --sidebar-border: oklch(0.9 0.025 75);
+  --sidebar-ring: oklch(0.78 0.14 90);
+  --font-sans: "Nunito", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Baloo 2", "Nunito", ui-sans-serif, system-ui, sans-serif;
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
 }
 
 .dark {
@@ -118,7 +125,23 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-sans;
+    -webkit-font-smoothing: antialiased;
+  }
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+  }
+  button {
+    transition:
+      transform 0.16s var(--ease-out),
+      background-color 0.16s var(--ease-out),
+      box-shadow 0.16s var(--ease-out);
+  }
+  button:active:not(:disabled) {
+    transform: scale(0.97);
   }
   button:not(:disabled),
   [role="button"]:not([aria-disabled="true"]),
@@ -174,4 +197,51 @@
       max-width: 1280px; /* Standard content width */
     }
   }
+}
+
+/* Announcement banner marquee */
+@keyframes marquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+.animate-marquee {
+  animation: marquee 28s linear infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .animate-marquee {
+    animation: none;
+  }
+}
+
+/* Soft entrance */
+@media (prefers-reduced-motion: no-preference) {
+  .fade-up {
+    animation: fadeUp 0.5s var(--ease-out) both;
+  }
+  @keyframes fadeUp {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}
+
+/* Sprinkle divider dots */
+.sprinkle-dots {
+  background-image:
+    radial-gradient(circle at 10% 50%, oklch(0.85 0.16 90) 3px, transparent 3.5px),
+    radial-gradient(circle at 35% 30%, oklch(0.91 0.08 5) 3px, transparent 3.5px),
+    radial-gradient(circle at 60% 60%, oklch(0.88 0.07 230) 3px, transparent 3.5px),
+    radial-gradient(circle at 85% 40%, oklch(0.85 0.16 90) 3px, transparent 3.5px);
+  background-size: 120px 24px;
+  background-repeat: repeat-x;
+  height: 24px;
 }

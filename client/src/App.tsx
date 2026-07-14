@@ -3,18 +3,37 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/NotFound";
 import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
+import SiteLayout from "./components/SiteLayout";
+import { CartProvider } from "./contexts/CartContext";
 import { ThemeProvider } from "./contexts/ThemeContext";
+import Admin from "./pages/Admin";
+import CartPage from "./pages/CartPage";
+import Contact from "./pages/Contact";
+import CustomOrders from "./pages/CustomOrders";
 import Home from "./pages/Home";
+import OrderConfirmation from "./pages/OrderConfirmation";
+import OurStory from "./pages/OurStory";
+import ProductDetail from "./pages/ProductDetail";
+import Shop from "./pages/Shop";
 
 function Router() {
-  // make sure to consider if you need authentication for certain routes
   return (
-    <Switch>
-      <Route path={"/"} component={Home} />
-      <Route path={"/404"} component={NotFound} />
-      {/* Final fallback route */}
-      <Route component={NotFound} />
-    </Switch>
+    <SiteLayout>
+      <Switch>
+        <Route path={"/"} component={Home} />
+        <Route path={"/shop"} component={Shop} />
+        <Route path={"/product/:slug"} component={ProductDetail} />
+        <Route path={"/cart"} component={CartPage} />
+        <Route path={"/order/confirmation"} component={OrderConfirmation} />
+        <Route path={"/custom-orders"} component={CustomOrders} />
+        <Route path={"/our-story"} component={OurStory} />
+        <Route path={"/contact"} component={Contact} />
+        <Route path={"/admin"} component={Admin} />
+        <Route path={"/404"} component={NotFound} />
+        {/* Final fallback route */}
+        <Route component={NotFound} />
+      </Switch>
+    </SiteLayout>
   );
 }
 
@@ -31,8 +50,10 @@ function App() {
         // switchable
       >
         <TooltipProvider>
-          <Toaster />
-          <Router />
+          <CartProvider>
+            <Toaster />
+            <Router />
+          </CartProvider>
         </TooltipProvider>
       </ThemeProvider>
     </ErrorBoundary>
