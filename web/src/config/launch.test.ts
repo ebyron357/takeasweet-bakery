@@ -26,6 +26,7 @@ describe("production launch controls", () => {
     process.env.STRIPE_SECRET_KEY = "test-secret";
     process.env.STRIPE_WEBHOOK_SECRET = "test-webhook-secret";
     process.env.DATABASE_URL = "mysql://example.invalid/database";
+    process.env.NEXT_PUBLIC_SITE_URL = "https://takeasweet.example.com";
     delete process.env.PRIVACY_CONTACT_EMAIL;
     expect(isCheckoutLaunchEnabled()).toBe(false);
 
@@ -38,6 +39,24 @@ describe("production launch controls", () => {
     process.env.STRIPE_WEBHOOK_SECRET = "test-webhook-secret";
     delete process.env.DATABASE_URL;
     expect(isCheckoutLaunchEnabled()).toBe(false);
+  });
+
+  it("requires a production HTTPS origin before checkout can activate", () => {
+    process.env.PAYMENTS_ENABLED = "true";
+    process.env.STRIPE_SECRET_KEY = "test-secret";
+    process.env.STRIPE_WEBHOOK_SECRET = "test-webhook-secret";
+    process.env.DATABASE_URL = "mysql://example.invalid/database";
+    process.env.PRIVACY_CONTACT_EMAIL = "privacy@example.com";
+    process.env.NEXT_PUBLIC_SITE_URL = "http://localhost:3000";
+    expect(isCheckoutLaunchEnabled()).toBe(false);
+
+    process.env.NEXT_PUBLIC_SITE_URL = "https://takeasweet.example.com";
+    process.env.VERCEL = "1";
+    process.env.VERCEL_ENV = "preview";
+    expect(isCheckoutLaunchEnabled()).toBe(false);
+
+    process.env.VERCEL_ENV = "production";
+    expect(isCheckoutLaunchEnabled()).toBe(true);
   });
 
   it("keeps custom-order storage disabled without every required setting", () => {

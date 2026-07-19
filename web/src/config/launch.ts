@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import { isProductionSiteUrl } from "@/config/site";
+
 const publicEmailSchema = z.email().max(254);
 
 export function getPrivacyContactEmail() {
@@ -15,7 +17,8 @@ export function isCheckoutLaunchEnabled() {
     Boolean(process.env.STRIPE_SECRET_KEY) &&
     Boolean(process.env.STRIPE_WEBHOOK_SECRET) &&
     Boolean(process.env.DATABASE_URL) &&
-    Boolean(getPrivacyContactEmail())
+    Boolean(getPrivacyContactEmail()) &&
+    isProductionSiteUrl()
   );
 }
 

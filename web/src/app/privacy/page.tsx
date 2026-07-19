@@ -76,8 +76,11 @@ export default function PrivacyPage() {
             Submitted information is used to review custom requests, create and
             verify checkout sessions, record payment state, respond about an
             order, protect the checkout process, and support fulfillment. The
+            application emits limited, non-identifying browser events for core
+            cart, checkout, and request interactions, but no analytics provider
+            receives them unless one is approved and configured later. The
             current application has no advertising integration, analytics
-            identifier, or data-sale integration.
+            identifier, tracking cookie, or data-sale integration.
           </p>
         </section>
 

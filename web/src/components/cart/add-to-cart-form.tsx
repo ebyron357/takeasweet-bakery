@@ -5,6 +5,7 @@ import { Check } from "lucide-react";
 
 import { useCart } from "@/components/cart/cart-provider";
 import { Button } from "@/components/ui/button";
+import { trackAnalyticsEvent } from "@/lib/analytics";
 import type { CatalogProduct } from "@/types/catalog";
 
 export function AddToCartForm({ product }: { product: CatalogProduct }) {
@@ -38,6 +39,14 @@ export function AddToCartForm({ product }: { product: CatalogProduct }) {
     }
 
     addItem({ slug: product.slug, quantity, selectedFlavors });
+    trackAnalyticsEvent({
+      name: "add_to_cart",
+      properties: {
+        productSlug: product.slug,
+        quantity,
+        flavorCount: selectedFlavors.length,
+      },
+    });
     setMessage(`${product.name} added to your cart.`);
   }
 

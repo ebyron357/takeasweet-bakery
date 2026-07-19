@@ -6,6 +6,7 @@ import { Minus, Plus, Trash2 } from "lucide-react";
 import { CheckoutButton } from "@/components/cart/checkout-button";
 import { useCart } from "@/components/cart/cart-provider";
 import { Button } from "@/components/ui/button";
+import { trackAnalyticsEvent } from "@/lib/analytics";
 import { formatPrice, getProductBySlug } from "@/lib/catalog";
 
 export function CartPageClient() {
@@ -65,7 +66,17 @@ export function CartPageClient() {
               </div>
               <button
                 type="button"
-                onClick={() => removeItem(index)}
+                onClick={() => {
+                  trackAnalyticsEvent({
+                    name: "remove_from_cart",
+                    properties: {
+                      productSlug: product.slug,
+                      quantity: item.quantity,
+                      flavorCount: item.selectedFlavors.length,
+                    },
+                  });
+                  removeItem(index);
+                }}
                 className="hover:bg-muted focus-visible:ring-ring inline-flex size-11 items-center justify-center rounded-md focus-visible:ring-2 focus-visible:outline-none"
                 aria-label={`Remove ${product.name}`}
               >
@@ -80,7 +91,17 @@ export function CartPageClient() {
                 <button
                   type="button"
                   className="hover:bg-muted focus-visible:ring-ring inline-flex size-11 items-center justify-center rounded-full focus-visible:ring-2 focus-visible:outline-none disabled:opacity-50"
-                  onClick={() => updateQuantity(index, item.quantity - 1)}
+                  onClick={() => {
+                    trackAnalyticsEvent({
+                      name: "change_cart_quantity",
+                      properties: {
+                        productSlug: product.slug,
+                        previousQuantity: item.quantity,
+                        quantity: item.quantity - 1,
+                      },
+                    });
+                    updateQuantity(index, item.quantity - 1);
+                  }}
                   aria-label={`Decrease ${product.name} quantity`}
                   disabled={item.quantity <= 1}
                 >
@@ -96,7 +117,17 @@ export function CartPageClient() {
                 <button
                   type="button"
                   className="hover:bg-muted focus-visible:ring-ring inline-flex size-11 items-center justify-center rounded-full focus-visible:ring-2 focus-visible:outline-none disabled:opacity-50"
-                  onClick={() => updateQuantity(index, item.quantity + 1)}
+                  onClick={() => {
+                    trackAnalyticsEvent({
+                      name: "change_cart_quantity",
+                      properties: {
+                        productSlug: product.slug,
+                        previousQuantity: item.quantity,
+                        quantity: item.quantity + 1,
+                      },
+                    });
+                    updateQuantity(index, item.quantity + 1);
+                  }}
                   aria-label={`Increase ${product.name} quantity`}
                   disabled={item.quantity >= 20}
                 >

@@ -39,6 +39,7 @@ with the exact deployment environment before promotion.
 - Complete `docs/seo-launch.md` before allowing search indexing.
 - Keep the automated budgets and manual launch checks in `docs/accessibility-performance.md` current as the interface changes.
 - Follow `docs/deployment.md` and complete `docs/launch-checklist.md` before promoting a deployment.
+- Follow `docs/analytics.md` before connecting any analytics provider or identifier.
 - Do not expose pickup details before a confirmed purchase.
 - Keep payment code inactive until the provider and credentials are confirmed.
 - Keep search indexing disabled until the production domain and content are approved.

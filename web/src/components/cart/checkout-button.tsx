@@ -4,6 +4,7 @@ import { useState } from "react";
 
 import { useCart } from "@/components/cart/cart-provider";
 import { Button } from "@/components/ui/button";
+import { trackAnalyticsEvent } from "@/lib/analytics";
 
 export function CheckoutButton() {
   const { items } = useCart();
@@ -13,6 +14,13 @@ export function CheckoutButton() {
   async function beginCheckout() {
     setIsLoading(true);
     setError("");
+    trackAnalyticsEvent({
+      name: "begin_checkout",
+      properties: {
+        lineCount: items.length,
+        itemCount: items.reduce((total, item) => total + item.quantity, 0),
+      },
+    });
 
     try {
       const response = await fetch("/api/checkout", {

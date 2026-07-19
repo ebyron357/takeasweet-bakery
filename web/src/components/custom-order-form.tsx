@@ -3,6 +3,7 @@
 import { useState, type FormEvent } from "react";
 
 import { Button } from "@/components/ui/button";
+import { trackAnalyticsEvent } from "@/lib/analytics";
 import { customEventTypes } from "@/types/custom-order";
 
 type Status =
@@ -42,6 +43,10 @@ export function CustomOrderForm() {
       }
 
       form.reset();
+      trackAnalyticsEvent({
+        name: "custom_order_request_submitted",
+        properties: {},
+      });
       setStatus({
         type: "success",
         message:

@@ -23,7 +23,7 @@ The application provides canonical metadata, Open Graph and Twitter cards, a web
 - [ ] Confirm `/sitemap.xml` contains only intended public URLs.
 - [ ] Set `SEARCH_INDEXING_ENABLED=true` only after the final deployment passes launch QA.
 - [ ] Verify the domain with the approved search-console account and submit `/sitemap.xml`.
-- [ ] Add analytics only after the owner selects a provider, approves consent and privacy requirements, and supplies the real identifier.
+- [ ] Connect the provider-neutral analytics events only after the owner selects a provider, approves consent and privacy requirements, and supplies the real identifier.
 
 ## Safety behavior
 

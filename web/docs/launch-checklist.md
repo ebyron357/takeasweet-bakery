@@ -13,6 +13,7 @@ This is the release record for the Next.js storefront. Checked repository contro
 - [x] Canonical metadata, social cards, sitemap, robots, manifest, and factual structured data with indexing disabled by default.
 - [x] CI formatting, lint, type checking, automated tests, production build, semantic output audit, and asset budgets.
 - [x] Deployment environment preflight, health endpoint, deployment smoke test, and rollback runbook.
+- [x] Provider-neutral, non-identifying analytics event hooks with no invented tracking ID or external data transfer.
 
 ## Owner-approved content and assets
 
@@ -48,7 +49,7 @@ This is the release record for the Next.js storefront. Checked repository contro
 - [ ] Complete the manual browser, keyboard, zoom, screen-reader, forced-colors, reduced-motion, axe, Lighthouse, and Core Web Vitals checks in `docs/accessibility-performance.md`.
 - [ ] Verify social previews, canonical URLs, robots, sitemap, and structured data on the final origin; complete `docs/seo-launch.md` before indexing.
 - [ ] Test mobile and desktop cart persistence, validation errors, disabled feature messaging, custom requests, Stripe return handling, and 404/error recovery.
-- [ ] Configure privacy-respecting analytics only after the owner approves a provider, consent requirements, retention, and real IDs. No analytics ID is invented in the repository.
+- [ ] Connect the existing analytics event contract only after the owner approves a provider, consent requirements, retention, and real IDs. No analytics ID is invented in the repository.
 - [ ] Configure runtime error monitoring, alert ownership, database monitoring, webhook failure review, and order reconciliation procedures.
 - [ ] Review secrets for least privilege and confirm none appear in the repository, browser bundle, build output, or logs.
 - [ ] Capture final owner, policy/legal, payment, deployment, and content approvals with dates.
