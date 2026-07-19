@@ -7,6 +7,7 @@ import { siteConfig } from "@/config/site";
 const navigation = [
   { href: "/", label: "Home" },
   { href: "/menu", label: "Menu" },
+  { href: "/gallery", label: "Gallery" },
   { href: "/custom-orders", label: "Custom orders" },
 ] as const;
 

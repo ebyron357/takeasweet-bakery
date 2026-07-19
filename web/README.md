@@ -24,6 +24,7 @@ npm run build
 
 - Do not fabricate products, prices, testimonials, policies, availability, or bakery details.
 - Do not present generated imagery as photographs of the founder's real work.
+- Follow `docs/media-governance.md` before publishing any bakery or founder image.
 - Do not expose pickup details before a confirmed purchase.
 - Keep payment code inactive until the provider and credentials are confirmed.
 - Keep search indexing disabled until the production domain and content are approved.

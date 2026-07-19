@@ -22,11 +22,17 @@ export default function HomePage() {
           Browse the verified TakeASweet menu for local pickup and delivery in
           Charlotte.
         </p>
-        <Button asChild size="lg" className="mt-8">
-          <Link href="/menu">
-            Browse the menu <ArrowRight className="size-4" aria-hidden="true" />
-          </Link>
-        </Button>
+        <div className="mt-8 flex flex-wrap gap-3">
+          <Button asChild size="lg">
+            <Link href="/menu">
+              Browse the menu{" "}
+              <ArrowRight className="size-4" aria-hidden="true" />
+            </Link>
+          </Button>
+          <Button asChild size="lg" variant="outline">
+            <Link href="/gallery">View authentic work</Link>
+          </Button>
+        </div>
       </section>
     </main>
   );
