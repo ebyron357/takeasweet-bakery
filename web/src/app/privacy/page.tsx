@@ -1,12 +1,14 @@
 import type { Metadata } from "next";
 
 import { getPrivacyContactEmail } from "@/config/launch";
+import { createPageMetadata } from "@/lib/metadata";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = createPageMetadata({
   title: "Privacy Notice",
   description:
     "How the TakeASweet website handles cart, custom-order, and checkout information.",
-};
+  path: "/privacy",
+});
 
 export default function PrivacyPage() {
   const privacyContactEmail = getPrivacyContactEmail();

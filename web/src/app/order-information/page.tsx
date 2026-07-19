@@ -5,14 +5,16 @@ import {
   confirmedOrderInformation,
   policyLaunchBlockers,
 } from "@/data/customer-information";
+import { createPageMetadata } from "@/lib/metadata";
 import { isCustomOrderStorageEnabled } from "@/server/database";
 import { isCheckoutEnabled } from "@/server/stripe";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = createPageMetadata({
   title: "Ordering Information",
   description:
     "Confirmed ordering and fulfillment information for TakeASweet Bakery.",
-};
+  path: "/order-information",
+});
 
 export default function OrderInformationPage() {
   const checkoutEnabled = isCheckoutEnabled();

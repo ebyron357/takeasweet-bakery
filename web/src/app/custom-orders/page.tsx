@@ -1,12 +1,14 @@
 import type { Metadata } from "next";
 
 import { CustomOrderForm } from "@/components/custom-order-form";
+import { createPageMetadata } from "@/lib/metadata";
 import { isCustomOrderStorageEnabled } from "@/server/database";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = createPageMetadata({
   title: "Custom Orders",
   description: "Request custom bakery treats for a Charlotte-area celebration.",
-};
+  path: "/custom-orders",
+});
 
 export default function CustomOrdersPage() {
   const acceptingRequests = isCustomOrderStorageEnabled();

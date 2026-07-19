@@ -6,13 +6,15 @@ import {
   approvedFounderPortrait,
   authenticGalleryItems,
 } from "@/data/authentic-gallery";
+import { createPageMetadata } from "@/lib/metadata";
 import { isPublishableAuthenticMedia } from "@/lib/media";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = createPageMetadata({
   title: "Authentic Work Gallery",
   description:
     "Verified photographs of treats and community work created by TakeASweet Bakery.",
-};
+  path: "/gallery",
+});
 
 export default function GalleryPage() {
   const galleryItems = authenticGalleryItems.filter(
