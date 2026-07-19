@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 
+import { AddToCartForm } from "@/components/cart/add-to-cart-form";
 import { catalog } from "@/data/catalog";
 import { categoryLabels, formatPrice, getProductBySlug } from "@/lib/catalog";
 
@@ -65,28 +66,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
           </p>
         ) : null}
 
-        {product.flavorOptions.length > 0 ? (
-          <section className="mt-10" aria-labelledby="flavors-title">
-            <h2 id="flavors-title" className="text-2xl font-bold">
-              Flavor options
-            </h2>
-            {product.maxFlavorSelections ? (
-              <p className="text-muted-foreground mt-2 text-sm">
-                Choose up to {product.maxFlavorSelections}.
-              </p>
-            ) : null}
-            <ul className="mt-5 grid gap-3 sm:grid-cols-2">
-              {product.flavorOptions.map((flavor) => (
-                <li
-                  key={flavor}
-                  className="bg-background rounded-lg border px-4 py-3 font-medium"
-                >
-                  {flavor}
-                </li>
-              ))}
-            </ul>
-          </section>
-        ) : null}
+        <AddToCartForm product={product} />
 
         <aside className="text-muted-foreground mt-10 border-t pt-6 text-sm leading-6">
           Availability and allergen details must be confirmed directly with the

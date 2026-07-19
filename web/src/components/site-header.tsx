@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { CakeSlice } from "lucide-react";
 
+import { CartLink } from "@/components/cart/cart-link";
 import { siteConfig } from "@/config/site";
 
 const navigation = [
@@ -19,7 +20,10 @@ export function SiteHeader() {
           <CakeSlice className="text-primary size-5" aria-hidden="true" />
           <span>{siteConfig.name}</span>
         </Link>
-        <nav aria-label="Primary navigation">
+        <nav
+          aria-label="Primary navigation"
+          className="flex items-center gap-1"
+        >
           <ul className="flex items-center gap-1">
             {navigation.map((item) => (
               <li key={item.href}>
@@ -32,6 +36,7 @@ export function SiteHeader() {
               </li>
             ))}
           </ul>
+          <CartLink />
         </nav>
       </div>
     </header>
