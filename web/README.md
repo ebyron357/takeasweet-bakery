@@ -15,16 +15,18 @@ npm run build
 
 ## Environment controls
 
-- `PAYMENTS_ENABLED=true` requires `STRIPE_SECRET_KEY` before checkout is available.
-- `CUSTOM_ORDER_REQUESTS_ENABLED=true` requires `DATABASE_URL` before the request form is available.
+- `PAYMENTS_ENABLED=true` requires `STRIPE_SECRET_KEY` and `PRIVACY_CONTACT_EMAIL` before checkout is available.
+- `CUSTOM_ORDER_REQUESTS_ENABLED=true` requires `DATABASE_URL` and `PRIVACY_CONTACT_EMAIL` before the request form is available.
 - Both launch gates default to `false`; credentials and secrets belong in the deployment environment, never in source control.
 - `NEXT_PUBLIC_SITE_URL` must be the final HTTPS origin before production metadata or checkout redirects are enabled.
+- `PRIVACY_CONTACT_EMAIL` must be an approved public contact address before customer data collection is launched.
 
 ## Migration controls
 
 - Do not fabricate products, prices, testimonials, policies, availability, or bakery details.
 - Do not present generated imagery as photographs of the founder's real work.
 - Follow `docs/media-governance.md` before publishing any bakery or founder image.
+- Resolve `docs/policy-launch-checklist.md` before enabling public payments or submissions.
 - Do not expose pickup details before a confirmed purchase.
 - Keep payment code inactive until the provider and credentials are confirmed.
 - Keep search indexing disabled until the production domain and content are approved.

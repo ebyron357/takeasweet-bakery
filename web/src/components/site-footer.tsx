@@ -34,6 +34,22 @@ export function SiteFooter() {
                 Custom orders
               </Link>
             </li>
+            <li>
+              <Link
+                className="hover:text-foreground underline-offset-4 hover:underline"
+                href="/order-information"
+              >
+                Ordering information
+              </Link>
+            </li>
+            <li>
+              <Link
+                className="hover:text-foreground underline-offset-4 hover:underline"
+                href="/privacy"
+              >
+                Privacy
+              </Link>
+            </li>
           </ul>
         </nav>
       </div>

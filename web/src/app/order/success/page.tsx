@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
-import { getStripe, isCheckoutEnabled } from "@/server/stripe";
+import { getStripe, hasStripeCredentials } from "@/server/stripe";
 
 export const metadata: Metadata = {
   title: "Order confirmation",
@@ -21,7 +21,7 @@ export default async function OrderSuccessPage({
 }: SuccessPageProps) {
   const { session_id: sessionId } = await searchParams;
 
-  if (!sessionId || !isCheckoutEnabled()) {
+  if (!sessionId || !hasStripeCredentials()) {
     return <UnverifiedConfirmation />;
   }
 

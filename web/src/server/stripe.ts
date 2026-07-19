@@ -2,19 +2,22 @@ import "server-only";
 
 import Stripe from "stripe";
 
+import { isCheckoutLaunchEnabled } from "@/config/launch";
+
 let stripe: Stripe | undefined;
 
 export function isCheckoutEnabled() {
-  return (
-    process.env.PAYMENTS_ENABLED === "true" &&
-    Boolean(process.env.STRIPE_SECRET_KEY)
-  );
+  return isCheckoutLaunchEnabled();
+}
+
+export function hasStripeCredentials() {
+  return Boolean(process.env.STRIPE_SECRET_KEY);
 }
 
 export function getStripe() {
   const secretKey = process.env.STRIPE_SECRET_KEY;
-  if (!secretKey || process.env.PAYMENTS_ENABLED !== "true") {
-    throw new Error("Checkout is not enabled.");
+  if (!secretKey) {
+    throw new Error("Stripe is not configured.");
   }
 
   stripe ??= new Stripe(secretKey);

@@ -2,6 +2,7 @@ import "server-only";
 
 import mysql, { type Pool } from "mysql2/promise";
 
+import { isCustomOrderLaunchEnabled } from "@/config/launch";
 import type { CustomOrderRequest } from "@/server/custom-orders";
 
 let pool: Pool | undefined;
@@ -15,10 +16,7 @@ function getPool() {
 }
 
 export function isCustomOrderStorageEnabled() {
-  return (
-    process.env.CUSTOM_ORDER_REQUESTS_ENABLED === "true" &&
-    Boolean(process.env.DATABASE_URL)
-  );
+  return isCustomOrderLaunchEnabled();
 }
 
 export async function saveCustomOrderRequest(request: CustomOrderRequest) {
