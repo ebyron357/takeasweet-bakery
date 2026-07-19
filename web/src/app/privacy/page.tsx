@@ -44,6 +44,13 @@ export default function PrivacyPage() {
               payment information is entered on Stripe&apos;s hosted checkout
               page.
             </li>
+            <li>
+              The bakery database stores the order reference, products, selected
+              flavors, quantities, total, payment status, and the customer name
+              and email returned by Stripe for fulfillment. Signed Stripe event
+              identifiers are retained to prevent the same payment event from
+              being processed twice.
+            </li>
           </ul>
         </section>
 
@@ -65,10 +72,10 @@ export default function PrivacyPage() {
           </h2>
           <p className="text-muted-foreground mt-3">
             Submitted information is used to review custom requests, create and
-            verify checkout sessions, respond about an order, protect the
-            checkout process, and support fulfillment. The current application
-            has no advertising integration, analytics identifier, or data-sale
-            integration.
+            verify checkout sessions, record payment state, respond about an
+            order, protect the checkout process, and support fulfillment. The
+            current application has no advertising integration, analytics
+            identifier, or data-sale integration.
           </p>
         </section>
 

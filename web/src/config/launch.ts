@@ -13,6 +13,8 @@ export function isCheckoutLaunchEnabled() {
   return (
     process.env.PAYMENTS_ENABLED === "true" &&
     Boolean(process.env.STRIPE_SECRET_KEY) &&
+    Boolean(process.env.STRIPE_WEBHOOK_SECRET) &&
+    Boolean(process.env.DATABASE_URL) &&
     Boolean(getPrivacyContactEmail())
   );
 }

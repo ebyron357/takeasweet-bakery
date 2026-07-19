@@ -24,11 +24,20 @@ describe("production launch controls", () => {
   it("keeps checkout disabled without every required setting", () => {
     process.env.PAYMENTS_ENABLED = "true";
     process.env.STRIPE_SECRET_KEY = "test-secret";
+    process.env.STRIPE_WEBHOOK_SECRET = "test-webhook-secret";
+    process.env.DATABASE_URL = "mysql://example.invalid/database";
     delete process.env.PRIVACY_CONTACT_EMAIL;
     expect(isCheckoutLaunchEnabled()).toBe(false);
 
     process.env.PRIVACY_CONTACT_EMAIL = "privacy@example.com";
     expect(isCheckoutLaunchEnabled()).toBe(true);
+
+    delete process.env.STRIPE_WEBHOOK_SECRET;
+    expect(isCheckoutLaunchEnabled()).toBe(false);
+
+    process.env.STRIPE_WEBHOOK_SECRET = "test-webhook-secret";
+    delete process.env.DATABASE_URL;
+    expect(isCheckoutLaunchEnabled()).toBe(false);
   });
 
   it("keeps custom-order storage disabled without every required setting", () => {

@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
+import { reconcilePaidOrder } from "@/server/database";
+import { getPaidSessionUpdate } from "@/server/payment-events";
 import { getStripe, hasStripeCredentials } from "@/server/stripe";
 
 export const metadata: Metadata = {
@@ -27,7 +29,9 @@ export default async function OrderSuccessPage({
 
   try {
     const session = await getStripe().checkout.sessions.retrieve(sessionId);
-    if (session.payment_status !== "paid") return <UnverifiedConfirmation />;
+    const paymentUpdate = getPaidSessionUpdate(session);
+    if (!paymentUpdate) return <UnverifiedConfirmation />;
+    await reconcilePaidOrder(paymentUpdate);
 
     return (
       <main className="mx-auto max-w-2xl px-5 py-16 sm:px-8">

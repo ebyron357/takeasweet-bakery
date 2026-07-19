@@ -15,11 +15,12 @@ npm run build
 
 ## Environment controls
 
-- `PAYMENTS_ENABLED=true` requires `STRIPE_SECRET_KEY` and `PRIVACY_CONTACT_EMAIL` before checkout is available.
+- `PAYMENTS_ENABLED=true` requires `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `DATABASE_URL`, and `PRIVACY_CONTACT_EMAIL` before checkout is available.
 - `CUSTOM_ORDER_REQUESTS_ENABLED=true` requires `DATABASE_URL` and `PRIVACY_CONTACT_EMAIL` before the request form is available.
 - Both launch gates default to `false`; credentials and secrets belong in the deployment environment, never in source control.
 - `NEXT_PUBLIC_SITE_URL` must be the final HTTPS origin before production metadata or checkout redirects are enabled.
 - `PRIVACY_CONTACT_EMAIL` must be an approved public contact address before customer data collection is launched.
+- Apply `database/001_stripe_order_persistence.sql` and configure the signed Stripe webhook before enabling checkout. See `docs/stripe-launch.md`.
 
 ## Migration controls
 

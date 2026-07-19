@@ -14,6 +14,14 @@ export function hasStripeCredentials() {
   return Boolean(process.env.STRIPE_SECRET_KEY);
 }
 
+export function getStripeWebhookSecret() {
+  const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+  if (!webhookSecret) {
+    throw new Error("STRIPE_WEBHOOK_SECRET is not configured.");
+  }
+  return webhookSecret;
+}
+
 export function getStripe() {
   const secretKey = process.env.STRIPE_SECRET_KEY;
   if (!secretKey) {
