@@ -38,4 +38,26 @@ describe("site URL controls", () => {
       "https://takeasweet.example.com/menu/limber"
     );
   });
+
+  it("uses the generated Vercel URL when an explicit origin is absent", () => {
+    delete process.env.NEXT_PUBLIC_SITE_URL;
+    process.env.VERCEL_URL = "takeasweet-preview.vercel.app";
+
+    expect(getCanonicalUrl("/menu")).toBe(
+      "https://takeasweet-preview.vercel.app/menu"
+    );
+  });
+
+  it("never enables indexing on a Vercel preview deployment", () => {
+    process.env.NEXT_PUBLIC_SITE_URL = "https://takeasweet.example.com";
+    process.env.SEARCH_INDEXING_ENABLED = "true";
+    process.env.VERCEL = "1";
+    process.env.VERCEL_ENV = "preview";
+
+    expect(isProductionSiteUrl()).toBe(false);
+    expect(isSearchIndexingEnabled()).toBe(false);
+
+    process.env.VERCEL_ENV = "production";
+    expect(isSearchIndexingEnabled()).toBe(true);
+  });
 });

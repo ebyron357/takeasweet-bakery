@@ -9,6 +9,8 @@
     "lint": "eslint . --max-warnings=0",
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
+    "deployment:check": "node scripts/verify-deployment-environment.mjs",
+    "deployment:smoke": "node scripts/smoke-deployment.mjs",
     "quality:audit": "node scripts/verify-production-output.mjs",
     "format": "prettier --write .",
     "format:check": "prettier --check ."

@@ -36,5 +36,12 @@ jobs:
       - run: npm run lint
       - run: npm run typecheck
       - run: npm run test
+      - name: Verify safe deployment configuration
+        env:
+          NEXT_PUBLIC_SITE_URL: https://takeasweet.example.invalid
+          PAYMENTS_ENABLED: "false"
+          CUSTOM_ORDER_REQUESTS_ENABLED: "false"
+          SEARCH_INDEXING_ENABLED: "false"
+        run: npm run deployment:check
       - run: npm run build
       - run: npm run quality:audit
