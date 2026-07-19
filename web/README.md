@@ -11,6 +11,7 @@ npm run lint
 npm run typecheck
 npm run test
 npm run build
+npm run quality:audit
 ```
 
 ## Environment controls
@@ -30,6 +31,7 @@ npm run build
 - Follow `docs/media-governance.md` before publishing any bakery or founder image.
 - Resolve `docs/policy-launch-checklist.md` before enabling public payments or submissions.
 - Complete `docs/seo-launch.md` before allowing search indexing.
+- Keep the automated budgets and manual launch checks in `docs/accessibility-performance.md` current as the interface changes.
 - Do not expose pickup details before a confirmed purchase.
 - Keep payment code inactive until the provider and credentials are confirmed.
 - Keep search indexing disabled until the production domain and content are approved.

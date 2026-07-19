@@ -61,7 +61,11 @@ export function CustomOrderForm() {
   }
 
   return (
-    <form className="mt-10 space-y-6" onSubmit={handleSubmit}>
+    <form
+      className="mt-10 space-y-6"
+      onSubmit={handleSubmit}
+      aria-busy={submitting}
+    >
       <div className="grid gap-6 sm:grid-cols-2">
         <label className="space-y-2 font-semibold">
           <span>Name</span>

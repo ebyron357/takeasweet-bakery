@@ -17,7 +17,10 @@ export function CartLink() {
       <ShoppingBag className="size-4" aria-hidden="true" />
       <span className="hidden sm:inline">Cart</span>
       {isReady && itemCount > 0 ? (
-        <span className="bg-primary text-primary-foreground flex min-w-5 items-center justify-center rounded-full px-1.5 text-xs font-bold">
+        <span
+          className="bg-primary text-primary-foreground flex min-w-5 items-center justify-center rounded-full px-1.5 text-xs font-bold"
+          aria-hidden="true"
+        >
           {itemCount}
         </span>
       ) : null}

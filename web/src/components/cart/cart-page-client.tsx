@@ -79,20 +79,26 @@ export function CartPageClient() {
               >
                 <button
                   type="button"
-                  className="hover:bg-muted inline-flex size-11 items-center justify-center rounded-full"
+                  className="hover:bg-muted focus-visible:ring-ring inline-flex size-11 items-center justify-center rounded-full focus-visible:ring-2 focus-visible:outline-none disabled:opacity-50"
                   onClick={() => updateQuantity(index, item.quantity - 1)}
                   aria-label={`Decrease ${product.name} quantity`}
+                  disabled={item.quantity <= 1}
                 >
                   <Minus className="size-4" aria-hidden="true" />
                 </button>
-                <span className="min-w-8 text-center font-bold">
+                <span
+                  className="min-w-8 text-center font-bold"
+                  aria-live="polite"
+                  aria-label={`${product.name} quantity ${item.quantity}`}
+                >
                   {item.quantity}
                 </span>
                 <button
                   type="button"
-                  className="hover:bg-muted inline-flex size-11 items-center justify-center rounded-full"
+                  className="hover:bg-muted focus-visible:ring-ring inline-flex size-11 items-center justify-center rounded-full focus-visible:ring-2 focus-visible:outline-none disabled:opacity-50"
                   onClick={() => updateQuantity(index, item.quantity + 1)}
                   aria-label={`Increase ${product.name} quantity`}
+                  disabled={item.quantity >= 20}
                 >
                   <Plus className="size-4" aria-hidden="true" />
                 </button>

@@ -53,9 +53,17 @@ export default function RootLayout({
     <html lang="en-US">
       <body className="flex min-h-screen flex-col">
         <StructuredData data={createSiteStructuredData()} />
+        <a
+          href="#main-content"
+          className="bg-background text-foreground focus:ring-ring sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-50 focus:rounded-md focus:px-4 focus:py-3 focus:font-bold focus:ring-2 focus:outline-none"
+        >
+          Skip to main content
+        </a>
         <CartProvider>
           <SiteHeader />
-          <div className="flex-1">{children}</div>
+          <div id="main-content" tabIndex={-1} className="flex-1 outline-none">
+            {children}
+          </div>
           <SiteFooter />
         </CartProvider>
       </body>

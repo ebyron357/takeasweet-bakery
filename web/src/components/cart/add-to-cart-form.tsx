@@ -16,12 +16,19 @@ export function AddToCartForm({ product }: { product: CatalogProduct }) {
 
   function toggleFlavor(flavor: string) {
     setMessage("");
-    setSelectedFlavors((current) => {
-      if (current.includes(flavor))
-        return current.filter((item) => item !== flavor);
-      if (current.length >= selectionLimit) return current;
-      return [...current, flavor];
-    });
+    if (selectedFlavors.includes(flavor)) {
+      setSelectedFlavors((current) =>
+        current.filter((item) => item !== flavor)
+      );
+      return;
+    }
+    if (selectedFlavors.length >= selectionLimit) {
+      setMessage(
+        `Choose no more than ${selectionLimit} flavor${selectionLimit === 1 ? "" : "s"}.`
+      );
+      return;
+    }
+    setSelectedFlavors((current) => [...current, flavor]);
   }
 
   function addToCart() {
@@ -87,7 +94,11 @@ export function AddToCartForm({ product }: { product: CatalogProduct }) {
         </Button>
       </div>
       {message ? (
-        <p className="mt-4 text-sm font-semibold" role="status">
+        <p
+          className="mt-4 text-sm font-semibold"
+          role="status"
+          aria-live="polite"
+        >
           {message}
         </p>
       ) : null}
