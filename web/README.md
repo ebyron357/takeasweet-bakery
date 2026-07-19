@@ -9,8 +9,16 @@ npm ci
 npm run format:check
 npm run lint
 npm run typecheck
+npm run test
 npm run build
 ```
+
+## Environment controls
+
+- `PAYMENTS_ENABLED=true` requires `STRIPE_SECRET_KEY` before checkout is available.
+- `CUSTOM_ORDER_REQUESTS_ENABLED=true` requires `DATABASE_URL` before the request form is available.
+- Both launch gates default to `false`; credentials and secrets belong in the deployment environment, never in source control.
+- `NEXT_PUBLIC_SITE_URL` must be the final HTTPS origin before production metadata or checkout redirects are enabled.
 
 ## Migration controls
 
