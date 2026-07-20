@@ -4,12 +4,35 @@ import Stripe from "stripe";
 import { z } from "zod";
 import { COOKIE_NAME } from "@shared/const";
 import { containsWeddingKeyword, PICKUP_INSTRUCTIONS } from "@shared/bakery";
+import {
+  CLIENT_REVIEW_MODE,
+  REVIEW_CHECKOUT_NOTICE,
+  REVIEW_FORM_NOTICE,
+} from "@shared/review-mode";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { protectedProcedure, publicProcedure, router } from "./_core/trpc";
 import * as dbf from "./db-features";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY ?? "");
+let stripe: Stripe | undefined;
+
+function getStripe() {
+  const secretKey = process.env.STRIPE_SECRET_KEY;
+  if (!secretKey) {
+    throw new TRPCError({
+      code: "PRECONDITION_FAILED",
+      message: "Online payment is not configured.",
+    });
+  }
+  stripe ??= new Stripe(secretKey);
+  return stripe;
+}
+
+function blockDuringClientReview(message: string) {
+  if (CLIENT_REVIEW_MODE) {
+    throw new TRPCError({ code: "FORBIDDEN", message });
+  }
+}
 
 const adminProcedure = protectedProcedure.use(({ ctx, next }) => {
   if (ctx.user.role !== "admin") {
@@ -130,6 +153,7 @@ export const appRouter = router({
         }),
       )
       .mutation(async ({ ctx, input }) => {
+        blockDuringClientReview(REVIEW_CHECKOUT_NOTICE);
         const ids = input.items.map(item => item.productId);
         const productRows = await dbf.getProductsByIds(ids);
         const productMap = new Map(productRows.map(p => [p.id, p]));
@@ -177,7 +201,7 @@ export const appRouter = router({
         const origin = ctx.req.headers.origin ?? `${ctx.req.protocol}://${ctx.req.headers.host}`;
         const orderRef = `TAS-${nanoid(6).toUpperCase()}`;
 
-        const session = await stripe.checkout.sessions.create({
+        const session = await getStripe().checkout.sessions.create({
           mode: "payment",
           line_items: lineItems,
           allow_promotion_codes: true,
@@ -223,7 +247,7 @@ export const appRouter = router({
 
         // Verify payment status with Stripe directly (webhook may lag).
         if (order.status === "pending") {
-          const session = await stripe.checkout.sessions.retrieve(input.sessionId);
+          const session = await getStripe().checkout.sessions.retrieve(input.sessionId);
           if (session.payment_status === "paid") {
             await dbf.markOrderPaid(
               input.sessionId,
@@ -268,6 +292,7 @@ export const appRouter = router({
         }),
       )
       .mutation(async ({ input }) => {
+        blockDuringClientReview(REVIEW_FORM_NOTICE);
         // Wedding orders are not accepted — enforce server-side.
         const combined = `${input.eventType} ${input.details ?? ""}`;
         if (containsWeddingKeyword(combined)) {
@@ -299,6 +324,7 @@ export const appRouter = router({
         }),
       )
       .mutation(async ({ input }) => {
+        blockDuringClientReview(REVIEW_FORM_NOTICE);
         await dbf.subscribeNewsletter(input.email, input.firstName);
         return { success: true } as const;
       }),
@@ -314,6 +340,7 @@ export const appRouter = router({
         }),
       )
       .mutation(async ({ input }) => {
+        blockDuringClientReview(REVIEW_FORM_NOTICE);
         await dbf.createContactMessage(input.name, input.email, input.message);
         return { success: true } as const;
       }),
