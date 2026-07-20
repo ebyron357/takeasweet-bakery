@@ -80,3 +80,16 @@
 - [x] Accessibility: contrast, focus-visible rings, touch targets (44px), heading hierarchy, reduced motion, form error states
 - [x] Footer: contact/social/service area/policies easy to find (no address)
 - [x] Verify desktop + mobile, checkpoint, report changes once
+
+## Client-Review Preview (Client Brief v5 — controlled single pass)
+- [ ] Review mode flag: disable checkout (clear notice in cart), disable custom-order/contact/newsletter data transmission (client-side only confirmation)
+- [ ] Gallery page: reserved space for authentic photos, intentionally empty, no stock/generated images presented as real work
+- [ ] Privacy page (review-safe general policy, no invented specifics)
+- [ ] Order Information page (pickup/delivery/no-shipping/deposit rules from approved facts)
+- [ ] 404/error states polished
+- [ ] Homepage additions: gallery preview section, order info link in footer/policies
+- [ ] Nav/footer: add Gallery, Privacy, Order Info links; no duplicates
+- [ ] Verify no public "CLIENT APPROVAL REQUIRED" text and no broken links
+- [ ] Verify all required routes desktop + mobile, one pass
+- [ ] Push work to one GitHub feature branch (no merge), collect commit hash
+- [ ] Deliver preview URL + evidence report

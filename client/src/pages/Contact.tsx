@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { trpc } from "@/lib/trpc";
 import { SERVICE_AREA_COPY } from "@shared/bakery";
+import { CLIENT_REVIEW_MODE, REVIEW_FORM_NOTICE } from "@shared/review-mode";
 
 export default function Contact() {
   const [form, setForm] = useState({ name: "", email: "", message: "" });
@@ -61,6 +62,12 @@ export default function Contact() {
           className="bg-card border-border/60 mt-10 space-y-4 rounded-3xl border p-6 shadow-sm sm:p-8"
           onSubmit={e => {
             e.preventDefault();
+            if (CLIENT_REVIEW_MODE) {
+              // Review mode: show the success state without transmitting any data.
+              setSubmitted(true);
+              toast.info(REVIEW_FORM_NOTICE);
+              return;
+            }
             submit.mutate({
               name: form.name.trim(),
               email: form.email.trim(),

@@ -14,6 +14,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { trpc } from "@/lib/trpc";
 import { containsWeddingKeyword, CUSTOM_EVENT_TYPES } from "@shared/bakery";
+import { CLIENT_REVIEW_MODE, REVIEW_FORM_NOTICE } from "@shared/review-mode";
 
 import ImagePlaceholder from "@/components/ImagePlaceholder";
 
@@ -77,6 +78,12 @@ export default function CustomOrders() {
     if (!quantity || quantity < 1) {
       setFieldError("Please enter how many treats you need (at least 1).");
       toast.error("Please enter how many treats you need.");
+      return;
+    }
+    if (CLIENT_REVIEW_MODE) {
+      // Review mode: show the success state without transmitting any data.
+      setSubmitted(true);
+      toast.info(REVIEW_FORM_NOTICE);
       return;
     }
     submit.mutate({
@@ -171,9 +178,18 @@ export default function CustomOrders() {
         <div className="bg-card border-border/60 rounded-3xl border p-6 shadow-sm sm:p-8">
           <h2 className="font-display text-2xl font-extrabold">Request a custom order</h2>
           <p className="text-muted-foreground mt-1 text-sm">
-            Fill this out and we'll get back to you with a quote. Custom desserts welcome — no
-            wedding orders, please!
+            Fill this out and we'll get back to you with a quote. A request is not a confirmed
+            order — we review every request first. Custom desserts welcome; no wedding orders,
+            please!
           </p>
+          {CLIENT_REVIEW_MODE && (
+            <p
+              role="status"
+              className="bg-accent/60 text-accent-foreground mt-3 rounded-xl px-4 py-3 text-sm font-semibold"
+            >
+              {REVIEW_FORM_NOTICE}
+            </p>
+          )}
           <form onSubmit={handleSubmit} className="mt-6 space-y-4">
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-1.5">

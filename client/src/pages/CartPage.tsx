@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { useCart } from "@/contexts/CartContext";
 import { trpc } from "@/lib/trpc";
 import { formatPrice, SERVICE_AREA_COPY } from "@shared/bakery";
+import { CLIENT_REVIEW_MODE, REVIEW_CHECKOUT_NOTICE } from "@shared/review-mode";
 
 export default function CartPage() {
   const { items, totalCents, setQuantity, removeItem } = useCart();
@@ -101,17 +102,29 @@ export default function CartPage() {
         <p className="text-muted-foreground mt-2 text-sm">
           {SERVICE_AREA_COPY} Pickup details are shared after your order is confirmed.
         </p>
+        {CLIENT_REVIEW_MODE && (
+          <p
+            role="status"
+            className="bg-accent/60 text-accent-foreground mt-3 rounded-xl px-4 py-3 text-sm font-semibold"
+          >
+            {REVIEW_CHECKOUT_NOTICE}
+          </p>
+        )}
         <Button
           size="lg"
-          className="mt-4 w-full rounded-full text-base font-bold"
-          disabled={checkout.isPending}
+          className="mt-4 min-h-12 w-full rounded-full text-base font-bold"
+          disabled={CLIENT_REVIEW_MODE || checkout.isPending}
           onClick={() =>
             checkout.mutate({
               items: items.map(i => ({ productId: i.productId, quantity: i.quantity })),
             })
           }
         >
-          {checkout.isPending ? "Preparing checkout…" : "Checkout Securely"}
+          {CLIENT_REVIEW_MODE
+            ? "Checkout Disabled (Preview)"
+            : checkout.isPending
+              ? "Preparing checkout…"
+              : "Checkout Securely"}
         </Button>
       </div>
     </div>

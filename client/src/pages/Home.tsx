@@ -295,6 +295,36 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ---------- Gallery preview ---------- */}
+      <section className="bg-muted/60 py-12 md:py-14">
+        <div className="container">
+          <div className="mb-6 flex items-end justify-between gap-4">
+            <h2 className="font-display text-3xl font-extrabold sm:text-4xl">
+              A peek at our work
+            </h2>
+            <Button
+              asChild
+              variant="ghost"
+              className="hidden rounded-full font-bold sm:inline-flex"
+            >
+              <Link href="/gallery">
+                Visit the Gallery <ArrowRight className="size-4" aria-hidden />
+              </Link>
+            </Button>
+          </div>
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+            {["Signature cookies", "Treat cups", "Cheesecake", "Event booth"].map(label => (
+              <ImagePlaceholder key={label} label={`${label} photo coming soon`} />
+            ))}
+          </div>
+          <div className="mt-6 text-center sm:hidden">
+            <Button asChild variant="outline" className="bg-card rounded-full font-bold">
+              <Link href="/gallery">Visit the Gallery</Link>
+            </Button>
+          </div>
+        </div>
+      </section>
+
       {/* ---------- 9. Custom Orders ---------- */}
       <section className="bg-accent/40 py-12 md:py-14">
         <div className="container max-w-3xl text-center">

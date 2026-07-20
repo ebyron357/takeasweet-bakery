@@ -15,12 +15,18 @@ import { Separator } from "@/components/ui/separator";
 import { useCart } from "@/contexts/CartContext";
 import { trpc } from "@/lib/trpc";
 import { ANNOUNCEMENT_COPY, SERVICE_AREA_COPY, formatPrice } from "@shared/bakery";
+import {
+  CLIENT_REVIEW_MODE,
+  REVIEW_CHECKOUT_NOTICE,
+  REVIEW_FORM_NOTICE,
+} from "@shared/review-mode";
 import { useAuth } from "@/_core/hooks/useAuth";
 
 const NAV_LINKS: { href: string; label: string; key?: string }[] = [
   { href: "/", label: "Home" },
   { href: "/shop", label: "Menu" },
   { href: "/custom-orders", label: "Custom Orders" },
+  { href: "/gallery", label: "Gallery" },
   { href: "/our-story", label: "Our Story" },
   { href: "/faq", label: "FAQ" },
   { href: "/contact", label: "Contact" },
@@ -159,17 +165,29 @@ function CartDrawer() {
               <p className="text-muted-foreground mb-3 text-xs">
                 Pickup details are shared after your order is confirmed. {SERVICE_AREA_COPY}
               </p>
+              {CLIENT_REVIEW_MODE && (
+                <p
+                  role="status"
+                  className="bg-accent/60 text-accent-foreground mb-3 rounded-xl px-3 py-2 text-xs font-semibold"
+                >
+                  {REVIEW_CHECKOUT_NOTICE}
+                </p>
+              )}
               <Button
-                className="w-full rounded-full text-base font-bold"
+                className="min-h-12 w-full rounded-full text-base font-bold"
                 size="lg"
-                disabled={checkout.isPending}
+                disabled={CLIENT_REVIEW_MODE || checkout.isPending}
                 onClick={() =>
                   checkout.mutate({
                     items: items.map(i => ({ productId: i.productId, quantity: i.quantity })),
                   })
                 }
               >
-                {checkout.isPending ? "Preparing checkout…" : "Checkout Securely"}
+                {CLIENT_REVIEW_MODE
+                  ? "Checkout Disabled (Preview)"
+                  : checkout.isPending
+                    ? "Preparing checkout…"
+                    : "Checkout Securely"}
               </Button>
               <button
                 onClick={clearCart}
@@ -200,7 +218,14 @@ function NewsletterForm({ compact = false }: { compact?: boolean }) {
       className={compact ? "flex gap-2" : "mx-auto flex max-w-md gap-2"}
       onSubmit={e => {
         e.preventDefault();
-        if (email.trim()) subscribe.mutate({ email: email.trim() });
+        if (!email.trim()) return;
+        if (CLIENT_REVIEW_MODE) {
+          // Review mode: no data is transmitted or stored.
+          toast.info(REVIEW_FORM_NOTICE);
+          setEmail("");
+          return;
+        }
+        subscribe.mutate({ email: email.trim() });
       }}
     >
       <Input
@@ -372,9 +397,20 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
             <h3 className="font-display mt-5 mb-2 text-sm font-bold tracking-widest uppercase">
               Policies
             </h3>
-            <ul className="text-muted-foreground space-y-1.5 text-xs">
+            <ul className="space-y-2 text-sm">
+              <li>
+                <Link href="/order-info" className="hover:text-secondary-foreground hover:underline">
+                  Order Information
+                </Link>
+              </li>
+              <li>
+                <Link href="/privacy" className="hover:text-secondary-foreground hover:underline">
+                  Privacy Policy
+                </Link>
+              </li>
+            </ul>
+            <ul className="text-muted-foreground mt-3 space-y-1.5 text-xs">
               <li>Custom orders are reviewed before payment.</li>
-              <li>Large orders may require a deposit.</li>
               <li>Wedding orders are not accepted.</li>
               <li>No shipping — local pickup and delivery only.</li>
             </ul>
