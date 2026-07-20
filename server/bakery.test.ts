@@ -83,36 +83,36 @@ describe("shared bakery rules", () => {
   });
 });
 
-describe("customOrders.submit", () => {
-  const validInput = {
-    name: "Jamie",
-    email: "jamie@example.com",
-    eventType: "Birthday party",
-    eventDate: "2026-08-01",
-    quantity: 24,
-  };
-
-  it("accepts a non-wedding custom order request", async () => {
-    const caller = appRouter.createCaller(createContext());
-    const result = await caller.customOrders.submit(validInput);
-    expect(result).toEqual({ success: true });
-  });
-
-  it("blocks wedding orders via event type", async () => {
-    const caller = appRouter.createCaller(createContext());
-    await expect(
-      caller.customOrders.submit({ ...validInput, eventType: "Wedding" }),
-    ).rejects.toThrow(/wedding orders/i);
-  });
-
-  it("blocks wedding orders hidden in details", async () => {
+describe("client-review data controls", () => {
+  it("blocks custom-order persistence server-side", async () => {
     const caller = appRouter.createCaller(createContext());
     await expect(
       caller.customOrders.submit({
-        ...validInput,
-        details: "These are for my bridal party favors",
+        name: "Jamie",
+        email: "jamie@example.com",
+        eventType: "Birthday party",
+        eventDate: "2026-08-01",
+        quantity: 24,
       }),
-    ).rejects.toThrow(/wedding orders/i);
+    ).rejects.toThrow(/does not send or store/i);
+  });
+
+  it("blocks newsletter persistence server-side", async () => {
+    const caller = appRouter.createCaller(createContext());
+    await expect(
+      caller.newsletter.subscribe({ email: "jamie@example.com" }),
+    ).rejects.toThrow(/does not send or store/i);
+  });
+
+  it("blocks contact-message persistence server-side", async () => {
+    const caller = appRouter.createCaller(createContext());
+    await expect(
+      caller.contact.submit({
+        name: "Jamie",
+        email: "jamie@example.com",
+        message: "Hello",
+      }),
+    ).rejects.toThrow(/does not send or store/i);
   });
 });
 
@@ -163,10 +163,10 @@ describe("checkout.createSession validation", () => {
     await expect(caller.checkout.createSession({ items: [] })).rejects.toThrow();
   });
 
-  it("rejects unknown products", async () => {
+  it("blocks checkout server-side during client review", async () => {
     const caller = appRouter.createCaller(createContext());
     await expect(
       caller.checkout.createSession({ items: [{ productId: 999, quantity: 1 }] }),
-    ).rejects.toThrow(/not found/i);
+    ).rejects.toThrow(/checkout is disabled/i);
   });
 });
