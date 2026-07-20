@@ -20,7 +20,6 @@ import {
   REVIEW_CHECKOUT_NOTICE,
   REVIEW_FORM_NOTICE,
 } from "@shared/review-mode";
-import { useAuth } from "@/_core/hooks/useAuth";
 
 const NAV_LINKS: { href: string; label: string; key?: string }[] = [
   { href: "/", label: "Home" },
@@ -32,14 +31,15 @@ const NAV_LINKS: { href: string; label: string; key?: string }[] = [
   { href: "/contact", label: "Contact" },
 ];
 
-/** Logo placeholder — replace with the real TakeASweet logo file when provided. */
+/** Wordmark-style brand lockup — replace with the real TakeASweet logo file when provided. */
 function LogoMark({ className = "size-9" }: { className?: string }) {
   return (
     <span
       aria-hidden
-      className={`bg-primary text-primary-foreground font-display flex shrink-0 items-center justify-center rounded-full text-base font-extrabold ${className}`}
+      className={`bg-primary font-display relative flex shrink-0 rotate-[-4deg] items-center justify-center rounded-2xl shadow-sm ${className}`}
     >
-      TS
+      <span className="text-primary-foreground text-lg leading-none font-extrabold">🍪</span>
+      <span className="bg-secondary absolute -right-1 -bottom-1 size-2.5 rounded-full" />
     </span>
   );
 }
@@ -213,18 +213,23 @@ function NewsletterForm({ compact = false }: { compact?: boolean }) {
     onError: () => toast.error("Could not subscribe. Please check your email and try again."),
   });
 
+  // During client review, email collection is fully disabled.
+  if (CLIENT_REVIEW_MODE) {
+    return (
+      <p
+        className={`text-muted-foreground text-sm ${compact ? "" : "mx-auto max-w-md text-center"}`}
+      >
+        Email signup will open when the bakery launches online ordering.
+      </p>
+    );
+  }
+
   return (
     <form
       className={compact ? "flex gap-2" : "mx-auto flex max-w-md gap-2"}
       onSubmit={e => {
         e.preventDefault();
         if (!email.trim()) return;
-        if (CLIENT_REVIEW_MODE) {
-          // Review mode: no data is transmitted or stored.
-          toast.info(REVIEW_FORM_NOTICE);
-          setEmail("");
-          return;
-        }
         subscribe.mutate({ email: email.trim() });
       }}
     >
@@ -253,7 +258,6 @@ export { NewsletterForm };
 export default function SiteLayout({ children }: { children: React.ReactNode }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [location] = useLocation();
-  const { user } = useAuth();
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -297,18 +301,6 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
                 {link.label}
               </Link>
             ))}
-            {user?.role === "admin" && (
-              <Link
-                href="/admin"
-                className={`rounded-full px-3.5 py-1.5 text-sm font-semibold transition-colors ${
-                  location.startsWith("/admin")
-                    ? "bg-accent text-accent-foreground"
-                    : "hover:bg-muted text-foreground"
-                }`}
-              >
-                Admin
-              </Link>
-            )}
           </nav>
 
           <div className="flex items-center gap-1">
@@ -333,15 +325,6 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
                 {link.label}
               </Link>
             ))}
-            {user?.role === "admin" && (
-              <Link
-                href="/admin"
-                onClick={() => setMobileOpen(false)}
-                className="hover:bg-muted block rounded-xl px-3 py-2.5 text-base font-semibold"
-              >
-                Admin
-              </Link>
-            )}
           </nav>
         )}
       </header>
@@ -428,6 +411,9 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
         <div className="border-t py-4">
           <p className="text-muted-foreground container text-center text-xs">
             © {new Date().getFullYear()} TakeASweet Cookies & Treats · {SERVICE_AREA_COPY}
+          </p>
+          <p className="text-muted-foreground/80 container mt-1 text-center text-[11px]">
+            Some menu images are illustrative until authentic product photography is available.
           </p>
         </div>
       </footer>

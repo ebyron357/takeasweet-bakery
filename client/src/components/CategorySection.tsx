@@ -26,7 +26,7 @@ export default function CategorySection({
         {priceNote && <span className="text-muted-foreground text-sm font-semibold">{priceNote}</span>}
         <div className="sprinkle-dots max-w-40 flex-1" aria-hidden />
       </div>
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:gap-5">
         {products.map(product => (
           <ProductCard key={product.id} product={product} />
         ))}

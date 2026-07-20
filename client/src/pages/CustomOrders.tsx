@@ -16,8 +16,6 @@ import { trpc } from "@/lib/trpc";
 import { containsWeddingKeyword, CUSTOM_EVENT_TYPES } from "@shared/bakery";
 import { CLIENT_REVIEW_MODE, REVIEW_FORM_NOTICE } from "@shared/review-mode";
 
-import ImagePlaceholder from "@/components/ImagePlaceholder";
-
 const STEPS = [
   {
     icon: ClipboardList,
@@ -148,11 +146,14 @@ export default function CustomOrders() {
               <strong>wedding orders</strong> at this time.
             </p>
           </div>
-          <ImagePlaceholder
-            label="Real custom-order photo goes here"
-            ratio="wide"
-            className="mx-auto w-full max-w-md"
-          />
+          <div className="mx-auto w-full max-w-md overflow-hidden rounded-3xl shadow-md">
+            <img
+              src="/manus-storage/cat-treat-cups_6ff55c37.png"
+              alt="Layered dessert cups for celebrations"
+              loading="lazy"
+              className="aspect-[4/3] w-full object-cover"
+            />
+          </div>
         </div>
       </section>
 

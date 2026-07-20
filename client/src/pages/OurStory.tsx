@@ -3,7 +3,6 @@ import { ArrowRight, Cookie, Handshake, Heart, Lightbulb, Rocket, Users } from "
 import { Button } from "@/components/ui/button";
 import { SERVICE_AREA_COPY } from "@shared/bakery";
 
-import ImagePlaceholder from "@/components/ImagePlaceholder";
 
 const VALUES = [
   {
@@ -43,11 +42,11 @@ export default function OurStory() {
       </section>
 
       <section className="container max-w-3xl py-12">
-        <ImagePlaceholder
-          label="Founder portrait or baking photo goes here"
-          ratio="wide"
-          className="mx-auto"
-        />
+        <div className="bg-secondary/40 flex aspect-[16/9] items-center justify-center rounded-3xl p-8 text-center">
+          <p className="font-display text-secondary-foreground max-w-sm text-2xl font-extrabold">
+            “I wanted to build something of my own — so I started baking.”
+          </p>
+        </div>
         <div className="prose prose-lg mt-10 max-w-none">
           <p className="text-lg leading-relaxed">
             TakeASweet Cookies & Treats began the summer our founder aged out of summer camp. With
@@ -91,11 +90,14 @@ export default function OurStory() {
 
       <section className="bg-secondary/40 py-14">
         <div className="container grid items-center gap-8 md:grid-cols-2">
-          <ImagePlaceholder
-            label="Real TakeASweet treats photo goes here"
-            ratio="wide"
-            className="mx-auto w-full max-w-md"
-          />
+          <div className="mx-auto w-full max-w-md overflow-hidden rounded-3xl shadow-md">
+            <img
+              src="/manus-storage/cat-cheesecake_85fb2916.png"
+              alt="Four Corners cheesecake with assorted toppings"
+              loading="lazy"
+              className="aspect-[4/3] w-full object-cover"
+            />
+          </div>
           <div className="text-center md:text-left">
             <Cookie className="text-primary mx-auto size-10 md:mx-0" />
             <h2 className="font-display mt-3 text-3xl font-extrabold">Taste the dream</h2>

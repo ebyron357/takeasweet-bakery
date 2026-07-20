@@ -82,14 +82,27 @@
 - [x] Verify desktop + mobile, checkpoint, report changes once
 
 ## Client-Review Preview (Client Brief v5 — controlled single pass)
-- [ ] Review mode flag: disable checkout (clear notice in cart), disable custom-order/contact/newsletter data transmission (client-side only confirmation)
-- [ ] Gallery page: reserved space for authentic photos, intentionally empty, no stock/generated images presented as real work
-- [ ] Privacy page (review-safe general policy, no invented specifics)
-- [ ] Order Information page (pickup/delivery/no-shipping/deposit rules from approved facts)
-- [ ] 404/error states polished
-- [ ] Homepage additions: gallery preview section, order info link in footer/policies
-- [ ] Nav/footer: add Gallery, Privacy, Order Info links; no duplicates
-- [ ] Verify no public "CLIENT APPROVAL REQUIRED" text and no broken links
-- [ ] Verify all required routes desktop + mobile, one pass
-- [ ] Push work to one GitHub feature branch (no merge), collect commit hash
-- [ ] Deliver preview URL + evidence report
+- [x] Review mode flag: disable checkout (clear notice in cart), disable custom-order/contact/newsletter data transmission (client-side only confirmation)
+- [x] Gallery page: reserved space for authentic photos, intentionally empty, no stock/generated images presented as real work
+- [x] Privacy page (review-safe general policy, no invented specifics)
+- [x] Order Information page (pickup/delivery/no-shipping/deposit rules from approved facts)
+- [x] 404/error states polished
+- [x] Homepage additions: gallery preview section, order info link in footer/policies
+- [x] Nav/footer: add Gallery, Privacy, Order Info links; no duplicates
+- [x] Verify no public "CLIENT APPROVAL REQUIRED" text and no broken links
+- [x] Verify all required routes desktop + mobile, one pass
+- [x] Push work to one GitHub feature branch (no merge), collect commit hash
+- [x] Deliver preview URL + evidence report
+
+## Bounded Correction Pass (Client Brief v6)
+- [x] Remove public Admin nav link (header + mobile); keep /admin role-protected but undiscoverable
+- [x] Remove all visible "photo coming soon" / "coming soon" messages site-wide
+- [x] Generate 4 category-level illustrative images in ONE batch (Limber, Cookies, Four Corners Cheesecake, Treat Cups); consistent style; assign to products
+- [x] Add one discreet site-level disclosure: "Some menu images are illustrative until authentic product photography is available."
+- [x] Compact product cards: shorter image area (4:3), verified info only, clear actions; avoid cramped 4-col grids (switch to 3-col max on desktop)
+- [x] Gallery: polished empty-gallery message without "coming soon" language
+- [x] Hero/story: remove placeholder box language, elevate young-founder + Charlotte story visually
+- [x] Refine TS brand mark presentation (less generic, no new permanent logo)
+- [x] Newsletter submission disabled/removed during review (not just intercepted)
+- [x] Confirm checkout + all data collection remain disabled; wedding block intact; no shipping; no address
+- [x] Verify all 12 routes desktop + mobile, publish, deliver evidence

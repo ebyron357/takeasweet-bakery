@@ -20,16 +20,31 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
-import ImagePlaceholder from "@/components/ImagePlaceholder";
 import { NewsletterForm } from "@/components/SiteLayout";
 import { CATEGORY_LABELS, FAQ_ITEMS, SERVICE_AREA_COPY } from "@shared/bakery";
 
-/* ---------- 4. Featured Favorites (placeholders only — no invented details) ---------- */
+/* ---------- 4. Featured Favorites (verified items, illustrative category images) ---------- */
 const FEATURED_FAVORITES = [
-  { name: "Banana Pudding", placeholder: "Banana Pudding photo coming soon" },
-  { name: "Cookies", placeholder: "Cookie photo coming soon" },
-  { name: "Four Corners Cheesecake", placeholder: "Four Corners Cheesecake photo coming soon" },
-  { name: "Treat Cups", placeholder: "Treat Cups photo coming soon" },
+  {
+    name: "Banana Pudding",
+    href: "/product/banana-pudding",
+    image: "/manus-storage/cat-treat-cups_6ff55c37.png",
+  },
+  {
+    name: "Cookies",
+    href: "/shop#cookies",
+    image: "/manus-storage/cat-cookies_e5f3f90b.png",
+  },
+  {
+    name: "Four Corners Cheesecake",
+    href: "/product/four-corners-cheesecake",
+    image: "/manus-storage/cat-cheesecake_85fb2916.png",
+  },
+  {
+    name: "Treat Cups",
+    href: "/shop#treat-cups",
+    image: "/manus-storage/cat-treat-cups_6ff55c37.png",
+  },
 ];
 
 /* ---------- 5. Shop by Category ---------- */
@@ -141,11 +156,16 @@ export default function Home() {
             </div>
           </div>
           <div className="fade-up order-1 md:order-2">
-            <ImagePlaceholder
-              label="Real TakeASweet product or founder photo goes here"
-              ratio="wide"
-              className="mx-auto max-w-lg"
-            />
+            <div className="border-primary/40 mx-auto max-w-lg overflow-hidden rounded-3xl border-4 shadow-md">
+              <img
+                src="/manus-storage/cat-cookies_e5f3f90b.png"
+                alt="Colorful handmade cookies"
+                className="aspect-[4/3] w-full object-cover"
+              />
+            </div>
+            <p className="text-muted-foreground mt-2 text-center text-xs">
+              Illustrative image — founder photo to come.
+            </p>
           </div>
         </div>
         <div className="sprinkle-dots w-full" />
@@ -172,10 +192,17 @@ export default function Home() {
           {FEATURED_FAVORITES.map(item => (
             <Link
               key={item.name}
-              href="/shop"
-              className="group bg-card border-border/60 overflow-hidden rounded-2xl border shadow-sm transition-shadow hover:shadow-md"
+              href={item.href}
+              className="group bg-card border-border/60 overflow-hidden rounded-xl border shadow-sm transition-shadow hover:shadow-md"
             >
-              <ImagePlaceholder label={item.placeholder} className="rounded-none border-0" />
+              <div className="bg-secondary/30 aspect-[4/3] w-full overflow-hidden">
+                <img
+                  src={item.image}
+                  alt={item.name}
+                  loading="lazy"
+                  className="size-full object-cover transition-transform duration-300 group-hover:scale-105"
+                />
+              </div>
               <div className="p-3.5">
                 <h3 className="text-sm font-bold group-hover:underline sm:text-base">
                   {item.name}
@@ -245,9 +272,17 @@ export default function Home() {
       <section className="bg-secondary/40 py-12 md:py-16">
         <div className="container grid items-center gap-8 md:grid-cols-2">
           <div className="relative mx-auto w-full max-w-sm">
-            <ImagePlaceholder label="Founder portrait photo goes here" ratio="portrait" />
-            <div className="bg-primary text-primary-foreground absolute -right-3 -bottom-3 rotate-3 rounded-2xl px-4 py-2 shadow-md">
-              <span className="font-display text-sm font-extrabold">Kid-owned & proud!</span>
+            <div className="bg-card border-secondary flex aspect-[4/5] flex-col items-center justify-center gap-4 rounded-3xl border-4 p-8 text-center shadow-md">
+              <span className="font-display bg-primary text-primary-foreground rounded-2xl px-4 py-2 text-2xl font-extrabold -rotate-2">
+                Kid-owned
+              </span>
+              <span className="font-display text-secondary-foreground text-xl font-bold">
+                &
+              </span>
+              <span className="font-display bg-accent text-accent-foreground rotate-2 rounded-2xl px-4 py-2 text-2xl font-extrabold">
+                Charlotte proud
+              </span>
+              <p className="text-muted-foreground text-xs">Founder portrait to come</p>
             </div>
           </div>
           <div>
@@ -287,11 +322,12 @@ export default function Home() {
               treats to the Charlotte community.
             </p>
           </div>
-          <ImagePlaceholder
-            label="Real booth / event photo goes here"
-            ratio="wide"
-            className="order-1 md:order-2"
-          />
+          <div className="bg-accent/40 order-1 flex aspect-[16/10] items-center justify-center rounded-3xl p-8 text-center md:order-2">
+            <p className="text-accent-foreground font-display max-w-xs text-xl font-bold">
+              From local events to special celebrations — photos from around Charlotte will live
+              here.
+            </p>
+          </div>
         </div>
       </section>
 
@@ -313,8 +349,20 @@ export default function Home() {
             </Button>
           </div>
           <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-            {["Signature cookies", "Treat cups", "Cheesecake", "Event booth"].map(label => (
-              <ImagePlaceholder key={label} label={`${label} photo coming soon`} />
+            {[
+              { label: "Cookies", image: "/manus-storage/cat-cookies_e5f3f90b.png" },
+              { label: "Treat cups", image: "/manus-storage/cat-treat-cups_6ff55c37.png" },
+              { label: "Cheesecake", image: "/manus-storage/cat-cheesecake_85fb2916.png" },
+              { label: "Limber", image: "/manus-storage/cat-limber_9edac5a4.png" },
+            ].map(item => (
+              <div key={item.label} className="overflow-hidden rounded-xl">
+                <img
+                  src={item.image}
+                  alt={item.label}
+                  loading="lazy"
+                  className="aspect-square w-full object-cover"
+                />
+              </div>
             ))}
           </div>
           <div className="mt-6 text-center sm:hidden">

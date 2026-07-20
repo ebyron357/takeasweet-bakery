@@ -95,12 +95,10 @@ export default function ProductDetail() {
             />
           ) : (
             <div
-              role="img"
-              aria-label={`Photo placeholder for ${product.name}`}
-              className="bg-muted text-muted-foreground flex aspect-square flex-col items-center justify-center gap-2"
+              aria-hidden
+              className="bg-secondary/30 text-secondary-foreground/50 flex aspect-square items-center justify-center"
             >
-              <Camera className="size-8 opacity-60" aria-hidden />
-              <span className="text-sm font-semibold">Real photo coming soon</span>
+              <Camera className="size-10" />
             </div>
           )}
         </div>
@@ -233,7 +231,7 @@ export default function ProductDetail() {
               {!product.inStock
                 ? "Sold Out"
                 : product.priceCents <= 0
-                  ? "Coming Soon"
+                  ? "Not Yet Available"
                   : "Add to Bag"}
             </Button>
           </div>

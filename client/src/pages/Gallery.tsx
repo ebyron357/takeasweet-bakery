@@ -1,21 +1,12 @@
 import { Link } from "wouter";
-import { Camera, Images } from "lucide-react";
+import { Heart, Images } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 /**
- * Gallery reserves space for authentic TakeASweet photography only.
- * Slots stay intentionally empty until real, approved photos are provided —
- * no stock or generated imagery is ever presented as TakeASweet's work.
+ * The gallery holds only client-approved photographs of TakeASweet's actual
+ * work. Until those are provided, it shows a polished empty state — no stock
+ * or generated imagery is ever presented as the bakery's real work.
  */
-const RESERVED_SLOTS = [
-  "Signature cookies",
-  "Treat cups",
-  "Four Corners Cheesecake",
-  "Frozen limber",
-  "Event booth",
-  "Custom order spotlight",
-];
-
 export default function Gallery() {
   return (
     <div className="container py-12 md:py-16">
@@ -26,34 +17,29 @@ export default function Gallery() {
         <h1 className="font-display mt-2 text-4xl font-extrabold sm:text-5xl">
           Real treats, real moments
         </h1>
-        <p className="text-muted-foreground mx-auto mt-3 max-w-md">
-          Photos of TakeASweet's handmade treats and community events are on their way. Every image
-          here will be the real thing — baked, decorated, and photographed by us.
-        </p>
       </div>
 
-      <div className="mt-10 grid grid-cols-2 gap-4 md:grid-cols-3">
-        {RESERVED_SLOTS.map(label => (
-          <div
-            key={label}
-            role="img"
-            aria-label={`Reserved for ${label} photo`}
-            className="bg-muted border-border text-muted-foreground flex aspect-square flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed p-4 text-center"
-          >
-            <Camera className="size-6 opacity-60" aria-hidden />
-            <span className="text-xs font-semibold">{label}</span>
-            <span className="text-[11px]">Photo coming soon</span>
-          </div>
-        ))}
-      </div>
-
-      <div className="mt-10 text-center">
-        <p className="text-muted-foreground text-sm">
-          Want to see the treats in person? Order from the menu and taste for yourself.
+      {/* Polished empty state — populated only with authentic photography */}
+      <div className="bg-secondary/30 mx-auto mt-10 max-w-xl rounded-3xl p-10 text-center">
+        <div className="bg-card mx-auto flex size-16 items-center justify-center rounded-full shadow-sm">
+          <Heart className="text-secondary-foreground size-7" aria-hidden />
+        </div>
+        <h2 className="font-display mt-5 text-2xl font-extrabold">
+          We're saving this space for the real thing
+        </h2>
+        <p className="text-muted-foreground mx-auto mt-3 max-w-md text-sm leading-relaxed">
+          Every photo in this gallery will be an authentic TakeASweet bake — mixed, decorated, and
+          photographed by us here in Charlotte. We only share our actual work, so this page fills
+          up as we do what we love.
         </p>
-        <Button asChild className="mt-4 min-h-11 rounded-full font-bold">
-          <Link href="/shop">Browse the Menu</Link>
-        </Button>
+        <div className="mt-6 flex flex-wrap justify-center gap-3">
+          <Button asChild className="min-h-11 rounded-full font-bold">
+            <Link href="/shop">Browse the Menu</Link>
+          </Button>
+          <Button asChild variant="outline" className="bg-card min-h-11 rounded-full font-bold">
+            <Link href="/our-story">Meet the Founder</Link>
+          </Button>
+        </div>
       </div>
     </div>
   );

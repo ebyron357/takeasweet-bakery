@@ -36,7 +36,7 @@ export default function ProductCard({ product }: { product: ProductCardData }) {
   return (
     <article className="group bg-card border-border/60 flex flex-col overflow-hidden rounded-xl border shadow-sm transition-shadow hover:shadow-md">
       <Link href={`/product/${product.slug}`} className="relative block overflow-hidden">
-        <div className="bg-muted aspect-square w-full overflow-hidden">
+        <div className="bg-secondary/30 aspect-[4/3] w-full overflow-hidden">
           {product.imageUrl ? (
             <img
               src={product.imageUrl}
@@ -47,11 +47,11 @@ export default function ProductCard({ product }: { product: ProductCardData }) {
               }`}
             />
           ) : (
-            <div className="text-muted-foreground border-border m-3 flex h-[calc(100%-1.5rem)] flex-col items-center justify-center gap-1.5 rounded-lg border-2 border-dashed text-center">
-              <Camera className="size-6 opacity-60" aria-hidden />
-              <span className="px-3 text-[11px] leading-snug font-semibold">
-                Real photo coming soon
-              </span>
+            <div
+              aria-hidden
+              className="text-secondary-foreground/50 flex size-full items-center justify-center"
+            >
+              <Camera className="size-7" />
             </div>
           )}
         </div>
