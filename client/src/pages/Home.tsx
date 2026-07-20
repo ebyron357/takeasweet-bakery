@@ -5,9 +5,7 @@ import {
   CakeSlice,
   CalendarHeart,
   Check,
-  Facebook,
   Heart,
-  Instagram,
   MapPin,
   MessageSquareQuote,
   Sparkles,
@@ -20,7 +18,6 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
-import { NewsletterForm } from "@/components/SiteLayout";
 import { CATEGORY_LABELS, FAQ_ITEMS, SERVICE_AREA_COPY } from "@shared/bakery";
 
 /* ---------- 4. Featured Favorites (verified items, illustrative category images) ---------- */
@@ -159,12 +156,12 @@ export default function Home() {
             <div className="border-primary/40 mx-auto max-w-lg overflow-hidden rounded-3xl border-4 shadow-md">
               <img
                 src="/manus-storage/cat-cookies_e5f3f90b.png"
-                alt="Colorful handmade cookies"
+                alt="Illustrative assortment of colorful cookies"
                 className="aspect-[4/3] w-full object-cover"
               />
             </div>
             <p className="text-muted-foreground mt-2 text-center text-xs">
-              Illustrative image — founder photo to come.
+              Illustrative menu image.
             </p>
           </div>
         </div>
@@ -176,7 +173,7 @@ export default function Home() {
         <div className="mb-6 flex items-end justify-between gap-4">
           <div>
             <p className="text-secondary-foreground flex items-center gap-1.5 text-sm font-bold tracking-widest uppercase">
-              <Sparkles className="size-4" /> Customer favorites
+              <Sparkles className="size-4" /> Menu highlights
             </p>
             <h2 className="font-display mt-1 text-3xl font-extrabold sm:text-4xl">
               Featured Favorites
@@ -282,7 +279,7 @@ export default function Home() {
               <span className="font-display bg-accent text-accent-foreground rotate-2 rounded-2xl px-4 py-2 text-2xl font-extrabold">
                 Charlotte proud
               </span>
-              <p className="text-muted-foreground text-xs">Founder portrait to come</p>
+              <p className="text-muted-foreground text-xs">Young entrepreneur · Charlotte, NC</p>
             </div>
           </div>
           <div>
@@ -324,8 +321,7 @@ export default function Home() {
           </div>
           <div className="bg-accent/40 order-1 flex aspect-[16/10] items-center justify-center rounded-3xl p-8 text-center md:order-2">
             <p className="text-accent-foreground font-display max-w-xs text-xl font-bold">
-              From local events to special celebrations — photos from around Charlotte will live
-              here.
+              Made for birthdays, school events, family gatherings, and Charlotte celebrations.
             </p>
           </div>
         </div>
@@ -336,15 +332,15 @@ export default function Home() {
         <div className="container">
           <div className="mb-6 flex items-end justify-between gap-4">
             <h2 className="font-display text-3xl font-extrabold sm:text-4xl">
-              A peek at our work
+              Illustrated menu inspiration
             </h2>
             <Button
               asChild
               variant="ghost"
               className="hidden rounded-full font-bold sm:inline-flex"
             >
-              <Link href="/gallery">
-                Visit the Gallery <ArrowRight className="size-4" aria-hidden />
+              <Link href="/shop">
+                View the Menu <ArrowRight className="size-4" aria-hidden />
               </Link>
             </Button>
           </div>
@@ -367,7 +363,7 @@ export default function Home() {
           </div>
           <div className="mt-6 text-center sm:hidden">
             <Button asChild variant="outline" className="bg-card rounded-full font-bold">
-              <Link href="/gallery">Visit the Gallery</Link>
+              <Link href="/shop">View the Menu</Link>
             </Button>
           </div>
         </div>
@@ -433,25 +429,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ---------- 11. Social proof (component ready, no fake testimonials) ---------- */}
-      <section className="bg-muted/60 py-12 md:py-14">
-        <div className="container max-w-2xl text-center">
-          <MessageSquareQuote className="text-primary mx-auto size-9" />
-          <h2 className="font-display mt-3 text-3xl font-extrabold sm:text-4xl">
-            Sweet words from Charlotte
-          </h2>
-          <div className="border-border bg-card mt-6 rounded-2xl border-2 border-dashed p-8">
-            <p className="text-muted-foreground text-sm">
-              Real customer reviews will appear here soon. Tried our treats? We'd love to hear from
-              you — send us a note through the contact page!
-            </p>
-            <Button asChild variant="outline" className="bg-card mt-4 rounded-full font-bold">
-              <Link href="/contact">Share Your Experience</Link>
-            </Button>
-          </div>
-        </div>
-      </section>
-
       {/* ---------- 13. FAQ preview ---------- */}
       <section className="container max-w-3xl py-12 md:py-16">
         <h2 className="font-display mb-6 text-center text-3xl font-extrabold sm:text-4xl">
@@ -474,39 +451,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ---------- 12. Social media + newsletter ---------- */}
-      <section className="container pb-14 text-center md:pb-20">
-        <h2 className="font-display text-3xl font-extrabold sm:text-4xl">Follow the sweetness</h2>
-        <p className="text-muted-foreground mx-auto mt-2 max-w-md">
-          New flavors and event pop-ups drop on social first — and the sweet list gets restock
-          alerts by email.
-        </p>
-        <div className="mt-5 flex justify-center gap-3">
-          <Button
-            asChild
-            variant="outline"
-            className="bg-card rounded-full font-bold"
-            aria-label="TakeASweet on Facebook"
-          >
-            <a href="https://www.facebook.com/" target="_blank" rel="noopener noreferrer">
-              <Facebook className="size-4" /> Facebook
-            </a>
-          </Button>
-          <Button
-            asChild
-            variant="outline"
-            className="bg-card rounded-full font-bold"
-            aria-label="TakeASweet on Instagram"
-          >
-            <a href="https://www.instagram.com/" target="_blank" rel="noopener noreferrer">
-              <Instagram className="size-4" /> Instagram
-            </a>
-          </Button>
-        </div>
-        <div className="mt-8">
-          <NewsletterForm />
-        </div>
-      </section>
     </div>
   );
 }
