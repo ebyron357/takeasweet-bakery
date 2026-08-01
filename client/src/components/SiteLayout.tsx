@@ -412,8 +412,17 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
           <p className="text-muted-foreground container text-center text-xs">
             © {new Date().getFullYear()} TakeASweet Cookies & Treats · {SERVICE_AREA_COPY}
           </p>
-          <p className="text-muted-foreground/80 container mt-1 text-center text-[11px]">
-            Some menu images are illustrative until authentic product photography is available.
+          <p className="text-muted-foreground/75 container mt-2 text-center text-[11px] leading-relaxed">
+            Website designed and maintained by{" "}
+            <a
+              href="https://clientverse.io"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-foreground focus-visible:ring-ring rounded font-semibold underline underline-offset-2 transition-colors focus-visible:ring-2 focus-visible:outline-none"
+            >
+              Clientverse®
+            </a>
+            . AI-powered websites, automation, and business systems.
           </p>
         </div>
       </footer>
