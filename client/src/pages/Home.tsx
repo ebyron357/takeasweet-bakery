@@ -163,9 +163,6 @@ export default function Home() {
                 className="aspect-[4/3] w-full object-cover"
               />
             </div>
-            <p className="text-muted-foreground mt-2 text-center text-xs">
-              Illustrative image — founder photo to come.
-            </p>
           </div>
         </div>
         <div className="sprinkle-dots w-full" />
