@@ -5,11 +5,14 @@ import {
   CakeSlice,
   CalendarHeart,
   Check,
+  Cookie,
   Facebook,
   Heart,
+  IceCreamBowl,
   Instagram,
   MapPin,
   MessageSquareQuote,
+  Snowflake,
   Sparkles,
   Truck,
 } from "lucide-react";
@@ -52,62 +55,61 @@ const FEATURED_FAVORITES = [
 
 /* ---------- 5. Shop by Category ---------- */
 const CATEGORY_CARDS = [
-  { key: "limber", emoji: "🧊" },
-  { key: "treat-cups", emoji: "🍨" },
-  { key: "cookies", emoji: "🍪" },
-  { key: "cheesecake", emoji: "🍰" },
-  { key: "seasonal", emoji: "✨" },
+  { key: "limber", icon: Snowflake },
+  { key: "treat-cups", icon: IceCreamBowl },
+  { key: "cookies", icon: Cookie },
+  { key: "cheesecake", icon: CakeSlice },
+  { key: "seasonal", icon: Sparkles },
 ];
 
 /* ---------- 6. Four Corners flavor preview (illustrative only) ---------- */
-const PREVIEW_FLAVORS = ["Strawberry", "Oreo", "Caramel", "Classic", "Lemon", "Chocolate"];
+const PREVIEW_FLAVORS = [
+  { name: "Strawberry", available: true },
+  { name: "Oreo", available: true },
+  { name: "Flavor Coming Soon", available: false },
+  { name: "Flavor Coming Soon", available: false },
+];
 
 function FourCornersPreview() {
   const [selected, setSelected] = useState<string[]>(["Strawberry", "Oreo"]);
 
-  const toggle = (flavor: string) => {
+  const toggle = (flavor: { name: string; available: boolean }) => {
+    if (!flavor.available) return;
     setSelected(prev =>
-      prev.includes(flavor)
-        ? prev.filter(f => f !== flavor)
+      prev.includes(flavor.name)
+        ? prev.filter(f => f !== flavor.name)
         : prev.length < 4
-          ? [...prev, flavor]
+          ? [...prev, flavor.name]
           : prev,
     );
   };
 
   return (
     <div className="bg-card border-border/60 rounded-3xl border p-6 shadow-sm">
-      <div className="mb-4 grid grid-cols-2 gap-2" aria-hidden>
-        {[0, 1, 2, 3].map(i => (
-          <div
-            key={i}
-            className={`flex aspect-[2/1] items-center justify-center rounded-xl text-xs font-bold transition-colors ${
-              selected[i]
-                ? "bg-secondary text-secondary-foreground"
-                : "bg-muted text-muted-foreground border-2 border-dashed"
-            }`}
-          >
-            {selected[i] ?? `Corner ${i + 1}`}
-          </div>
-        ))}
-      </div>
-      <p className="mb-2 text-sm font-bold">Pick up to 4 flavors:</p>
-      <div className="flex flex-wrap gap-2">
-        {PREVIEW_FLAVORS.map(flavor => {
-          const active = selected.includes(flavor);
+      <p className="mb-3 text-sm font-bold">Pick up to 4 flavors:</p>
+      <div className="grid grid-cols-2 gap-3">
+        {PREVIEW_FLAVORS.map((flavor, i) => {
+          const active = flavor.available && selected.includes(flavor.name);
           return (
             <button
-              key={flavor}
+              key={`${flavor.name}-${i}`}
+              type="button"
               onClick={() => toggle(flavor)}
-              className={`inline-flex items-center gap-1 rounded-full px-3 py-1.5 text-xs font-bold transition-colors ${
+              disabled={!flavor.available}
+              aria-pressed={flavor.available ? active : undefined}
+              className={`flex aspect-[2/1] flex-col items-center justify-center gap-1 rounded-xl border p-3 text-center text-xs font-bold transition-colors ${
                 active
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-muted hover:bg-border text-foreground"
+                  ? "bg-secondary text-secondary-foreground border-secondary shadow-sm"
+                  : flavor.available
+                    ? "bg-secondary/20 text-foreground border-border/60 hover:bg-secondary/40 hover:border-secondary shadow-sm"
+                    : "bg-muted/50 text-muted-foreground border-border/40 cursor-not-allowed"
               }`}
-              aria-pressed={active}
             >
-              {active && <Check className="size-3" />}
-              {flavor}
+              <CakeSlice className="size-4" strokeWidth={1.75} aria-hidden />
+              <span className="inline-flex items-center gap-1">
+                {active && <Check className="size-3" />}
+                {flavor.name}
+              </span>
             </button>
           );
         })}
@@ -232,9 +234,7 @@ export default function Home() {
                 href={`/shop#${cat.key}`}
                 className="bg-card border-border/60 hover:border-primary flex flex-col items-center gap-2 rounded-2xl border p-5 text-center shadow-sm transition-colors"
               >
-                <span className="text-3xl" aria-hidden>
-                  {cat.emoji}
-                </span>
+                <cat.icon className="text-foreground size-8" strokeWidth={1.75} aria-hidden />
                 <span className="font-display font-bold">{CATEGORY_LABELS[cat.key]}</span>
               </Link>
             ))}
