@@ -190,7 +190,7 @@ export const appRouter = router({
             customer_name: ctx.user?.name ?? "",
           },
           success_url: `${origin}/order/confirmation?session_id={CHECKOUT_SESSION_ID}`,
-          cancel_url: `${origin}/cart?cancelled=1`,
+          cancel_url: `${origin}/order/canceled`,
         });
 
         await dbf.createOrder(

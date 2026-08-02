@@ -2,6 +2,11 @@ import { describe, expect, it, vi } from "vitest";
 import { appRouter } from "./routers";
 import type { TrpcContext } from "./_core/context";
 import { containsWeddingKeyword, SERVICE_AREA_COPY } from "../shared/bakery";
+import {
+  CLIENT_REVIEW_MODE,
+  PAYMENTS_ENABLED,
+  PAYMENTS_LIVE,
+} from "../shared/review-mode";
 
 vi.mock("./db-features", () => ({
   listActiveProducts: vi.fn().mockResolvedValue([
@@ -41,6 +46,7 @@ vi.mock("./db-features", () => ({
   getOrderBySessionId: vi.fn(),
   getOrderItems: vi.fn().mockResolvedValue([]),
   markOrderPaid: vi.fn(),
+  cancelOrderBySessionId: vi.fn(),
   updateOrderStatus: vi.fn(),
   listOrders: vi.fn().mockResolvedValue([]),
   createCustomOrderRequest: vi.fn().mockResolvedValue(undefined),
@@ -168,5 +174,40 @@ describe("checkout.createSession validation", () => {
     await expect(
       caller.checkout.createSession({ items: [{ productId: 999, quantity: 1 }] }),
     ).rejects.toThrow(/not found/i);
+  });
+
+  it("rejects quantities above the per-item cap", async () => {
+    const caller = appRouter.createCaller(createContext());
+    await expect(
+      caller.checkout.createSession({ items: [{ productId: 1, quantity: 999 }] }),
+    ).rejects.toThrow();
+  });
+});
+
+describe("checkout.confirmation protection", () => {
+  it("rejects an unknown session id", async () => {
+    const caller = appRouter.createCaller(createContext());
+    await expect(
+      caller.checkout.confirmation({ sessionId: "cs_test_does_not_exist" }),
+    ).rejects.toThrow(/not found/i);
+  });
+
+  it("requires a non-empty session id", async () => {
+    const caller = appRouter.createCaller(createContext());
+    await expect(caller.checkout.confirmation({ sessionId: "" })).rejects.toThrow();
+  });
+});
+
+describe("payment mode flags", () => {
+  it("keeps live payments disabled until explicit approval", () => {
+    expect(PAYMENTS_LIVE).toBe(false);
+  });
+
+  it("allows the test-mode checkout path", () => {
+    expect(PAYMENTS_ENABLED).toBe(true);
+  });
+
+  it("keeps customer-data collection disabled during review", () => {
+    expect(CLIENT_REVIEW_MODE).toBe(true);
   });
 });

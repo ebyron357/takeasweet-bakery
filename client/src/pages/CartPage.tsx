@@ -6,7 +6,11 @@ import { Button } from "@/components/ui/button";
 import { useCart } from "@/contexts/CartContext";
 import { trpc } from "@/lib/trpc";
 import { formatPrice, SERVICE_AREA_COPY } from "@shared/bakery";
-import { CLIENT_REVIEW_MODE, REVIEW_CHECKOUT_NOTICE } from "@shared/review-mode";
+import {
+  PAYMENTS_ENABLED,
+  PAYMENTS_LIVE,
+  REVIEW_CHECKOUT_NOTICE,
+} from "@shared/review-mode";
 
 export default function CartPage() {
   const { items, totalCents, setQuantity, removeItem } = useCart();
@@ -102,7 +106,7 @@ export default function CartPage() {
         <p className="text-muted-foreground mt-2 text-sm">
           {SERVICE_AREA_COPY} Pickup details are shared after your order is confirmed.
         </p>
-        {CLIENT_REVIEW_MODE && (
+        {!PAYMENTS_LIVE && (
           <p
             role="status"
             className="bg-accent/60 text-accent-foreground mt-3 rounded-xl px-4 py-3 text-sm font-semibold"
@@ -113,19 +117,26 @@ export default function CartPage() {
         <Button
           size="lg"
           className="mt-4 min-h-12 w-full rounded-full text-base font-bold"
-          disabled={CLIENT_REVIEW_MODE || checkout.isPending}
+          disabled={!PAYMENTS_ENABLED || checkout.isPending}
           onClick={() =>
             checkout.mutate({
               items: items.map(i => ({ productId: i.productId, quantity: i.quantity })),
             })
           }
         >
-          {CLIENT_REVIEW_MODE
+          {!PAYMENTS_ENABLED
             ? "Checkout Disabled (Preview)"
             : checkout.isPending
               ? "Preparing checkout…"
-              : "Checkout Securely"}
+              : PAYMENTS_LIVE
+                ? "Checkout Securely"
+                : "Checkout (Test Mode)"}
         </Button>
+        {!PAYMENTS_LIVE && (
+          <p className="text-muted-foreground mt-3 text-center text-xs">
+            Test card: 4242 4242 4242 4242 · any future expiry · any CVC · any ZIP
+          </p>
+        )}
       </div>
     </div>
   );

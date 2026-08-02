@@ -108,6 +108,16 @@ export async function markOrderPaid(sessionId: string, paymentIntentId?: string)
     .where(eq(orders.stripeSessionId, sessionId));
 }
 
+/** Marks a pending order cancelled when its checkout session expires or fails. */
+export async function cancelOrderBySessionId(sessionId: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db
+    .update(orders)
+    .set({ status: "cancelled" })
+    .where(and(eq(orders.stripeSessionId, sessionId), eq(orders.status, "pending")));
+}
+
 export async function updateOrderStatus(
   id: number,
   status: "pending" | "paid" | "fulfilled" | "cancelled",

@@ -13,6 +13,7 @@ import CustomOrders from "./pages/CustomOrders";
 import Faq from "./pages/Faq";
 import Gallery from "./pages/Gallery";
 import Home from "./pages/Home";
+import OrderCanceled from "./pages/OrderCanceled";
 import OrderConfirmation from "./pages/OrderConfirmation";
 import OrderInfo from "./pages/OrderInfo";
 import OurStory from "./pages/OurStory";
@@ -29,6 +30,7 @@ function Router() {
         <Route path={"/product/:slug"} component={ProductDetail} />
         <Route path={"/cart"} component={CartPage} />
         <Route path={"/order/confirmation"} component={OrderConfirmation} />
+        <Route path={"/order/canceled"} component={OrderCanceled} />
         <Route path={"/custom-orders"} component={CustomOrders} />
         <Route path={"/our-story"} component={OurStory} />
         <Route path={"/faq"} component={Faq} />

@@ -1,12 +1,17 @@
 import express, { type Express, type Request, type Response } from "express";
 import Stripe from "stripe";
-import { markOrderPaid } from "./db-features";
+import { cancelOrderBySessionId, markOrderPaid } from "./db-features";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY ?? "");
 
 /**
  * Registers the Stripe webhook route. MUST be called BEFORE express.json()
- * middleware so raw body is available for signature verification.
+ * middleware so the raw body is available for signature verification.
+ *
+ * Handled events:
+ *  - checkout.session.completed  -> order marked "paid"
+ *  - checkout.session.expired    -> order marked "cancelled"
+ *  - checkout.session.async_payment_failed -> order marked "cancelled"
  */
 export function registerStripeWebhook(app: Express) {
   app.post(
@@ -47,6 +52,15 @@ export function registerStripeWebhook(app: Express) {
                 `[Stripe Webhook] Order paid: session=${session.id} ref=${session.metadata?.order_ref}`,
               );
             }
+            break;
+          }
+          case "checkout.session.expired":
+          case "checkout.session.async_payment_failed": {
+            const session = event.data.object as Stripe.Checkout.Session;
+            await cancelOrderBySessionId(session.id);
+            console.log(
+              `[Stripe Webhook] Order cancelled (${event.type}): session=${session.id} ref=${session.metadata?.order_ref}`,
+            );
             break;
           }
           default:

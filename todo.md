@@ -106,3 +106,15 @@
 - [x] Newsletter submission disabled/removed during review (not just intercepted)
 - [x] Confirm checkout + all data collection remain disabled; wedding block intact; no shipping; no address
 - [x] Verify all 12 routes desktop + mobile, publish, deliver evidence
+
+## Stripe Test-Mode Integration (Client Brief v7)
+- [x] Audit existing Stripe wiring (checkout session, webhook, orders schema)
+- [x] Add explicit PAYMENTS_TEST_MODE flag; enable checkout path while keeping forms/newsletter off
+- [x] Success page (/order/confirmation) verified + styled to match; reveals pickup info only after paid
+- [x] Canceled-payment page (/order/canceled) matching site style
+- [x] Webhook: checkout.session.completed -> order paid; also handle expired/failed -> cancelled
+- [x] Order status handling verified in admin (pending/paid/fulfilled/cancelled)
+- [x] No invented taxes, shipping, delivery fees, minimums, refund/cancellation terms
+- [x] Run full test checkout with 4242 4242 4242 4242 and verify order marked paid
+- [x] Add vitest coverage for checkout session + webhook order status
+- [x] Publish and deliver report incl. client Stripe ownership onboarding steps

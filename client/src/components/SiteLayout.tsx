@@ -17,6 +17,8 @@ import { trpc } from "@/lib/trpc";
 import { ANNOUNCEMENT_COPY, SERVICE_AREA_COPY, formatPrice } from "@shared/bakery";
 import {
   CLIENT_REVIEW_MODE,
+  PAYMENTS_ENABLED,
+  PAYMENTS_LIVE,
   REVIEW_CHECKOUT_NOTICE,
   REVIEW_FORM_NOTICE,
 } from "@shared/review-mode";
@@ -165,7 +167,7 @@ function CartDrawer() {
               <p className="text-muted-foreground mb-3 text-xs">
                 Pickup details are shared after your order is confirmed. {SERVICE_AREA_COPY}
               </p>
-              {CLIENT_REVIEW_MODE && (
+              {!PAYMENTS_LIVE && (
                 <p
                   role="status"
                   className="bg-accent/60 text-accent-foreground mb-3 rounded-xl px-3 py-2 text-xs font-semibold"
@@ -176,18 +178,20 @@ function CartDrawer() {
               <Button
                 className="min-h-12 w-full rounded-full text-base font-bold"
                 size="lg"
-                disabled={CLIENT_REVIEW_MODE || checkout.isPending}
+                disabled={!PAYMENTS_ENABLED || checkout.isPending}
                 onClick={() =>
                   checkout.mutate({
                     items: items.map(i => ({ productId: i.productId, quantity: i.quantity })),
                   })
                 }
               >
-                {CLIENT_REVIEW_MODE
+                {!PAYMENTS_ENABLED
                   ? "Checkout Disabled (Preview)"
                   : checkout.isPending
                     ? "Preparing checkout…"
-                    : "Checkout Securely"}
+                    : PAYMENTS_LIVE
+                      ? "Checkout Securely"
+                      : "Checkout (Test Mode)"}
               </Button>
               <button
                 onClick={clearCart}
