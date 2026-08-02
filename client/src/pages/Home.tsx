@@ -5,11 +5,14 @@ import {
   CakeSlice,
   CalendarHeart,
   Check,
+  Coffee,
+  Cookie,
   Facebook,
   Heart,
   Instagram,
   MapPin,
   MessageSquareQuote,
+  Snowflake,
   Sparkles,
   Truck,
 } from "lucide-react";
@@ -52,69 +55,84 @@ const FEATURED_FAVORITES = [
 
 /* ---------- 5. Shop by Category ---------- */
 const CATEGORY_CARDS = [
-  { key: "limber", emoji: "🧊" },
-  { key: "treat-cups", emoji: "🍨" },
-  { key: "cookies", emoji: "🍪" },
-  { key: "cheesecake", emoji: "🍰" },
-  { key: "seasonal", emoji: "✨" },
+  { key: "limber", Icon: Snowflake },
+  { key: "treat-cups", Icon: Coffee },
+  { key: "cookies", Icon: Cookie },
+  { key: "cheesecake", Icon: CakeSlice },
+  { key: "seasonal", Icon: Sparkles },
 ];
 
-/* ---------- 6. Four Corners flavor preview (illustrative only) ---------- */
-const PREVIEW_FLAVORS = ["Strawberry", "Oreo", "Caramel", "Classic", "Lemon", "Chocolate"];
+/* ---------- 6. Four Corners flavor cards ---------- */
+const FLAVOR_CARDS = [
+  { id: "strawberry", label: "Strawberry", available: true },
+  { id: "oreo", label: "Oreo", available: true },
+  { id: "coming-1", label: "Flavor Coming Soon", available: false },
+  { id: "coming-2", label: "Flavor Coming Soon", available: false },
+] as const;
 
 function FourCornersPreview() {
-  const [selected, setSelected] = useState<string[]>(["Strawberry", "Oreo"]);
+  const [selected, setSelected] = useState<string[]>(["strawberry", "oreo"]);
 
-  const toggle = (flavor: string) => {
+  const toggle = (id: string) => {
     setSelected(prev =>
-      prev.includes(flavor)
-        ? prev.filter(f => f !== flavor)
-        : prev.length < 4
-          ? [...prev, flavor]
-          : prev,
+      prev.includes(id) ? prev.filter(f => f !== id) : prev.length < 4 ? [...prev, id] : prev,
     );
   };
 
   return (
     <div className="bg-card border-border/60 rounded-3xl border p-6 shadow-sm">
-      <div className="mb-4 grid grid-cols-2 gap-2" aria-hidden>
-        {[0, 1, 2, 3].map(i => (
-          <div
-            key={i}
-            className={`flex aspect-[2/1] items-center justify-center rounded-xl text-xs font-bold transition-colors ${
-              selected[i]
-                ? "bg-secondary text-secondary-foreground"
-                : "bg-muted text-muted-foreground border-2 border-dashed"
-            }`}
-          >
-            {selected[i] ?? `Corner ${i + 1}`}
-          </div>
-        ))}
-      </div>
-      <p className="mb-2 text-sm font-bold">Pick up to 4 flavors:</p>
-      <div className="flex flex-wrap gap-2">
-        {PREVIEW_FLAVORS.map(flavor => {
-          const active = selected.includes(flavor);
+      <div className="mb-4 grid grid-cols-2 gap-3">
+        {FLAVOR_CARDS.map(flavor => {
+          const isSelected = selected.includes(flavor.id);
           return (
             <button
-              key={flavor}
-              onClick={() => toggle(flavor)}
-              className={`inline-flex items-center gap-1 rounded-full px-3 py-1.5 text-xs font-bold transition-colors ${
-                active
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-muted hover:bg-border text-foreground"
-              }`}
-              aria-pressed={active}
+              key={flavor.id}
+              onClick={() => flavor.available && toggle(flavor.id)}
+              disabled={!flavor.available}
+              aria-pressed={flavor.available ? isSelected : undefined}
+              className={[
+                "group flex flex-col items-center gap-2 rounded-2xl border p-4 text-center shadow-sm transition-all duration-200",
+                flavor.available
+                  ? isSelected
+                    ? "bg-secondary border-secondary-foreground/30 text-secondary-foreground shadow-md"
+                    : "bg-card border-border/60 hover:border-primary hover:shadow-md cursor-pointer"
+                  : "bg-muted/50 border-border/40 text-muted-foreground cursor-default",
+              ]
+                .join(" ")
+                .trim()}
             >
-              {active && <Check className="size-3" />}
-              {flavor}
+              <CakeSlice
+                className={[
+                  "size-5 stroke-[1.5]",
+                  flavor.available
+                    ? isSelected
+                      ? "text-secondary-foreground"
+                      : "text-foreground/60 group-hover:text-foreground"
+                    : "text-muted-foreground/50",
+                ]
+                  .join(" ")
+                  .trim()}
+                aria-hidden
+              />
+              <span
+                className={[
+                  "text-xs font-bold leading-tight",
+                  !flavor.available ? "italic" : "",
+                ]
+                  .join(" ")
+                  .trim()}
+              >
+                {flavor.label}
+              </span>
+              {isSelected && flavor.available && (
+                <Check className="text-secondary-foreground size-3" aria-hidden />
+              )}
             </button>
           );
         })}
       </div>
-      <p className="text-muted-foreground mt-3 text-xs">
-        Flavor list shown for preview — final flavors are confirmed on the product page before
-        checkout.
+      <p className="text-muted-foreground text-xs">
+        Tap a corner to select your flavor — finalized before checkout.
       </p>
     </div>
   );
@@ -232,9 +250,10 @@ export default function Home() {
                 href={`/shop#${cat.key}`}
                 className="bg-card border-border/60 hover:border-primary flex flex-col items-center gap-2 rounded-2xl border p-5 text-center shadow-sm transition-colors"
               >
-                <span className="text-3xl" aria-hidden>
-                  {cat.emoji}
-                </span>
+                <cat.Icon
+                  className="text-foreground size-8 stroke-[1.5]"
+                  aria-hidden
+                />
                 <span className="font-display font-bold">{CATEGORY_LABELS[cat.key]}</span>
               </Link>
             ))}
