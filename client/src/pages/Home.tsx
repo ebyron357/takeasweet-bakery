@@ -23,6 +23,9 @@ import { Button } from "@/components/ui/button";
 import { NewsletterForm } from "@/components/SiteLayout";
 import { CATEGORY_LABELS, FAQ_ITEMS, SERVICE_AREA_COPY } from "@shared/bakery";
 
+const FOUNDER_PORTRAIT = "/manus-storage/founder-portrait_084f259e.webp";
+const FOUNDER_FAMILY = "/manus-storage/founder-family_f9035642.webp";
+
 /* ---------- 4. Featured Favorites (verified items, illustrative category images) ---------- */
 const FEATURED_FAVORITES = [
   {
@@ -269,17 +272,17 @@ export default function Home() {
       <section className="bg-secondary/40 py-12 md:py-16">
         <div className="container grid items-center gap-8 md:grid-cols-2">
           <div className="relative mx-auto w-full max-w-sm">
-            <div className="bg-card border-secondary flex aspect-[4/5] flex-col items-center justify-center gap-4 rounded-3xl border-4 p-8 text-center shadow-md">
-              <span className="font-display bg-primary text-primary-foreground rounded-2xl px-4 py-2 text-2xl font-extrabold -rotate-2">
-                Kid-owned
-              </span>
-              <span className="font-display text-secondary-foreground text-xl font-bold">
-                &
-              </span>
-              <span className="font-display bg-accent text-accent-foreground rotate-2 rounded-2xl px-4 py-2 text-2xl font-extrabold">
-                Charlotte proud
-              </span>
-              <p className="text-muted-foreground text-xs">Founder portrait to come</p>
+            <img
+              src={FOUNDER_PORTRAIT}
+              alt="Portrait of the young founder of TakeASweet Cookies & Treats, smiling in a bright blue blazer in front of green hedges"
+              width={900}
+              height={1350}
+              loading="lazy"
+              decoding="async"
+              className="aspect-[2/3] w-full rounded-3xl object-cover object-top shadow-md"
+            />
+            <div className="bg-primary text-primary-foreground absolute -right-3 -bottom-3 rotate-3 rounded-2xl px-4 py-2 shadow-md">
+              <span className="font-display text-sm font-extrabold">Kid-owned & proud!</span>
             </div>
           </div>
           <div>
@@ -319,12 +322,15 @@ export default function Home() {
               treats to the Charlotte community.
             </p>
           </div>
-          <div className="bg-accent/40 order-1 flex aspect-[16/10] items-center justify-center rounded-3xl p-8 text-center md:order-2">
-            <p className="text-accent-foreground font-display max-w-xs text-xl font-bold">
-              From local events to special celebrations — photos from around Charlotte will live
-              here.
-            </p>
-          </div>
+          <img
+            src={FOUNDER_FAMILY}
+            alt="The founder of TakeASweet and her mother smiling together at a Charlotte community event, both wearing pink TakeASweet Cookies & Treats caps and logo shirts"
+            width={1200}
+            height={900}
+            loading="lazy"
+            decoding="async"
+            className="order-1 aspect-[4/3] w-full rounded-3xl object-cover object-center shadow-md md:order-2"
+          />
         </div>
       </section>
 
