@@ -5,14 +5,14 @@ import {
   CakeSlice,
   CalendarHeart,
   Check,
-  Coffee,
   Cookie,
+  CupSoda,
   Facebook,
   Heart,
+  IceCream,
   Instagram,
   MapPin,
   MessageSquareQuote,
-  Snowflake,
   Sparkles,
   Truck,
 } from "lucide-react";
@@ -55,8 +55,8 @@ const FEATURED_FAVORITES = [
 
 /* ---------- 5. Shop by Category ---------- */
 const CATEGORY_CARDS = [
-  { key: "limber", Icon: Snowflake },
-  { key: "treat-cups", Icon: Coffee },
+  { key: "limber", Icon: CupSoda },
+  { key: "treat-cups", Icon: IceCream },
   { key: "cookies", Icon: Cookie },
   { key: "cheesecake", Icon: CakeSlice },
   { key: "seasonal", Icon: Sparkles },
@@ -71,7 +71,7 @@ const FLAVOR_CARDS = [
 ] as const;
 
 function FourCornersPreview() {
-  const [selected, setSelected] = useState<string[]>(["strawberry", "oreo"]);
+  const [selected, setSelected] = useState<string[]>([]);
 
   const toggle = (id: string) => {
     setSelected(prev =>
