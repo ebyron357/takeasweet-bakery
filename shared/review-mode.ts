@@ -20,12 +20,12 @@ export const CLIENT_REVIEW_MODE = true;
  * account, live keys must be installed in project settings, and
  * PAYMENTS_TEST_MODE must be set to false.
  */
-export const PAYMENTS_ENABLED = true;
+export const PAYMENTS_ENABLED = false;
 export const PAYMENTS_TEST_MODE = true;
 export const PAYMENTS_LIVE = PAYMENTS_ENABLED && !PAYMENTS_TEST_MODE;
 
 export const REVIEW_CHECKOUT_NOTICE =
-  "Test mode: checkout runs through Stripe's test environment, so no real payment is taken and no card is charged.";
+  "Online checkout is disabled during client review. Prices and cart totals are shown for preview only.";
 
 export const REVIEW_FORM_NOTICE =
   "During client review, this form does not send or store any information.";

@@ -279,7 +279,7 @@ export default function Home() {
               className="aspect-[2/3] w-full rounded-3xl object-cover object-top shadow-md"
             />
             <div className="bg-primary text-primary-foreground absolute -right-3 -bottom-3 rotate-3 rounded-2xl px-4 py-2 shadow-md">
-              <span className="font-display text-sm font-extrabold">Kid-owned & proud!</span>
+               <span className="font-display text-sm font-extrabold">Kid-owned & proud!</span>
             </div>
           </div>
           <div>
@@ -359,6 +359,11 @@ export default function Home() {
               </div>
             ))}
           </div>
+          <div className="mt-6 text-center sm:hidden">
+            <Button asChild variant="outline" className="bg-card rounded-full font-bold">
+              <Link href="/shop">View the Menu</Link>
+            </Button>
+          </div>
         </div>
       </section>
 
@@ -420,6 +425,7 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ---------- 13. FAQ preview ---------- */}
       <section className="container max-w-3xl py-12 md:py-16">
         <h2 className="font-display mb-6 text-center text-3xl font-extrabold sm:text-4xl">
           Good to know
