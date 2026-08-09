@@ -6,6 +6,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useCart } from "@/contexts/CartContext";
 import { trpc } from "@/lib/trpc";
 import { formatPrice } from "@shared/bakery";
+import { PAYMENTS_LIVE } from "@shared/review-mode";
 
 export default function OrderConfirmation() {
   const search = useSearch();
@@ -115,6 +116,16 @@ export default function OrderConfirmation() {
         <CheckCircle2 className="text-primary size-4" />
         <p className="text-muted-foreground text-sm">A confirmation email is on its way.</p>
       </div>
+
+      {!PAYMENTS_LIVE && (
+        <p
+          role="status"
+          className="bg-muted text-muted-foreground mt-4 rounded-xl px-4 py-3 text-center text-xs font-semibold"
+        >
+          Test mode: this order was placed through Stripe's test environment. No real payment was
+          taken.
+        </p>
+      )}
 
       <div className="mt-6 text-center">
         <Button asChild variant="outline" className="bg-card rounded-full font-bold">

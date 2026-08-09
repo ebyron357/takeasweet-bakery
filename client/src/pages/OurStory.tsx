@@ -3,6 +3,9 @@ import { ArrowRight, Cookie, Handshake, Heart, Lightbulb, Rocket, Users } from "
 import { Button } from "@/components/ui/button";
 import { SERVICE_AREA_COPY } from "@shared/bakery";
 
+const FOUNDER_PORTRAIT = "/manus-storage/founder-portrait_084f259e.webp";
+const FOUNDER_FAMILY = "/manus-storage/founder-family_f9035642.webp";
+
 
 const VALUES = [
   {
@@ -41,32 +44,72 @@ export default function OurStory() {
         </div>
       </section>
 
-      <section className="container max-w-3xl py-12">
-        <div className="bg-secondary/40 flex aspect-[16/9] items-center justify-center rounded-3xl p-8 text-center">
-          <p className="font-display text-secondary-foreground max-w-sm text-2xl font-extrabold">
-            “I wanted to build something of my own — so I started baking.”
-          </p>
+      {/* Founder portrait beside the story */}
+      <section className="container py-12">
+        <div className="grid items-start gap-8 md:grid-cols-[minmax(0,22rem)_1fr] md:gap-10">
+          <figure className="mx-auto w-full max-w-sm">
+            <img
+              src={FOUNDER_PORTRAIT}
+              alt="Portrait of the young founder of TakeASweet Cookies & Treats, smiling in a bright blue blazer in front of green hedges"
+              width={900}
+              height={1350}
+              loading="eager"
+              decoding="async"
+              className="aspect-[2/3] w-full rounded-3xl object-cover object-top shadow-md"
+            />
+            <figcaption className="text-muted-foreground mt-3 text-center text-sm">
+              Our founder — the baker behind every batch.
+            </figcaption>
+          </figure>
+          <div className="prose prose-lg max-w-none">
+            <p className="text-lg leading-relaxed">
+              TakeASweet Cookies & Treats began the summer our founder aged out of summer camp. With
+              long days ahead and lots of energy to spend, she decided to do something productive —
+              and something delicious. What started as an afternoon of baking with family quickly
+              turned into recipe experiments, taste tests with neighbors, and finally a real business
+              with real customers across Charlotte.
+            </p>
+            <p className="text-lg leading-relaxed">
+              Today, every cookie and treat is still mixed, scooped, and decorated by hand in small
+              batches. Being a young entrepreneur means learning as we grow: pricing spreadsheets,
+              packaging design, customer service, and the fine art of not eating all the inventory.
+              Our family supports every step, but the ideas, the recipes, and the drive all come from
+              one determined kid with a very big dream.
+            </p>
+            <p className="text-lg leading-relaxed">
+              We're proud to be part of the Charlotte community — baking for birthdays, school
+              events, and neighbors who have become friends. Thank you for supporting a kid-owned
+              small business. It means more than you know.
+            </p>
+          </div>
         </div>
-        <div className="prose prose-lg mt-10 max-w-none">
-          <p className="text-lg leading-relaxed">
-            TakeASweet Cookies & Treats began the summer our founder aged out of summer camp. With
-            long days ahead and lots of energy to spend, she decided to do something productive —
-            and something delicious. What started as an afternoon of baking with family quickly
-            turned into recipe experiments, taste tests with neighbors, and finally a real business
-            with real customers across Charlotte.
-          </p>
-          <p className="text-lg leading-relaxed">
-            Today, every cookie and treat is still mixed, scooped, and decorated by hand in small
-            batches. Being a young entrepreneur means learning as we grow: pricing spreadsheets,
-            packaging design, customer service, and the fine art of not eating all the inventory.
-            Our family supports every step, but the ideas, the recipes, and the drive all come from
-            one determined kid with a very big dream.
-          </p>
-          <p className="text-lg leading-relaxed">
-            We're proud to be part of the Charlotte community — baking for birthdays, school
-            events, and neighbors who have become friends. Thank you for supporting a kid-owned
-            small business. It means more than you know.
-          </p>
+      </section>
+
+      {/* Family support */}
+      <section className="bg-secondary/30 py-12 md:py-14">
+        <div className="container grid items-center gap-8 md:grid-cols-2 md:gap-10">
+          <figure className="mx-auto w-full max-w-xl">
+            <img
+              src={FOUNDER_FAMILY}
+              alt="The founder of TakeASweet and her mother smiling together at a Charlotte community event, both wearing pink TakeASweet Cookies & Treats caps and logo shirts"
+              width={1200}
+              height={900}
+              loading="lazy"
+              decoding="async"
+              className="aspect-[4/3] w-full rounded-3xl object-cover object-center shadow-md"
+            />
+          </figure>
+          <div>
+            <p className="text-secondary-foreground flex items-center gap-1.5 text-sm font-bold tracking-widest uppercase">
+              <Users className="size-4" aria-hidden /> Family support
+            </p>
+            <h2 className="font-display mt-1 text-3xl font-extrabold">A family effort</h2>
+            <p className="text-muted-foreground mt-4 text-lg leading-relaxed">
+              Behind every market table and every box of treats is a family that shows up — early
+              mornings, packing help, and plenty of encouragement. The recipes and the drive belong
+              to our young founder; the cheering section is all TakeASweet family.
+            </p>
+          </div>
         </div>
       </section>
 

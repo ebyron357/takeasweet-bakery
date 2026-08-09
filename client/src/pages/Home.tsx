@@ -5,7 +5,10 @@ import {
   CakeSlice,
   CalendarHeart,
   Check,
+  Cookie,
+  CupSoda,
   Heart,
+  IceCream,
   MapPin,
   MessageSquareQuote,
   Sparkles,
@@ -20,7 +23,9 @@ import {
 import { Button } from "@/components/ui/button";
 import { CATEGORY_LABELS, FAQ_ITEMS, SERVICE_AREA_COPY } from "@shared/bakery";
 
-/* ---------- 4. Featured Favorites (verified items, illustrative category images) ---------- */
+const FOUNDER_PORTRAIT = "/manus-storage/founder-portrait_084f259e.webp";
+const FOUNDER_FAMILY = "/manus-storage/founder-family_f9035642.webp";
+
 const FEATURED_FAVORITES = [
   {
     name: "Banana Pudding",
@@ -44,25 +49,28 @@ const FEATURED_FAVORITES = [
   },
 ];
 
-/* ---------- 5. Shop by Category ---------- */
 const CATEGORY_CARDS = [
-  { key: "limber", emoji: "🧊" },
-  { key: "treat-cups", emoji: "🍨" },
-  { key: "cookies", emoji: "🍪" },
-  { key: "cheesecake", emoji: "🍰" },
-  { key: "seasonal", emoji: "✨" },
+  { key: "limber", Icon: CupSoda },
+  { key: "treat-cups", Icon: IceCream },
+  { key: "cookies", Icon: Cookie },
+  { key: "cheesecake", Icon: CakeSlice },
+  { key: "seasonal", Icon: Sparkles },
 ];
 
-/* ---------- 6. Four Corners flavor preview (illustrative only) ---------- */
-const PREVIEW_FLAVORS = ["Strawberry", "Oreo", "Caramel", "Classic", "Lemon", "Chocolate"];
+const FLAVOR_CARDS = [
+  { label: "Strawberry", available: true },
+  { label: "Oreo", available: true },
+  { label: "Flavor Coming Soon", available: false },
+  { label: "Flavor Coming Soon", available: false },
+];
 
 function FourCornersPreview() {
-  const [selected, setSelected] = useState<string[]>(["Strawberry", "Oreo"]);
+  const [selected, setSelected] = useState<string[]>([]);
 
   const toggle = (flavor: string) => {
     setSelected(prev =>
       prev.includes(flavor)
-        ? prev.filter(f => f !== flavor)
+        ? prev.filter(item => item !== flavor)
         : prev.length < 4
           ? [...prev, flavor]
           : prev,
@@ -71,44 +79,49 @@ function FourCornersPreview() {
 
   return (
     <div className="bg-card border-border/60 rounded-3xl border p-6 shadow-sm">
-      <div className="mb-4 grid grid-cols-2 gap-2" aria-hidden>
-        {[0, 1, 2, 3].map(i => (
-          <div
-            key={i}
-            className={`flex aspect-[2/1] items-center justify-center rounded-xl text-xs font-bold transition-colors ${
-              selected[i]
-                ? "bg-secondary text-secondary-foreground"
-                : "bg-muted text-muted-foreground border-2 border-dashed"
-            }`}
-          >
-            {selected[i] ?? `Corner ${i + 1}`}
-          </div>
-        ))}
-      </div>
-      <p className="mb-2 text-sm font-bold">Pick up to 4 flavors:</p>
-      <div className="flex flex-wrap gap-2">
-        {PREVIEW_FLAVORS.map(flavor => {
-          const active = selected.includes(flavor);
+      <p className="mb-4 text-sm font-bold">Choose your corners:</p>
+      <div className="grid grid-cols-2 gap-3">
+        {FLAVOR_CARDS.map((flavor, index) => {
+          const active = selected.includes(flavor.label);
+          const key = `${flavor.label}-${index}`;
+
+          if (!flavor.available) {
+            return (
+              <div
+                key={key}
+                aria-disabled="true"
+                className="bg-muted text-muted-foreground border-border/60 flex aspect-[2/1] flex-col items-center justify-center gap-2 rounded-2xl border p-3 text-center shadow-sm"
+              >
+                <CakeSlice className="size-5 stroke-[1.5]" aria-hidden="true" />
+                <span className="text-xs font-semibold italic">{flavor.label}</span>
+              </div>
+            );
+          }
+
           return (
             <button
-              key={flavor}
-              onClick={() => toggle(flavor)}
-              className={`inline-flex items-center gap-1 rounded-full px-3 py-1.5 text-xs font-bold transition-colors ${
-                active
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-muted hover:bg-border text-foreground"
-              }`}
+              key={key}
+              type="button"
+              onClick={() => toggle(flavor.label)}
               aria-pressed={active}
+              className={`border-border/60 focus-visible:ring-ring flex aspect-[2/1] flex-col items-center justify-center gap-2 rounded-2xl border p-3 text-center shadow-sm transition-all focus-visible:ring-2 focus-visible:ring-offset-2 ${
+                active
+                  ? "bg-secondary text-secondary-foreground border-primary"
+                  : "bg-card hover:border-primary"
+              }`}
             >
-              {active && <Check className="size-3" />}
-              {flavor}
+              <CakeSlice className="size-5 stroke-[1.5]" aria-hidden="true" />
+              <span className="inline-flex items-center gap-1 text-xs font-bold">
+                {active && <Check className="size-3" aria-hidden="true" />}
+                {flavor.label}
+              </span>
             </button>
           );
         })}
       </div>
       <p className="text-muted-foreground mt-3 text-xs">
-        Flavor list shown for preview — final flavors are confirmed on the product page before
-        checkout.
+        This preview does not add an item to your order. Final flavor choices are confirmed on the
+        product page.
       </p>
     </div>
   );
@@ -117,7 +130,6 @@ function FourCornersPreview() {
 export default function Home() {
   return (
     <div>
-      {/* ---------- 3. Hero ---------- */}
       <section className="relative overflow-hidden">
         <div className="container grid items-center gap-8 py-10 md:grid-cols-2 md:py-16">
           <div className="fade-up order-2 md:order-1">
@@ -138,8 +150,7 @@ export default function Home() {
             <div className="mt-6 flex flex-wrap gap-3">
               <Button asChild size="lg" className="rounded-full text-base font-bold">
                 <Link href="/shop">
-                  Shop the Menu
-                  <ArrowRight className="size-4" />
+                  Shop the Menu <ArrowRight className="size-4" />
                 </Link>
               </Button>
               <Button
@@ -168,7 +179,6 @@ export default function Home() {
         <div className="sprinkle-dots w-full" />
       </section>
 
-      {/* ---------- 4. Featured Favorites ---------- */}
       <section className="container py-12 md:py-16">
         <div className="mb-6 flex items-end justify-between gap-4">
           <div>
@@ -209,14 +219,8 @@ export default function Home() {
             </Link>
           ))}
         </div>
-        <div className="mt-6 text-center sm:hidden">
-          <Button asChild variant="outline" className="bg-card rounded-full font-bold">
-            <Link href="/shop">View the Full Menu</Link>
-          </Button>
-        </div>
       </section>
 
-      {/* ---------- 5. Shop by Category ---------- */}
       <section className="bg-muted/60 py-12 md:py-14">
         <div className="container">
           <h2 className="font-display mb-6 text-center text-3xl font-extrabold sm:text-4xl">
@@ -229,9 +233,7 @@ export default function Home() {
                 href={`/shop#${cat.key}`}
                 className="bg-card border-border/60 hover:border-primary flex flex-col items-center gap-2 rounded-2xl border p-5 text-center shadow-sm transition-colors"
               >
-                <span className="text-3xl" aria-hidden>
-                  {cat.emoji}
-                </span>
+                <cat.Icon className="text-foreground size-8 stroke-[1.5]" aria-hidden="true" />
                 <span className="font-display font-bold">{CATEGORY_LABELS[cat.key]}</span>
               </Link>
             ))}
@@ -239,7 +241,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ---------- 6. Four Corners Cheesecake feature ---------- */}
       <section className="container py-12 md:py-16">
         <div className="grid items-center gap-8 md:grid-cols-2">
           <div>
@@ -265,21 +266,20 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ---------- 7. Our Story ---------- */}
       <section className="bg-secondary/40 py-12 md:py-16">
         <div className="container grid items-center gap-8 md:grid-cols-2">
           <div className="relative mx-auto w-full max-w-sm">
-            <div className="bg-card border-secondary flex aspect-[4/5] flex-col items-center justify-center gap-4 rounded-3xl border-4 p-8 text-center shadow-md">
-              <span className="font-display bg-primary text-primary-foreground rounded-2xl px-4 py-2 text-2xl font-extrabold -rotate-2">
-                Kid-owned
-              </span>
-              <span className="font-display text-secondary-foreground text-xl font-bold">
-                &
-              </span>
-              <span className="font-display bg-accent text-accent-foreground rotate-2 rounded-2xl px-4 py-2 text-2xl font-extrabold">
-                Charlotte proud
-              </span>
-              <p className="text-muted-foreground text-xs">Young entrepreneur · Charlotte, NC</p>
+            <img
+              src={FOUNDER_PORTRAIT}
+              alt="Portrait of the young founder of TakeASweet Cookies & Treats smiling in a bright blue blazer"
+              width={900}
+              height={1350}
+              loading="lazy"
+              decoding="async"
+              className="aspect-[2/3] w-full rounded-3xl object-cover object-top shadow-md"
+            />
+            <div className="bg-primary text-primary-foreground absolute -right-3 -bottom-3 rotate-3 rounded-2xl px-4 py-2 shadow-md">
+               <span className="font-display text-sm font-extrabold">Kid-owned & proud!</span>
             </div>
           </div>
           <div>
@@ -292,7 +292,7 @@ export default function Home() {
             <p className="text-muted-foreground mt-4 leading-relaxed">
               TakeASweet started when a young Charlotte entrepreneur decided to turn creativity and
               hard work into something real. With family support and a lot of practice batches,
-              that big idea grew into a bakery known for colorful, handmade treats — and it's still
+              that big idea grew into a bakery known for colorful, handmade treats — and it is still
               growing.
             </p>
             <Button asChild className="mt-6 rounded-full font-bold" size="lg">
@@ -304,7 +304,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ---------- 8. Community ---------- */}
       <section className="container py-12 md:py-16">
         <div className="grid items-center gap-8 md:grid-cols-2">
           <div className="order-2 md:order-1">
@@ -319,28 +318,27 @@ export default function Home() {
               treats to the Charlotte community.
             </p>
           </div>
-          <div className="bg-accent/40 order-1 flex aspect-[16/10] items-center justify-center rounded-3xl p-8 text-center md:order-2">
-            <p className="text-accent-foreground font-display max-w-xs text-xl font-bold">
-              Made for birthdays, school events, family gatherings, and Charlotte celebrations.
-            </p>
-          </div>
+          <img
+            src={FOUNDER_FAMILY}
+            alt="The TakeASweet founder and her mother smiling together at a Charlotte community event in matching bakery shirts and pink caps"
+            width={1200}
+            height={900}
+            loading="lazy"
+            decoding="async"
+            className="order-1 aspect-[4/3] w-full rounded-3xl object-cover object-center shadow-md md:order-2"
+          />
         </div>
       </section>
 
-      {/* ---------- Gallery preview ---------- */}
       <section className="bg-muted/60 py-12 md:py-14">
         <div className="container">
           <div className="mb-6 flex items-end justify-between gap-4">
             <h2 className="font-display text-3xl font-extrabold sm:text-4xl">
               Illustrated menu inspiration
             </h2>
-            <Button
-              asChild
-              variant="ghost"
-              className="hidden rounded-full font-bold sm:inline-flex"
-            >
+            <Button asChild variant="ghost" className="hidden rounded-full font-bold sm:inline-flex">
               <Link href="/shop">
-                View the Menu <ArrowRight className="size-4" aria-hidden />
+                View the Menu <ArrowRight className="size-4" aria-hidden="true" />
               </Link>
             </Button>
           </div>
@@ -354,7 +352,7 @@ export default function Home() {
               <div key={item.label} className="overflow-hidden rounded-xl">
                 <img
                   src={item.image}
-                  alt={item.label}
+                  alt={`Illustrative ${item.label.toLowerCase()} menu image`}
                   loading="lazy"
                   className="aspect-square w-full object-cover"
                 />
@@ -369,7 +367,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ---------- 9. Custom Orders ---------- */}
       <section className="bg-accent/40 py-12 md:py-14">
         <div className="container max-w-3xl text-center">
           <p className="text-accent-foreground flex items-center justify-center gap-1.5 text-sm font-bold tracking-widest uppercase">
@@ -381,7 +378,7 @@ export default function Home() {
           <p className="text-muted-foreground mx-auto mt-4 max-w-xl leading-relaxed">
             Custom desserts are available for birthdays, showers, and celebrations. Every request
             is reviewed before payment, and large orders may require a deposit. Please note: we
-            aren't able to accept wedding orders.
+            are not able to accept wedding orders.
           </p>
           <Button asChild size="lg" className="mt-6 rounded-full text-base font-bold">
             <Link href="/custom-orders">
@@ -391,7 +388,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ---------- 10. Pickup & Delivery ---------- */}
       <section className="container py-12 md:py-16">
         <h2 className="font-display mb-8 text-center text-3xl font-extrabold sm:text-4xl">
           Pickup & Delivery
@@ -420,7 +416,7 @@ export default function Home() {
               className="bg-card border-border/60 rounded-2xl border p-5 text-center shadow-sm"
             >
               <div className="bg-primary/20 mx-auto flex size-11 items-center justify-center rounded-full">
-                <item.icon className="text-primary-foreground size-5" />
+                <item.icon className="text-primary-foreground size-5" aria-hidden="true" />
               </div>
               <h3 className="font-display mt-3 font-bold">{item.title}</h3>
               <p className="text-muted-foreground mt-1 text-sm">{item.text}</p>
@@ -435,8 +431,8 @@ export default function Home() {
           Good to know
         </h2>
         <Accordion type="single" collapsible className="w-full">
-          {FAQ_ITEMS.slice(0, 4).map((item, i) => (
-            <AccordionItem key={i} value={`faq-${i}`}>
+          {FAQ_ITEMS.slice(0, 4).map((item, index) => (
+            <AccordionItem key={item.question} value={`faq-${index}`}>
               <AccordionTrigger className="text-left font-bold">{item.question}</AccordionTrigger>
               <AccordionContent className="text-muted-foreground">{item.answer}</AccordionContent>
             </AccordionItem>
@@ -450,7 +446,6 @@ export default function Home() {
           </Button>
         </div>
       </section>
-
     </div>
   );
 }
