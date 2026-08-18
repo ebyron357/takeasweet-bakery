@@ -18,29 +18,29 @@ Never place real credentials, tokens, webhook secrets, database passwords, priva
 
 ## 3. Environment Variable Matrix
 
-| Variable | Purpose | Development | Preview | Production | Secret | Dependency | Owner | Verification |
-|---|---|---|---|---|---|---|---|---|
-| `NEXT_PUBLIC_SITE_URL` | Canonical public origin used for metadata and URL generation | Local URL allowed | May use generated preview URL | Required approved HTTPS domain | No | Deployment and SEO | Website owner | Run deployment preflight; inspect canonical URLs |
-| `SEARCH_INDEXING_ENABLED` | Controls public search indexing | `false` | `false` | `false` until SEO acceptance, then `true` | No | Final domain, metadata, sitemap, robots review | Website owner | Inspect `/robots.txt`, sitemap, and page robots directives |
-| `PAYMENTS_ENABLED` | Allows creation of new Stripe Checkout sessions | `false` unless controlled test | `false` unless approved test-mode flow | `false` until full Stripe launch gate passes | No | Database, Stripe, privacy contact, policies, payment QA | Business owner | Deployment preflight plus controlled checkout test |
-| `CUSTOM_ORDER_REQUESTS_ENABLED` | Allows public custom-order submissions | `false` unless controlled test | `false` unless isolated test storage is approved | `false` until storage, privacy, and operating rules pass | No | Database, privacy contact, request policy, abuse controls | Business owner | Deployment preflight plus controlled form submission |
-| `DATABASE_URL` | Connects the application to MySQL persistence | Local/development database | Isolated preview database | Production database | Yes | Orders, payment events, custom requests | Database owner | Migration check, connection test, controlled write/read |
-| `STRIPE_SECRET_KEY` | Server-side Stripe API authentication | Test mode only | Test mode only | Live mode only when approved | Yes | Checkout creation and reconciliation | Stripe account owner | Stripe account mode check and controlled API operation |
-| `STRIPE_WEBHOOK_SECRET` | Verifies Stripe webhook signatures | Local Stripe CLI secret | Exact preview endpoint secret if used | Exact production endpoint secret | Yes | Payment-state updates | Stripe account owner | Signed event accepted; invalid signature rejected |
-| `PRIVACY_CONTACT_EMAIL` | Public destination for privacy requests and required collection disclosures | Approved test address if collection is enabled | Approved address if collection is enabled | Required approved public address before collection | No | Payments and custom-order submissions | Business owner | Deployment preflight and public policy review |
-| `VERCEL_AUTOMATION_BYPASS_SECRET` | Allows authorized smoke tests through preview protection | Not required | GitHub Actions secret only when preview protection blocks automation | Normally not required | Yes | Protected preview smoke testing | Vercel owner | GitHub smoke workflow reaches preview without exposing secret |
+| Variable                          | Purpose                                                                     | Development                                    | Preview                                                              | Production                                               | Secret | Dependency                                                | Owner                | Verification                                                  |
+| --------------------------------- | --------------------------------------------------------------------------- | ---------------------------------------------- | -------------------------------------------------------------------- | -------------------------------------------------------- | ------ | --------------------------------------------------------- | -------------------- | ------------------------------------------------------------- |
+| `NEXT_PUBLIC_SITE_URL`            | Canonical public origin used for metadata and URL generation                | Local URL allowed                              | May use generated preview URL                                        | Required approved HTTPS domain                           | No     | Deployment and SEO                                        | Website owner        | Run deployment preflight; inspect canonical URLs              |
+| `SEARCH_INDEXING_ENABLED`         | Controls public search indexing                                             | `false`                                        | `false`                                                              | `false` until SEO acceptance, then `true`                | No     | Final domain, metadata, sitemap, robots review            | Website owner        | Inspect `/robots.txt`, sitemap, and page robots directives    |
+| `PAYMENTS_ENABLED`                | Allows creation of new Stripe Checkout sessions                             | `false` unless controlled test                 | `false` unless approved test-mode flow                               | `false` until full Stripe launch gate passes             | No     | Database, Stripe, privacy contact, policies, payment QA   | Business owner       | Deployment preflight plus controlled checkout test            |
+| `CUSTOM_ORDER_REQUESTS_ENABLED`   | Allows public custom-order submissions                                      | `false` unless controlled test                 | `false` unless isolated test storage is approved                     | `false` until storage, privacy, and operating rules pass | No     | Database, privacy contact, request policy, abuse controls | Business owner       | Deployment preflight plus controlled form submission          |
+| `DATABASE_URL`                    | Connects the application to MySQL persistence                               | Local/development database                     | Isolated preview database                                            | Production database                                      | Yes    | Orders, payment events, custom requests                   | Database owner       | Migration check, connection test, controlled write/read       |
+| `STRIPE_SECRET_KEY`               | Server-side Stripe API authentication                                       | Test mode only                                 | Test mode only                                                       | Live mode only when approved                             | Yes    | Checkout creation and reconciliation                      | Stripe account owner | Stripe account mode check and controlled API operation        |
+| `STRIPE_WEBHOOK_SECRET`           | Verifies Stripe webhook signatures                                          | Local Stripe CLI secret                        | Exact preview endpoint secret if used                                | Exact production endpoint secret                         | Yes    | Payment-state updates                                     | Stripe account owner | Signed event accepted; invalid signature rejected             |
+| `PRIVACY_CONTACT_EMAIL`           | Public destination for privacy requests and required collection disclosures | Approved test address if collection is enabled | Approved address if collection is enabled                            | Required approved public address before collection       | No     | Payments and custom-order submissions                     | Business owner       | Deployment preflight and public policy review                 |
+| `VERCEL_AUTOMATION_BYPASS_SECRET` | Allows authorized smoke tests through preview protection                    | Not required                                   | GitHub Actions secret only when preview protection blocks automation | Normally not required                                    | Yes    | Protected preview smoke testing                           | Vercel owner         | GitHub smoke workflow reaches preview without exposing secret |
 
 ## 4. Platform Ownership Matrix
 
-| Platform | Required owner | Required access before handoff | Billing owner | Recovery requirement | Acceptance evidence |
-|---|---|---|---|---|---|
-| GitHub | Client or approved technical owner | Admin or maintain access | As agreed | At least two authorized recovery paths | Client opens repository, branches, PRs, issues, and Actions |
-| Vercel | Client business account | Owner/admin | Client | Verified recovery email and team owner | Client sees project, root directory, domain, environment scopes, deployments, and rollback |
-| Domain registrar | Client | Account owner | Client | MFA and recovery contact | Client accesses DNS, nameservers, renewal, and transfer lock |
-| Stripe | Client business entity | Account owner/admin | Client | MFA, recovery, verified business contact | Client sees test/live modes, payments, webhooks, payouts, disputes, and team access |
-| MySQL database | Client or approved technical owner | Owner/admin plus least-privilege application user | Client | Backup and restore access | Migration applied, backup recorded, restore method documented |
-| Customer email/notifications | Client | Owner/admin | Client | Recovery contact and forwarding plan | Test message reaches approved destination |
-| Analytics/Search Console | Client | Owner/admin | Client | Secondary owner where supported | Client sees property and verified domain after activation |
+| Platform                     | Required owner                     | Required access before handoff                    | Billing owner | Recovery requirement                     | Acceptance evidence                                                                        |
+| ---------------------------- | ---------------------------------- | ------------------------------------------------- | ------------- | ---------------------------------------- | ------------------------------------------------------------------------------------------ |
+| GitHub                       | Client or approved technical owner | Admin or maintain access                          | As agreed     | At least two authorized recovery paths   | Client opens repository, branches, PRs, issues, and Actions                                |
+| Vercel                       | Client business account            | Owner/admin                                       | Client        | Verified recovery email and team owner   | Client sees project, root directory, domain, environment scopes, deployments, and rollback |
+| Domain registrar             | Client                             | Account owner                                     | Client        | MFA and recovery contact                 | Client accesses DNS, nameservers, renewal, and transfer lock                               |
+| Stripe                       | Client business entity             | Account owner/admin                               | Client        | MFA, recovery, verified business contact | Client sees test/live modes, payments, webhooks, payouts, disputes, and team access        |
+| MySQL database               | Client or approved technical owner | Owner/admin plus least-privilege application user | Client        | Backup and restore access                | Migration applied, backup recorded, restore method documented                              |
+| Customer email/notifications | Client                             | Owner/admin                                       | Client        | Recovery contact and forwarding plan     | Test message reaches approved destination                                                  |
+| Analytics/Search Console     | Client                             | Owner/admin                                       | Client        | Secondary owner where supported          | Client sees property and verified domain after activation                                  |
 
 ## 5. Production Activation Sequence
 
@@ -96,20 +96,20 @@ Never place real credentials, tokens, webhook secrets, database passwords, priva
 
 Complete this table during launch. Do not record secrets.
 
-| Item | Value or evidence location | Owner | Status |
-|---|---|---|---|
-| Release commit SHA |  |  | Not Started |
-| Vercel project |  |  | Not Started |
-| Preview deployment |  |  | Not Started |
-| Production deployment |  |  | Not Started |
-| Rollback deployment |  |  | Not Started |
-| Final HTTPS domain |  |  | Blocked |
-| Database migration evidence |  |  | Blocked |
-| Database backup evidence |  |  | Blocked |
-| Stripe test evidence |  |  | Blocked |
-| Production webhook verification |  |  | Blocked |
-| Custom-order submission verification |  |  | Blocked |
-| SEO/indexing approval |  |  | Blocked |
-| Client acceptance |  |  | Blocked |
+| Item                                 | Value or evidence location | Owner | Status      |
+| ------------------------------------ | -------------------------- | ----- | ----------- |
+| Release commit SHA                   |                            |       | Not Started |
+| Vercel project                       |                            |       | Not Started |
+| Preview deployment                   |                            |       | Not Started |
+| Production deployment                |                            |       | Not Started |
+| Rollback deployment                  |                            |       | Not Started |
+| Final HTTPS domain                   |                            |       | Blocked     |
+| Database migration evidence          |                            |       | Blocked     |
+| Database backup evidence             |                            |       | Blocked     |
+| Stripe test evidence                 |                            |       | Blocked     |
+| Production webhook verification      |                            |       | Blocked     |
+| Custom-order submission verification |                            |       | Blocked     |
+| SEO/indexing approval                |                            |       | Blocked     |
+| Client acceptance                    |                            |       | Blocked     |
 
 Allowed statuses: Not Started, In Progress, Blocked, Failed Quality Control, Verified Complete.

@@ -149,15 +149,15 @@ Do not place stock, generated, placeholder, competitor, or unverified images in 
 
 ## 7. Platform Ownership and Access Transfer
 
-| Platform | Intended owner | Required access | Billing responsibility | Delivery verification |
-|---|---|---|---|---|
-| GitHub repository | Client or approved technical owner | Admin or maintain access | As agreed | Client can open repository and PR history |
-| Vercel | Client business account | Owner/admin | Client | Client can see project, domain, deployments, and rollback controls |
-| Domain registrar | Client | Account owner | Client | Client can access DNS and renewal settings |
-| Stripe | Client business entity | Account owner/admin | Client | Client can see payments, webhooks, payouts, and support settings |
-| Production database | Client or approved technical owner | Owner/admin with least-privilege app credentials | Client | Backup, restore, and credential ownership confirmed |
-| Email/notifications | Client | Owner/admin | Client | Order and support destinations verified |
-| Analytics/Search tools | Client | Owner/admin | Client | Property ownership and data access verified |
+| Platform               | Intended owner                     | Required access                                  | Billing responsibility | Delivery verification                                              |
+| ---------------------- | ---------------------------------- | ------------------------------------------------ | ---------------------- | ------------------------------------------------------------------ |
+| GitHub repository      | Client or approved technical owner | Admin or maintain access                         | As agreed              | Client can open repository and PR history                          |
+| Vercel                 | Client business account            | Owner/admin                                      | Client                 | Client can see project, domain, deployments, and rollback controls |
+| Domain registrar       | Client                             | Account owner                                    | Client                 | Client can access DNS and renewal settings                         |
+| Stripe                 | Client business entity             | Account owner/admin                              | Client                 | Client can see payments, webhooks, payouts, and support settings   |
+| Production database    | Client or approved technical owner | Owner/admin with least-privilege app credentials | Client                 | Backup, restore, and credential ownership confirmed                |
+| Email/notifications    | Client                             | Owner/admin                                      | Client                 | Order and support destinations verified                            |
+| Analytics/Search tools | Client                             | Owner/admin                                      | Client                 | Property ownership and data access verified                        |
 
 Credentials must never be pasted into this repository or this guide. Use an approved password manager and individual accounts wherever possible.
 
@@ -189,26 +189,26 @@ See `docs/deployment.md` and `docs/stripe-launch.md` for the authoritative techn
 
 Use only these statuses: Not Started, In Progress, Blocked, Failed Quality Control, Verified Complete.
 
-| Area | Test action | Expected result | Evidence | Status |
-|---|---|---|---|---|
-| Homepage | Open on mobile and desktop | Approved branding, copy, navigation, and calls to action render correctly | Screenshots | Not Started |
-| Menu | Review all categories and items | Approved names, prices, sizes, flavors, availability, and seasonal states | Screenshots and catalog sign-off | Blocked |
-| Product pages | Open each product route | Correct product information and valid option selection | Route record | Not Started |
-| Cart | Add, change, and remove items | Server-approved totals and options remain correct | Screen recording or test record | Not Started |
-| Custom orders | Submit valid and wedding-related requests | Valid request follows approved process; wedding request is rejected | Test record | Not Started |
-| Checkout | Run successful test-mode payment | Exactly one order becomes paid through verified Stripe handling | Stripe and database evidence | Blocked |
-| Failed payment | Run declined or failed test | No paid fulfillment occurs; state remains safe | Stripe and database evidence | Blocked |
-| Duplicate protection | Resend or retry payment event | No duplicate order or duplicate line items | Event and database evidence | Blocked |
-| Pickup privacy | Inspect public and unpaid states | Private pickup details are not exposed prematurely | Screenshots | Not Started |
-| Gallery | Review approved images | Only authentic, consented images with accurate alt text appear | Asset approval record | Blocked |
-| Forms | Test validation and errors | Errors are clear, accessible, and do not lose entered data unnecessarily | Test record | Not Started |
-| Accessibility | Keyboard, screen-reader spot check, 200% zoom, reduced motion | Critical journeys remain usable | Manual QA record | Not Started |
-| Browsers | Test Chrome, Edge, Safari, and Firefox | No material route or interaction failure | Browser matrix | Not Started |
-| Mobile | Test representative iPhone and Android widths | Navigation, forms, products, and cart remain usable | Screenshots | Not Started |
-| SEO | Verify metadata, robots, sitemap, canonical origin | Correct production values; preview remains non-indexable | Validator output | Blocked |
-| Security | Review headers, secrets, and browser output | Required headers present; no secret or private data exposed | Audit record | Not Started |
-| Deployment | Run health and route smoke tests | Required routes and `/api/health` pass | Workflow or command output | Blocked |
-| Rollback | Revert to prior READY deployment | Site recovers and critical routes pass | Deployment evidence | Blocked |
+| Area                 | Test action                                                   | Expected result                                                           | Evidence                         | Status      |
+| -------------------- | ------------------------------------------------------------- | ------------------------------------------------------------------------- | -------------------------------- | ----------- |
+| Homepage             | Open on mobile and desktop                                    | Approved branding, copy, navigation, and calls to action render correctly | Screenshots                      | Not Started |
+| Menu                 | Review all categories and items                               | Approved names, prices, sizes, flavors, availability, and seasonal states | Screenshots and catalog sign-off | Blocked     |
+| Product pages        | Open each product route                                       | Correct product information and valid option selection                    | Route record                     | Not Started |
+| Cart                 | Add, change, and remove items                                 | Server-approved totals and options remain correct                         | Screen recording or test record  | Not Started |
+| Custom orders        | Submit valid and wedding-related requests                     | Valid request follows approved process; wedding request is rejected       | Test record                      | Not Started |
+| Checkout             | Run successful test-mode payment                              | Exactly one order becomes paid through verified Stripe handling           | Stripe and database evidence     | Blocked     |
+| Failed payment       | Run declined or failed test                                   | No paid fulfillment occurs; state remains safe                            | Stripe and database evidence     | Blocked     |
+| Duplicate protection | Resend or retry payment event                                 | No duplicate order or duplicate line items                                | Event and database evidence      | Blocked     |
+| Pickup privacy       | Inspect public and unpaid states                              | Private pickup details are not exposed prematurely                        | Screenshots                      | Not Started |
+| Gallery              | Review approved images                                        | Only authentic, consented images with accurate alt text appear            | Asset approval record            | Blocked     |
+| Forms                | Test validation and errors                                    | Errors are clear, accessible, and do not lose entered data unnecessarily  | Test record                      | Not Started |
+| Accessibility        | Keyboard, screen-reader spot check, 200% zoom, reduced motion | Critical journeys remain usable                                           | Manual QA record                 | Not Started |
+| Browsers             | Test Chrome, Edge, Safari, and Firefox                        | No material route or interaction failure                                  | Browser matrix                   | Not Started |
+| Mobile               | Test representative iPhone and Android widths                 | Navigation, forms, products, and cart remain usable                       | Screenshots                      | Not Started |
+| SEO                  | Verify metadata, robots, sitemap, canonical origin            | Correct production values; preview remains non-indexable                  | Validator output                 | Blocked     |
+| Security             | Review headers, secrets, and browser output                   | Required headers present; no secret or private data exposed               | Audit record                     | Not Started |
+| Deployment           | Run health and route smoke tests                              | Required routes and `/api/health` pass                                    | Workflow or command output       | Blocked     |
+| Rollback             | Revert to prior READY deployment                              | Site recovers and critical routes pass                                    | Deployment evidence              | Blocked     |
 
 ## 10. Client Acceptance
 
@@ -225,17 +225,17 @@ The client should approve each item only after reviewing the live production res
 - [ ] Final production URL approved.
 - [ ] Website authorized for public launch.
 
-Client name: ______________________________
+Client name: **\*\***\*\***\*\***\_\_**\*\***\*\***\*\***
 
-Approver role: ____________________________
+Approver role: \***\*\*\*\*\*\*\***\_\_\_\_\***\*\*\*\*\*\*\***
 
-Signature: _______________________________
+Signature: **\*\***\*\***\*\***\_\_\_**\*\***\*\***\*\***
 
-Date: ___________________________________
+Date: **\*\***\*\*\*\***\*\***\_\_\_**\*\***\*\*\*\***\*\***
 
-Final production URL: _____________________
+Final production URL: \***\*\*\*\*\***\_\***\*\*\*\*\***
 
-Release commit: ___________________________
+Release commit: \***\*\*\*\*\*\*\***\_\_\_\***\*\*\*\*\*\*\***
 
 ## 11. Maintenance Schedule
 
