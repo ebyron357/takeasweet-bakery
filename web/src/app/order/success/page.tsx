@@ -31,7 +31,10 @@ export default async function OrderSuccessPage({
     const session = await getStripe().checkout.sessions.retrieve(sessionId);
     const paymentUpdate = getPaidSessionUpdate(session);
     if (!paymentUpdate) return <UnverifiedConfirmation />;
-    await reconcilePaidOrder(paymentUpdate);
+    const orderStatus = await reconcilePaidOrder(paymentUpdate);
+    if (orderStatus !== "paid" && orderStatus !== "fulfilled") {
+      return <UnverifiedConfirmation />;
+    }
 
     return (
       <main className="mx-auto max-w-2xl px-5 py-16 sm:px-8">
