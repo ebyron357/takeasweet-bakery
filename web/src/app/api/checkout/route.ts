@@ -30,10 +30,14 @@ export async function POST(request: Request) {
     const payload = checkoutRequestSchema.parse(await request.json());
     const cart = validateCart(payload.items);
     const persistableItems = await resolvePersistableOrderItems(cart.items);
+    const authoritativeTotalCents = persistableItems.reduce(
+      (total, item) => total + item.lineTotalCents,
+      0
+    );
     const siteUrl = getSiteUrl();
     const orderReference = createOrderReference(payload.checkoutToken);
     const cartDigest = createHash("sha256")
-      .update(JSON.stringify(cart.items))
+      .update(JSON.stringify(persistableItems))
       .digest("hex")
       .slice(0, 32);
 
@@ -51,7 +55,7 @@ export async function POST(request: Request) {
         client_reference_id: orderReference,
         metadata: { orderReference, cartDigest },
         payment_intent_data: { metadata: { orderReference, cartDigest } },
-        line_items: cart.items.map((item) => ({
+        line_items: persistableItems.map((item) => ({
           quantity: item.quantity,
           price_data: {
             currency: "usd",
@@ -76,7 +80,7 @@ export async function POST(request: Request) {
       await savePendingOrder({
         orderReference,
         stripeSessionId: session.id,
-        totalCents: cart.totalCents,
+        totalCents: authoritativeTotalCents,
         items: persistableItems,
       });
     } catch (error) {
