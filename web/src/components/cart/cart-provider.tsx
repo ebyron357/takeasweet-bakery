@@ -10,6 +10,7 @@ import {
   type ReactNode,
 } from "react";
 
+import { getProductBySlug } from "@/lib/catalog";
 import type { CartItem } from "@/types/cart";
 
 const storageKey = "takeasweet-cart-v1";
@@ -38,6 +39,7 @@ function readStoredCart(): CartItem[] {
         typeof item === "object" &&
         item !== null &&
         typeof item.slug === "string" &&
+        Boolean(getProductBySlug(item.slug)) &&
         Number.isInteger(item.quantity) &&
         item.quantity >= 1 &&
         item.quantity <= 20 &&
