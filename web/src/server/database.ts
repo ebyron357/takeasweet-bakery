@@ -53,6 +53,7 @@ export class OrderPersistenceError extends Error {
 type AvailableProductRow = RowDataPacket & {
   id: number;
   slug: string;
+  priceCents: number;
 };
 
 type OrderRow = RowDataPacket & {
@@ -72,25 +73,30 @@ export async function resolvePersistableOrderItems(
   const slugs = [...new Set(items.map((item) => item.slug))];
   const placeholders = slugs.map(() => "?").join(", ");
   const [rows] = await getPool().execute<AvailableProductRow[]>(
-    `SELECT id, slug
+    `SELECT id, slug, priceCents
        FROM products
       WHERE slug IN (${placeholders})
         AND inStock = 1
         AND isSeasonalActive = 1`,
     slugs
   );
-  const productIds = new Map(rows.map((row) => [row.slug, row.id]));
+  const productsBySlug = new Map(rows.map((row) => [row.slug, row]));
 
-  if (productIds.size !== slugs.length) {
+  if (productsBySlug.size !== slugs.length) {
     throw new OrderPersistenceError(
       "One or more items are not currently available."
     );
   }
 
-  return items.map((item) => ({
-    ...item,
-    productId: productIds.get(item.slug)!,
-  }));
+  return items.map((item) => {
+    const product = productsBySlug.get(item.slug)!;
+    return {
+      ...item,
+      productId: product.id,
+      unitPriceCents: product.priceCents,
+      lineTotalCents: product.priceCents * item.quantity,
+    };
+  });
 }
 
 type PendingOrderInput = Readonly<{
@@ -164,7 +170,7 @@ export async function savePendingOrder(order: PendingOrderInput) {
 async function applyPaymentState(
   connection: PoolConnection,
   update: PaymentStateUpdate
-) {
+): Promise<OrderRow["status"]> {
   const [rows] = await connection.execute<OrderRow[]>(
     `SELECT id, stripeSessionId, totalCents, status
        FROM orders
@@ -180,14 +186,14 @@ async function applyPaymentState(
     );
   }
 
-  if (order.status !== "pending") return;
+  if (order.status !== "pending") return order.status;
 
   if (update.status === "cancelled") {
     await connection.execute(
       `UPDATE orders SET status = 'cancelled' WHERE id = ?`,
       [order.id]
     );
-    return;
+    return "cancelled";
   }
 
   await connection.execute(
@@ -204,6 +210,7 @@ async function applyPaymentState(
       order.id,
     ]
   );
+  return "paid";
 }
 
 export async function processStripeWebhook(
@@ -245,8 +252,9 @@ export async function reconcilePaidOrder(update: PaymentStateUpdate) {
   const connection = await getPool().getConnection();
   try {
     await connection.beginTransaction();
-    await applyPaymentState(connection, update);
+    const status = await applyPaymentState(connection, update);
     await connection.commit();
+    return status;
   } catch (error) {
     await connection.rollback();
     throw error;
