@@ -6,6 +6,18 @@ export { customEventTypes } from "@/types/custom-order";
 
 const weddingPattern = /\b(wedding|bridal|bride|groom|elopement)\b/i;
 const isoDatePattern = /^\d{4}-\d{2}-\d{2}$/;
+const bakeryTimeZone = "America/New_York";
+
+function localTodayIso() {
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: bakeryTimeZone,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(new Date());
+  const values = Object.fromEntries(parts.map((part) => [part.type, part.value]));
+  return `${values.year}-${values.month}-${values.day}`;
+}
 
 function isTodayOrLater(value: string) {
   if (!isoDatePattern.test(value)) return false;
@@ -22,9 +34,7 @@ function isTodayOrLater(value: string) {
     return false;
   }
 
-  const today = new Date();
-  today.setUTCHours(0, 0, 0, 0);
-  return date >= today;
+  return value >= localTodayIso();
 }
 
 export const customOrderRequestSchema = z
