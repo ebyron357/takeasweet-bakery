@@ -1,0 +1,159 @@
+"use client";
+
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+  type ReactNode,
+} from "react";
+
+import { getProductBySlug } from "@/lib/catalog";
+import type { CartItem } from "@/types/cart";
+
+const storageKey = "takeasweet-cart-v1";
+
+type CartContextValue = {
+  items: CartItem[];
+  itemCount: number;
+  isReady: boolean;
+  removedItemCount: number;
+  addItem: (item: CartItem) => void;
+  removeItem: (index: number) => void;
+  updateQuantity: (index: number, quantity: number) => void;
+  clearCart: () => void;
+  purgeOrphanItems: () => void;
+};
+
+const CartContext = createContext<CartContextValue | null>(null);
+
+function readStoredCart(): { items: CartItem[]; removedCount: number } {
+  try {
+    const stored = window.localStorage.getItem(storageKey);
+    if (!stored) return { items: [], removedCount: 0 };
+    const value: unknown = JSON.parse(stored);
+    if (!Array.isArray(value)) return { items: [], removedCount: 0 };
+
+    const validItems = value.filter(
+      (item): item is CartItem =>
+        typeof item === "object" &&
+        item !== null &&
+        typeof item.slug === "string" &&
+        Boolean(getProductBySlug(item.slug)) &&
+        Number.isInteger(item.quantity) &&
+        item.quantity >= 1 &&
+        item.quantity <= 20 &&
+        Array.isArray(item.selectedFlavors) &&
+        item.selectedFlavors.every(
+          (flavor: unknown) => typeof flavor === "string"
+        )
+    );
+    return {
+      items: validItems,
+      removedCount: value.length - validItems.length,
+    };
+  } catch {
+    return { items: [], removedCount: 0 };
+  }
+}
+
+function lineKey(item: CartItem) {
+  return `${item.slug}:${[...item.selectedFlavors].sort().join("|")}`;
+}
+
+export function CartProvider({ children }: { children: ReactNode }) {
+  const [items, setItems] = useState<CartItem[]>([]);
+  const [isReady, setIsReady] = useState(false);
+  const [removedItemCount, setRemovedItemCount] = useState(0);
+
+  useEffect(() => {
+    const { items: stored, removedCount } = readStoredCart();
+    setItems(stored);
+    setRemovedItemCount(removedCount);
+    setIsReady(true);
+  }, []);
+
+  useEffect(() => {
+    if (isReady) window.localStorage.setItem(storageKey, JSON.stringify(items));
+  }, [isReady, items]);
+
+  const addItem = useCallback((newItem: CartItem) => {
+    setItems((current) => {
+      const key = lineKey(newItem);
+      const existingIndex = current.findIndex((item) => lineKey(item) === key);
+      if (existingIndex === -1) return [...current, newItem];
+
+      return current.map((item, index) =>
+        index === existingIndex
+          ? {
+              ...item,
+              quantity: Math.min(20, item.quantity + newItem.quantity),
+            }
+          : item
+      );
+    });
+  }, []);
+
+  const removeItem = useCallback((index: number) => {
+    setItems((current) =>
+      current.filter((_, itemIndex) => itemIndex !== index)
+    );
+  }, []);
+
+  const updateQuantity = useCallback((index: number, quantity: number) => {
+    const safeQuantity = Math.min(20, Math.max(1, Math.trunc(quantity)));
+    setItems((current) =>
+      current.map((item, itemIndex) =>
+        itemIndex === index ? { ...item, quantity: safeQuantity } : item
+      )
+    );
+  }, []);
+
+  const clearCart = useCallback(() => setItems([]), []);
+
+  const purgeOrphanItems = useCallback(() => {
+    setItems((current) =>
+      current.filter((item) => Boolean(getProductBySlug(item.slug)))
+    );
+  }, []);
+
+  const itemCount = useMemo(
+    () => items.reduce((total, item) => total + item.quantity, 0),
+    [items]
+  );
+
+  const value = useMemo(
+    () => ({
+      items,
+      itemCount,
+      isReady,
+      removedItemCount,
+      addItem,
+      removeItem,
+      updateQuantity,
+      clearCart,
+      purgeOrphanItems,
+    }),
+    [
+      items,
+      itemCount,
+      isReady,
+      removedItemCount,
+      addItem,
+      removeItem,
+      updateQuantity,
+      clearCart,
+      purgeOrphanItems,
+    ]
+  );
+
+  return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
+}
+
+export function useCart() {
+  const context = useContext(CartContext);
+  if (!context) throw new Error("useCart must be used within CartProvider.");
+  return context;
+}
