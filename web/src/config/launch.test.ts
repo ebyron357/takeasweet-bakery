@@ -62,10 +62,28 @@ describe("production launch controls", () => {
   it("keeps custom-order storage disabled without every required setting", () => {
     process.env.CUSTOM_ORDER_REQUESTS_ENABLED = "true";
     process.env.DATABASE_URL = "mysql://example.invalid/database";
+    process.env.NEXT_PUBLIC_SITE_URL = "https://takeasweet.example.com";
     delete process.env.PRIVACY_CONTACT_EMAIL;
     expect(isCustomOrderLaunchEnabled()).toBe(false);
 
     process.env.PRIVACY_CONTACT_EMAIL = "privacy@example.com";
+    expect(isCustomOrderLaunchEnabled()).toBe(true);
+  });
+
+  it("requires a production HTTPS origin before custom-order storage can activate", () => {
+    process.env.CUSTOM_ORDER_REQUESTS_ENABLED = "true";
+    process.env.DATABASE_URL = "mysql://example.invalid/database";
+    process.env.PRIVACY_CONTACT_EMAIL = "privacy@example.com";
+
+    process.env.NEXT_PUBLIC_SITE_URL = "http://localhost:3000";
+    expect(isCustomOrderLaunchEnabled()).toBe(false);
+
+    process.env.NEXT_PUBLIC_SITE_URL = "https://takeasweet.example.com";
+    process.env.VERCEL = "1";
+    process.env.VERCEL_ENV = "preview";
+    expect(isCustomOrderLaunchEnabled()).toBe(false);
+
+    process.env.VERCEL_ENV = "production";
     expect(isCustomOrderLaunchEnabled()).toBe(true);
   });
 });

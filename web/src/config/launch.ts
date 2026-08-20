@@ -26,6 +26,7 @@ export function isCustomOrderLaunchEnabled() {
   return (
     process.env.CUSTOM_ORDER_REQUESTS_ENABLED === "true" &&
     Boolean(process.env.DATABASE_URL) &&
-    Boolean(getPrivacyContactEmail())
+    Boolean(getPrivacyContactEmail()) &&
+    isProductionSiteUrl()
   );
 }

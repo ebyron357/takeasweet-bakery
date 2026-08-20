@@ -34,6 +34,18 @@ export async function POST(request: Request) {
       (total, item) => total + item.lineTotalCents,
       0
     );
+
+    if (authoritativeTotalCents !== cart.totalCents) {
+      return NextResponse.json(
+        {
+          error:
+            "One or more prices have changed since you last viewed your cart. Please review your cart before proceeding.",
+          priceDrift: true,
+        },
+        { status: 409 }
+      );
+    }
+
     const siteUrl = getSiteUrl();
     const orderReference = createOrderReference(payload.checkoutToken);
     const cartDigest = createHash("sha256")

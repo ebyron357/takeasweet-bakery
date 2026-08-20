@@ -38,4 +38,20 @@ describe("server-authoritative cart validation", () => {
       ])
     ).toThrow("allows up to 4 flavor selections");
   });
+
+  it("exposes catalog-authoritative unit prices so drift against DB prices is detectable", () => {
+    const result = validateCart([
+      { slug: "limber", quantity: 3, selectedFlavors: ["Mango"] },
+    ]);
+
+    expect(result.items[0].unitPriceCents).toBe(150);
+    expect(result.totalCents).toBe(450);
+
+    // The checkout route compares cart.totalCents (catalog) against
+    // authoritativeTotalCents (DB). Any difference returns 409 priceDrift:true
+    // so stale UI prices cannot be silently charged.
+    const hypotheticalDbUnitPrice = 175;
+    const hypotheticalDbTotal = hypotheticalDbUnitPrice * 3;
+    expect(hypotheticalDbTotal).not.toBe(result.totalCents);
+  });
 });

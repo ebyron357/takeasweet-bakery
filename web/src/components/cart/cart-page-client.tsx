@@ -10,7 +10,8 @@ import { trackAnalyticsEvent } from "@/lib/analytics";
 import { formatPrice, getProductBySlug } from "@/lib/catalog";
 
 export function CartPageClient() {
-  const { items, isReady, removeItem, updateQuantity } = useCart();
+  const { items, isReady, removeItem, updateQuantity, removedItemCount } =
+    useCart();
 
   if (!isReady) {
     return <p className="text-muted-foreground mt-8">Loading cart…</p>;
@@ -20,9 +21,17 @@ export function CartPageClient() {
     return (
       <div className="bg-card mt-8 rounded-xl border p-8 text-center">
         <h2 className="text-2xl font-bold">Your cart is empty</h2>
-        <p className="text-muted-foreground mt-2">
-          Browse the verified menu to choose a treat.
-        </p>
+        {removedItemCount > 0 ? (
+          <p className="text-muted-foreground mt-2">
+            {removedItemCount === 1
+              ? "1 item was removed because it is no longer available."
+              : `${removedItemCount} items were removed because they are no longer available.`}
+          </p>
+        ) : (
+          <p className="text-muted-foreground mt-2">
+            Browse the verified menu to choose a treat.
+          </p>
+        )}
         <Button asChild className="mt-6">
           <Link href="/menu">Browse menu</Link>
         </Button>
@@ -41,6 +50,16 @@ export function CartPageClient() {
 
   return (
     <div className="mt-8 grid gap-8 lg:grid-cols-[1fr_22rem]">
+      {removedItemCount > 0 ? (
+        <p
+          className="bg-muted col-span-full rounded-lg px-4 py-3 text-sm font-semibold"
+          role="status"
+        >
+          {removedItemCount === 1
+            ? "1 item was removed from your cart because it is no longer available."
+            : `${removedItemCount} items were removed from your cart because they are no longer available.`}
+        </p>
+      ) : null}
       <ul className="space-y-4" aria-label="Cart items">
         {lines.map(({ item, index, product }) => (
           <li

@@ -19,6 +19,7 @@ type CartContextValue = {
   items: CartItem[];
   itemCount: number;
   isReady: boolean;
+  removedItemCount: number;
   addItem: (item: CartItem) => void;
   removeItem: (index: number) => void;
   updateQuantity: (index: number, quantity: number) => void;
@@ -27,14 +28,14 @@ type CartContextValue = {
 
 const CartContext = createContext<CartContextValue | null>(null);
 
-function readStoredCart(): CartItem[] {
+function readStoredCart(): { items: CartItem[]; removedCount: number } {
   try {
     const stored = window.localStorage.getItem(storageKey);
-    if (!stored) return [];
+    if (!stored) return { items: [], removedCount: 0 };
     const value: unknown = JSON.parse(stored);
-    if (!Array.isArray(value)) return [];
+    if (!Array.isArray(value)) return { items: [], removedCount: 0 };
 
-    return value.filter(
+    const validItems = value.filter(
       (item): item is CartItem =>
         typeof item === "object" &&
         item !== null &&
@@ -48,8 +49,12 @@ function readStoredCart(): CartItem[] {
           (flavor: unknown) => typeof flavor === "string"
         )
     );
+    return {
+      items: validItems,
+      removedCount: value.length - validItems.length,
+    };
   } catch {
-    return [];
+    return { items: [], removedCount: 0 };
   }
 }
 
@@ -60,9 +65,12 @@ function lineKey(item: CartItem) {
 export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
   const [isReady, setIsReady] = useState(false);
+  const [removedItemCount, setRemovedItemCount] = useState(0);
 
   useEffect(() => {
-    setItems(readStoredCart());
+    const { items: stored, removedCount } = readStoredCart();
+    setItems(stored);
+    setRemovedItemCount(removedCount);
     setIsReady(true);
   }, []);
 
@@ -113,12 +121,22 @@ export function CartProvider({ children }: { children: ReactNode }) {
       items,
       itemCount,
       isReady,
+      removedItemCount,
       addItem,
       removeItem,
       updateQuantity,
       clearCart,
     }),
-    [items, itemCount, isReady, addItem, removeItem, updateQuantity, clearCart]
+    [
+      items,
+      itemCount,
+      isReady,
+      removedItemCount,
+      addItem,
+      removeItem,
+      updateQuantity,
+      clearCart,
+    ]
   );
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
