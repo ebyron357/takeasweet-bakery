@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import Link from "next/link";
 import { Minus, Plus, Trash2 } from "lucide-react";
 
@@ -10,8 +11,20 @@ import { trackAnalyticsEvent } from "@/lib/analytics";
 import { formatPrice, getProductBySlug } from "@/lib/catalog";
 
 export function CartPageClient() {
-  const { items, isReady, removeItem, updateQuantity, removedItemCount } =
-    useCart();
+  const {
+    items,
+    isReady,
+    removeItem,
+    updateQuantity,
+    removedItemCount,
+    purgeOrphanItems,
+  } = useCart();
+
+  // Remove items that no longer have a matching catalog product from provider
+  // state so they cannot remain invisible or be silently submitted to checkout.
+  useEffect(() => {
+    if (isReady) purgeOrphanItems();
+  }, [isReady, purgeOrphanItems]);
 
   if (!isReady) {
     return <p className="text-muted-foreground mt-8">Loading cart…</p>;

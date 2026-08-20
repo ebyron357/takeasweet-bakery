@@ -1,20 +1,87 @@
 import { describe, expect, it } from "vitest";
 
-import { isTrustedVercelHost, parseBaseUrl } from "./smoke-deployment.mjs";
+import {
+  getTrustedDeploymentHostnames,
+  isTrustedDeploymentHost,
+  parseBaseUrl,
+} from "./smoke-deployment.mjs";
 
-describe("isTrustedVercelHost", () => {
-  it("accepts vercel.app subdomains", () => {
-    expect(isTrustedVercelHost("my-project.vercel.app")).toBe(true);
-    expect(isTrustedVercelHost("my-project-abc123.vercel.app")).toBe(true);
-    expect(isTrustedVercelHost("vercel.app")).toBe(true);
+describe("getTrustedDeploymentHostnames", () => {
+  it("returns the hostname from NEXT_PUBLIC_SITE_URL", () => {
+    const hostnames = getTrustedDeploymentHostnames({
+      NEXT_PUBLIC_SITE_URL: "https://takeasweet.com",
+    });
+    expect(hostnames.has("takeasweet.com")).toBe(true);
+    expect(hostnames.size).toBe(1);
   });
 
-  it("rejects arbitrary non-Vercel hosts", () => {
-    expect(isTrustedVercelHost("example.com")).toBe(false);
-    expect(isTrustedVercelHost("malicious.vercel.app.example.com")).toBe(false);
-    expect(isTrustedVercelHost("localhost")).toBe(false);
-    expect(isTrustedVercelHost("127.0.0.1")).toBe(false);
-    expect(isTrustedVercelHost("takeasweet.com")).toBe(false);
+  it("returns the hostname from VERCEL_URL", () => {
+    const hostnames = getTrustedDeploymentHostnames({
+      VERCEL_URL: "my-project-abc123.vercel.app",
+    });
+    expect(hostnames.has("my-project-abc123.vercel.app")).toBe(true);
+    expect(hostnames.size).toBe(1);
+  });
+
+  it("returns both hostnames when both env vars are set", () => {
+    const hostnames = getTrustedDeploymentHostnames({
+      NEXT_PUBLIC_SITE_URL: "https://takeasweet.com",
+      VERCEL_URL: "my-project-abc123.vercel.app",
+    });
+    expect(hostnames.has("takeasweet.com")).toBe(true);
+    expect(hostnames.has("my-project-abc123.vercel.app")).toBe(true);
+    expect(hostnames.size).toBe(2);
+  });
+
+  it("returns an empty set when no env vars are set", () => {
+    const hostnames = getTrustedDeploymentHostnames({});
+    expect(hostnames.size).toBe(0);
+  });
+
+  it("ignores unparseable values", () => {
+    const hostnames = getTrustedDeploymentHostnames({
+      NEXT_PUBLIC_SITE_URL: "not-a-url",
+    });
+    expect(hostnames.size).toBe(0);
+  });
+});
+
+describe("isTrustedDeploymentHost", () => {
+  it("accepts the configured production host", () => {
+    expect(
+      isTrustedDeploymentHost("takeasweet.com", {
+        NEXT_PUBLIC_SITE_URL: "https://takeasweet.com",
+      })
+    ).toBe(true);
+  });
+
+  it("accepts the configured Vercel preview host", () => {
+    expect(
+      isTrustedDeploymentHost("my-project-abc123.vercel.app", {
+        VERCEL_URL: "my-project-abc123.vercel.app",
+      })
+    ).toBe(true);
+  });
+
+  it("rejects a different vercel.app subdomain not in configured hosts", () => {
+    expect(
+      isTrustedDeploymentHost("attacker.vercel.app", {
+        VERCEL_URL: "my-project-abc123.vercel.app",
+      })
+    ).toBe(false);
+  });
+
+  it("rejects arbitrary non-configured hosts", () => {
+    expect(
+      isTrustedDeploymentHost("example.com", {
+        NEXT_PUBLIC_SITE_URL: "https://takeasweet.com",
+      })
+    ).toBe(false);
+  });
+
+  it("fails closed when no env vars are set", () => {
+    expect(isTrustedDeploymentHost("takeasweet.com", {})).toBe(false);
+    expect(isTrustedDeploymentHost("my-project.vercel.app", {})).toBe(false);
   });
 });
 

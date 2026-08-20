@@ -47,11 +47,16 @@ describe("server-authoritative cart validation", () => {
     expect(result.items[0].unitPriceCents).toBe(150);
     expect(result.totalCents).toBe(450);
 
-    // The checkout route compares cart.totalCents (catalog) against
-    // authoritativeTotalCents (DB). Any difference returns 409 priceDrift:true
-    // so stale UI prices cannot be silently charged.
+    // The checkout route compares each item's catalog unitPriceCents against the
+    // DB price returned by resolvePersistableOrderItems. A per-item mismatch
+    // throws OrderPersistenceError so stale or swapped prices cannot be charged.
     const hypotheticalDbUnitPrice = 175;
     const hypotheticalDbTotal = hypotheticalDbUnitPrice * 3;
     expect(hypotheticalDbTotal).not.toBe(result.totalCents);
+    // Per-item check also catches cross-item price swaps where totals are equal:
+    // e.g. item A: catalog $10 / DB $12, item B: catalog $12 / DB $10 — totals
+    // match but individual charges are wrong. The per-item comparison in
+    // resolvePersistableOrderItems rejects these before the Stripe session.
+    expect(result.items[0].unitPriceCents).not.toBe(hypotheticalDbUnitPrice);
   });
 });

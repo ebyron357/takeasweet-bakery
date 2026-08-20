@@ -24,6 +24,7 @@ type CartContextValue = {
   removeItem: (index: number) => void;
   updateQuantity: (index: number, quantity: number) => void;
   clearCart: () => void;
+  purgeOrphanItems: () => void;
 };
 
 const CartContext = createContext<CartContextValue | null>(null);
@@ -111,6 +112,13 @@ export function CartProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const clearCart = useCallback(() => setItems([]), []);
+
+  const purgeOrphanItems = useCallback(() => {
+    setItems((current) =>
+      current.filter((item) => Boolean(getProductBySlug(item.slug)))
+    );
+  }, []);
+
   const itemCount = useMemo(
     () => items.reduce((total, item) => total + item.quantity, 0),
     [items]
@@ -126,6 +134,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       removeItem,
       updateQuantity,
       clearCart,
+      purgeOrphanItems,
     }),
     [
       items,
@@ -136,6 +145,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       removeItem,
       updateQuantity,
       clearCart,
+      purgeOrphanItems,
     ]
   );
 

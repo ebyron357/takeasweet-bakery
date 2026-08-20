@@ -1,7 +1,30 @@
 import { fileURLToPath } from "node:url";
 
-export function isTrustedVercelHost(hostname) {
-  return hostname === "vercel.app" || hostname.endsWith(".vercel.app");
+/**
+ * Derive the set of trusted deployment hostnames from repository-owned
+ * environment variables (NEXT_PUBLIC_SITE_URL and VERCEL_URL).  Only these
+ * explicitly configured hosts may receive the automation-bypass secret; any
+ * other hostname — including arbitrary *.vercel.app subdomains — is rejected.
+ */
+export function getTrustedDeploymentHostnames(env = process.env) {
+  const hostnames = new Set();
+  const candidates = [
+    env.NEXT_PUBLIC_SITE_URL,
+    env.VERCEL_URL ? `https://${env.VERCEL_URL}` : undefined,
+  ];
+  for (const val of candidates) {
+    if (!val) continue;
+    try {
+      hostnames.add(new URL(val).hostname);
+    } catch {
+      // unparseable value — skip
+    }
+  }
+  return hostnames;
+}
+
+export function isTrustedDeploymentHost(hostname, env = process.env) {
+  return getTrustedDeploymentHostnames(env).has(hostname);
 }
 
 export function parseBaseUrl(value) {
@@ -23,18 +46,20 @@ const isMain = process.argv[1] === fileURLToPath(import.meta.url);
 if (isMain) {
   const baseUrl = parseBaseUrl(process.env.SMOKE_TEST_BASE_URL);
   const bypassSecret = process.env.VERCEL_AUTOMATION_BYPASS_SECRET;
+  const isTrustedHost = isTrustedDeploymentHost(baseUrl.hostname);
 
   const headers =
-    bypassSecret && isTrustedVercelHost(baseUrl.hostname)
+    bypassSecret && isTrustedHost
       ? {
           "x-vercel-protection-bypass": bypassSecret,
           "x-vercel-set-bypass-cookie": "true",
         }
       : undefined;
 
-  if (bypassSecret && !isTrustedVercelHost(baseUrl.hostname)) {
+  if (bypassSecret && !isTrustedHost) {
     console.warn(
-      `Warning: VERCEL_AUTOMATION_BYPASS_SECRET is set but ${baseUrl.hostname} is not a trusted Vercel host. ` +
+      `Warning: VERCEL_AUTOMATION_BYPASS_SECRET is set but ${baseUrl.hostname} is not a configured deployment host. ` +
+        "Set NEXT_PUBLIC_SITE_URL or VERCEL_URL to authorize bypass for this host. " +
         "The bypass secret will not be sent."
     );
   }

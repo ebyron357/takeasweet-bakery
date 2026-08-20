@@ -90,6 +90,11 @@ export async function resolvePersistableOrderItems(
 
   return items.map((item) => {
     const product = productsBySlug.get(item.slug)!;
+    if (product.priceCents !== item.unitPriceCents) {
+      throw new OrderPersistenceError(
+        `The price for ${item.name} has changed since you last viewed your cart. Please review your cart before proceeding.`
+      );
+    }
     return {
       ...item,
       productId: product.id,
