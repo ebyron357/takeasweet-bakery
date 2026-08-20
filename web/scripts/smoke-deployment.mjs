@@ -18,9 +18,7 @@ export function parseBaseUrl(value) {
   return url;
 }
 
-const isMain =
-  process.argv[1] === fileURLToPath(import.meta.url) ||
-  process.argv[1]?.endsWith("/smoke-deployment.mjs");
+const isMain = process.argv[1] === fileURLToPath(import.meta.url);
 
 if (isMain) {
   const baseUrl = parseBaseUrl(process.env.SMOKE_TEST_BASE_URL);

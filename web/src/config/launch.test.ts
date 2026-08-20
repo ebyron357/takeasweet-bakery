@@ -63,6 +63,8 @@ describe("production launch controls", () => {
     process.env.CUSTOM_ORDER_REQUESTS_ENABLED = "true";
     process.env.DATABASE_URL = "mysql://example.invalid/database";
     process.env.NEXT_PUBLIC_SITE_URL = "https://takeasweet.example.com";
+    delete process.env.VERCEL;
+    delete process.env.VERCEL_ENV;
     delete process.env.PRIVACY_CONTACT_EMAIL;
     expect(isCustomOrderLaunchEnabled()).toBe(false);
 
