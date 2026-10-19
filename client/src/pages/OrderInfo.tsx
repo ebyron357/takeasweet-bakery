@@ -1,3 +1,4 @@
+import { ScrollCraftGroup } from "@/components/scroll-craft-group";
 import { Link } from "wouter";
 import { CalendarHeart, MapPin, PackageX, ReceiptText, Store, Truck } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -47,13 +48,15 @@ export default function OrderInfo() {
         {SERVICE_AREA_COPY}
       </div>
 
-      <div className="mt-8 space-y-4">
+      <ScrollCraftGroup className="mt-8 space-y-4">
         {SECTIONS.map(section => (
           <section
+            data-sc-entry
             key={section.title}
             aria-label={section.title}
             className="bg-card border-border/60 flex gap-4 rounded-xl border p-5 shadow-sm"
           >
+            <span data-sc-rule aria-hidden="true" />
             <div className="bg-primary/20 flex size-11 shrink-0 items-center justify-center rounded-full">
               <section.icon className="text-primary-foreground size-5" aria-hidden />
             </div>
@@ -63,7 +66,7 @@ export default function OrderInfo() {
             </div>
           </section>
         ))}
-      </div>
+      </ScrollCraftGroup>
 
       <div className="mt-10 flex flex-wrap gap-3">
         <Button asChild className="min-h-11 rounded-full font-bold">

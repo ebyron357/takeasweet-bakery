@@ -1,0 +1,20 @@
+.group [data-sc-entry] { position: relative; }
+.group [data-sc-rule] {
+  position: absolute;
+  inset: 0 0 auto;
+  height: 3px;
+  background: var(--primary);
+  transform: scaleX(1);
+  transform-origin: left;
+  pointer-events: none;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .group[data-sc-motion="on"] [data-sc-rule] { transform: scaleX(.12); }
+  .group[data-sc-motion="on"] [data-sc-entered] > [data-sc-rule] {
+    transform: scaleX(1);
+    transition: transform 380ms cubic-bezier(.2,.7,.2,1);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .group [data-sc-rule] { transform: none; transition: none !important; }
+}

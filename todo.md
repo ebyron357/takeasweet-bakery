@@ -118,3 +118,9 @@
 - [x] Run full test checkout with 4242 4242 4242 4242 and verify order marked paid
 - [x] Add vitest coverage for checkout session + webhook order status
 - [x] Publish and deliver report incl. client Stripe ownership onboarding steps
+
+## Scroll Craft — 2026-10-19
+- [x] Scoped one-shot decorative rule entry on the ordering guide.
+- [x] Live reduced-motion and missing-observer fallback.
+- Verification and limits: `docs/SCROLL_CRAFT_IMPLEMENTATION.md`.
+- Existing payment/review-mode settings and order workflows unchanged.

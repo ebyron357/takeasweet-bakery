@@ -3,6 +3,7 @@ name: Client Review CI
 on:
   pull_request:
     paths:
+      - "scripts/scroll-craft-qa.mjs"
       - "client/**"
       - "server/**"
       - "shared/**"
@@ -15,6 +16,7 @@ on:
   push:
     branches: [main]
     paths:
+      - "scripts/scroll-craft-qa.mjs"
       - "client/**"
       - "server/**"
       - "shared/**"
@@ -58,3 +60,15 @@ jobs:
 
       - name: Production build
         run: pnpm build
+
+      - name: Install browser for public frontend checks
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Verify Scroll Craft public guide
+        run: |
+          pnpm exec vite preview --host 127.0.0.1 --port 3113 > /tmp/frontend.log 2>&1 &
+          for attempt in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:3113/order-info > /dev/null; then break; fi
+            sleep 1
+          done
+          SCROLL_BASE=http://127.0.0.1:3113 node scripts/scroll-craft-qa.mjs
