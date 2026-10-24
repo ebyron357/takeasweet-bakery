@@ -1,0 +1,87 @@
+import type { CatalogProduct } from "@/types/catalog";
+
+/**
+ * Client-verified public catalog migrated from seed-verified-menu.mjs.
+ * Internal approval placeholders, ingredients, allergens, storage guidance,
+ * and availability flags are deliberately excluded from this public source.
+ */
+export const catalog = [
+  {
+    name: "Limber",
+    slug: "limber",
+    description: "Frozen limber in your choice of flavor.",
+    priceCents: 150,
+    category: "limber",
+    size: "5 oz",
+    flavorOptions: [
+      "Coconut",
+      "Cherry",
+      "Mango",
+      "Pineapple",
+      "Pina Colada",
+      "Lemon",
+      "Grape",
+      "Tamarin",
+    ],
+    maxFlavorSelections: 1,
+    featured: true,
+    sortOrder: 1,
+  },
+  ...[
+    ["Oreo Refresher", "oreo-refresher"],
+    ["Say Cheese Cup", "say-cheese-cup"],
+    ["Red Velvetini", "red-velvetini"],
+    ["The Rabbit's Carrot Cake", "the-rabbits-carrot-cake"],
+    ["Banana Pudding", "banana-pudding"],
+  ].map(([name, slug], index): CatalogProduct => ({
+    name,
+    slug,
+    description: null,
+    priceCents: 300,
+    category: "treat-cups",
+    size: "5 oz",
+    flavorOptions: [],
+    maxFlavorSelections: null,
+    featured: slug === "banana-pudding",
+    sortOrder: 10 + index,
+  })),
+  ...[
+    ["Sprinkle Cookie", "sprinkle-cookie"],
+    ["Banana Pudding Cookie", "banana-pudding-cookie"],
+    ["Strawberry Lemonade", "strawberry-lemonade"],
+    ["Nutter Butter", "nutter-butter"],
+    ["Oreo", "oreo"],
+  ].map(([name, slug], index): CatalogProduct => ({
+    name,
+    slug,
+    description: null,
+    priceCents: 500,
+    category: "cookies",
+    size: null,
+    flavorOptions: [],
+    maxFlavorSelections: null,
+    featured: slug === "sprinkle-cookie",
+    sortOrder: 20 + index,
+  })),
+  {
+    name: "Four Corners Cheesecake",
+    slug: "four-corners-cheesecake",
+    description: "Choose up to four flavor options.",
+    priceCents: 2000,
+    category: "cheesecake",
+    size: null,
+    flavorOptions: [
+      "Strawberry",
+      "Biscoff",
+      "Oreo",
+      "Nutella",
+      "Cherry",
+      "Blueberry Crumb",
+      "Caramel",
+      "Chocolate",
+    ],
+    maxFlavorSelections: 4,
+    featured: true,
+    sortOrder: 30,
+  },
+] satisfies readonly CatalogProduct[];
