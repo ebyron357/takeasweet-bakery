@@ -3,7 +3,7 @@ import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react";
 import fs from "node:fs";
 import path from "node:path";
-import { defineConfig, type Plugin, type ViteDevServer } from "vite";
+import { defineConfig, loadEnv, type Plugin, type ViteDevServer } from "vite";
 import { vitePluginManusRuntime } from "vite-plugin-manus-runtime";
 
 // =============================================================================
@@ -150,7 +150,54 @@ function vitePluginManusDebugCollector(): Plugin {
   };
 }
 
-const plugins = [react(), tailwindcss(), jsxLocPlugin(), vitePluginManusRuntime(), vitePluginManusDebugCollector()];
+/**
+ * Umami analytics - only injected when both VITE_ANALYTICS_ENDPOINT and
+ * VITE_ANALYTICS_WEBSITE_ID are set, so builds without analytics configured
+ * never ship a script tag pointing at an unresolved placeholder URL.
+ */
+function vitePluginAnalytics(): Plugin {
+  let endpoint = "";
+  let websiteId = "";
+
+  return {
+    name: "umami-analytics",
+
+    configResolved(config) {
+      const env = loadEnv(config.mode, config.envDir, "VITE_");
+      endpoint = (env.VITE_ANALYTICS_ENDPOINT ?? "").replace(/\/+$/, "");
+      websiteId = env.VITE_ANALYTICS_WEBSITE_ID ?? "";
+    },
+
+    transformIndexHtml(html) {
+      if (!endpoint || !websiteId) {
+        return html;
+      }
+      return {
+        html,
+        tags: [
+          {
+            tag: "script",
+            attrs: {
+              defer: true,
+              src: `${endpoint}/umami`,
+              "data-website-id": websiteId,
+            },
+            injectTo: "body",
+          },
+        ],
+      };
+    },
+  };
+}
+
+const plugins = [
+  react(),
+  tailwindcss(),
+  jsxLocPlugin(),
+  vitePluginManusRuntime(),
+  vitePluginManusDebugCollector(),
+  vitePluginAnalytics(),
+];
 
 export default defineConfig({
   plugins,

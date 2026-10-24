@@ -124,3 +124,9 @@
 - [x] Live reduced-motion and missing-observer fallback.
 - Verification and limits: `docs/SCROLL_CRAFT_IMPLEMENTATION.md`.
 - Existing payment/review-mode settings and order workflows unchanged.
+
+## Project Closeout — 2026-10-24
+- [x] Analytics script injected only when VITE_ANALYTICS_ENDPOINT and VITE_ANALYTICS_WEBSITE_ID are both set (no unresolved placeholder in production HTML).
+- [x] README replaced: current status, stack, scripts, environment variables, and the client-approval launch runbook.
+- [x] Verified: type-check, 25/25 tests, production build.
+- Launch steps (Stripe ownership, live keys, disabling review mode) require client approval; see README "Launch runbook".
