@@ -97,6 +97,27 @@ describe("stripe webhook order status handling", () => {
     expect(markOrderPaid).not.toHaveBeenCalled();
   });
 
+  it("marks the order paid when a delayed payment succeeds", async () => {
+    constructEvent.mockReturnValue({
+      id: "evt_5",
+      type: "checkout.session.async_payment_succeeded",
+      data: {
+        object: {
+          id: "cs_test_async",
+          payment_status: "paid",
+          payment_intent: "pi_test_async",
+          metadata: {},
+        },
+      },
+    });
+    const handler = captureHandler();
+    const res = createRes();
+    await handler(req, res);
+
+    expect(markOrderPaid).toHaveBeenCalledWith("cs_test_async", "pi_test_async");
+    expect(res.body).toEqual({ received: true });
+  });
+
   it("cancels the order when the checkout session expires", async () => {
     constructEvent.mockReturnValue({
       id: "evt_3",

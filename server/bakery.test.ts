@@ -1,7 +1,12 @@
 import { describe, expect, it, vi } from "vitest";
 import { appRouter } from "./routers";
 import type { TrpcContext } from "./_core/context";
-import { containsWeddingKeyword, SERVICE_AREA_COPY } from "../shared/bakery";
+import {
+  bakeryTodayIso,
+  containsWeddingKeyword,
+  isEventDateTodayOrLater,
+  SERVICE_AREA_COPY,
+} from "../shared/bakery";
 import {
   CLIENT_REVIEW_MODE,
   PAYMENTS_ENABLED,
@@ -57,6 +62,13 @@ vi.mock("./db-features", () => ({
   listContactMessages: vi.fn().mockResolvedValue([]),
 }));
 
+const { retrieveSession } = vi.hoisted(() => ({ retrieveSession: vi.fn() }));
+vi.mock("stripe", () => ({
+  default: class {
+    checkout = { sessions: { retrieve: retrieveSession } };
+  },
+}));
+
 function createContext(user: TrpcContext["user"] = null): TrpcContext {
   return {
     user,
@@ -89,6 +101,40 @@ describe("shared bakery rules", () => {
   });
 });
 
+describe("custom-order event dates", () => {
+  // 11:30pm Oct 25 in Charlotte is already Oct 26 in UTC.
+  const lateEveningInCharlotte = new Date("2026-10-26T03:30:00Z");
+
+  it("uses Charlotte's calendar date for today", () => {
+    expect(bakeryTodayIso(lateEveningInCharlotte)).toBe("2026-10-25");
+  });
+
+  it("accepts today and later in Charlotte, rejects earlier dates", () => {
+    expect(isEventDateTodayOrLater("2026-10-25", lateEveningInCharlotte)).toBe(true);
+    expect(isEventDateTodayOrLater("2026-12-01", lateEveningInCharlotte)).toBe(true);
+    expect(isEventDateTodayOrLater("2026-10-24", lateEveningInCharlotte)).toBe(false);
+  });
+
+  it("rejects malformed and impossible dates", () => {
+    expect(isEventDateTodayOrLater("2099-02-30")).toBe(false);
+    expect(isEventDateTodayOrLater("12/01/2099")).toBe(false);
+    expect(isEventDateTodayOrLater("")).toBe(false);
+  });
+
+  it("rejects a past event date server-side", async () => {
+    const caller = appRouter.createCaller(createContext());
+    await expect(
+      caller.customOrders.submit({
+        name: "Jamie",
+        email: "jamie@example.com",
+        eventType: "Birthday party",
+        eventDate: "2020-01-01",
+        quantity: 24,
+      }),
+    ).rejects.toThrow(/today or later/i);
+  });
+});
+
 describe("client-review data controls", () => {
   it("blocks custom-order persistence server-side", async () => {
     const caller = appRouter.createCaller(createContext());
@@ -97,7 +143,7 @@ describe("client-review data controls", () => {
         name: "Jamie",
         email: "jamie@example.com",
         eventType: "Birthday party",
-        eventDate: "2026-08-01",
+        eventDate: "2099-08-01",
         quantity: 24,
       }),
     ).rejects.toThrow(/does not send or store/i);
@@ -195,6 +241,27 @@ describe("checkout.confirmation protection", () => {
   it("requires a non-empty session id", async () => {
     const caller = appRouter.createCaller(createContext());
     await expect(caller.checkout.confirmation({ sessionId: "" })).rejects.toThrow();
+  });
+
+  it("does not confirm an order cancelled while Stripe was being checked", async () => {
+    const dbf = await import("./db-features");
+    const order = {
+      id: 7,
+      orderRef: "TAS-RACE01",
+      totalCents: 500,
+      stripeSessionId: "cs_test_race",
+    };
+    vi.mocked(dbf.getOrderBySessionId)
+      .mockResolvedValueOnce({ ...order, status: "pending" } as never)
+      .mockResolvedValueOnce({ ...order, status: "cancelled" } as never);
+    retrieveSession.mockResolvedValueOnce({ payment_status: "paid", payment_intent: "pi_1" });
+    process.env.STRIPE_SECRET_KEY = "sk_test_dummy";
+
+    const caller = appRouter.createCaller(createContext());
+    await expect(
+      caller.checkout.confirmation({ sessionId: "cs_test_race" }),
+    ).rejects.toThrow(/has not been completed/i);
+    expect(dbf.markOrderPaid).toHaveBeenCalledWith("cs_test_race", "pi_1");
   });
 });
 

@@ -99,13 +99,17 @@ export async function getOrderItems(orderId: number) {
   return db.select().from(orderItems).where(eq(orderItems.orderId, orderId));
 }
 
+/**
+ * Marks a pending order paid. Only "pending" orders move, so a repeated or
+ * late Stripe event can never reset a fulfilled or cancelled order.
+ */
 export async function markOrderPaid(sessionId: string, paymentIntentId?: string) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   await db
     .update(orders)
     .set({ status: "paid", stripePaymentIntentId: paymentIntentId })
-    .where(eq(orders.stripeSessionId, sessionId));
+    .where(and(eq(orders.stripeSessionId, sessionId), eq(orders.status, "pending")));
 }
 
 /** Marks a pending order cancelled when its checkout session expires or fails. */

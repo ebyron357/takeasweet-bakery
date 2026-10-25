@@ -9,7 +9,8 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY ?? "");
  * middleware so the raw body is available for signature verification.
  *
  * Handled events:
- *  - checkout.session.completed  -> order marked "paid"
+ *  - checkout.session.completed  -> order marked "paid" (when already paid)
+ *  - checkout.session.async_payment_succeeded -> order marked "paid"
  *  - checkout.session.expired    -> order marked "cancelled"
  *  - checkout.session.async_payment_failed -> order marked "cancelled"
  */
@@ -41,7 +42,10 @@ export function registerStripeWebhook(app: Express) {
 
       try {
         switch (event.type) {
-          case "checkout.session.completed": {
+          case "checkout.session.completed":
+          case "checkout.session.async_payment_succeeded": {
+            // Delayed payment methods complete as "unpaid" and are paid later
+            // via async_payment_succeeded.
             const session = event.data.object as Stripe.Checkout.Session;
             if (session.payment_status === "paid") {
               await markOrderPaid(
