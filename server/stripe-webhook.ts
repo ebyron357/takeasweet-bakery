@@ -2,7 +2,15 @@ import express, { type Express, type Request, type Response } from "express";
 import Stripe from "stripe";
 import { cancelOrderBySessionId, markOrderPaid } from "./db-features";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY ?? "");
+let stripe: Stripe | undefined;
+
+/** Created on first use so the server can start without Stripe configured. */
+function getStripe(): Stripe {
+  const secretKey = process.env.STRIPE_SECRET_KEY;
+  if (!secretKey) throw new Error("Missing STRIPE_SECRET_KEY");
+  stripe ??= new Stripe(secretKey);
+  return stripe;
+}
 
 /**
  * Registers the Stripe webhook route. MUST be called BEFORE express.json()
@@ -27,7 +35,7 @@ export function registerStripeWebhook(app: Express) {
         if (!signature || !webhookSecret) {
           throw new Error("Missing signature or webhook secret");
         }
-        event = stripe.webhooks.constructEvent(req.body, signature, webhookSecret);
+        event = getStripe().webhooks.constructEvent(req.body, signature, webhookSecret);
       } catch (error) {
         console.error("[Stripe Webhook] Signature verification failed:", error);
         return res.status(400).json({ error: "Invalid signature" });

@@ -61,6 +61,7 @@ describe("stripe webhook order status handling", () => {
     cancelOrderBySessionId.mockReset();
     constructEvent.mockReset();
     process.env.STRIPE_WEBHOOK_SECRET = "whsec_test";
+    process.env.STRIPE_SECRET_KEY = "sk_test_dummy";
   });
 
   it("marks the order paid on checkout.session.completed", async () => {
@@ -154,6 +155,17 @@ describe("stripe webhook order status handling", () => {
     await handler(req, res);
 
     expect(res.body).toEqual({ verified: true });
+    expect(markOrderPaid).not.toHaveBeenCalled();
+  });
+
+  it("rejects webhooks when Stripe is not configured", async () => {
+    delete process.env.STRIPE_SECRET_KEY;
+    const handler = captureHandler();
+    const res = createRes();
+    await handler(req, res);
+
+    expect(res.statusCode).toBe(400);
+    expect(constructEvent).not.toHaveBeenCalled();
     expect(markOrderPaid).not.toHaveBeenCalled();
   });
 
