@@ -13,7 +13,12 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { trpc } from "@/lib/trpc";
-import { containsWeddingKeyword, CUSTOM_EVENT_TYPES } from "@shared/bakery";
+import {
+  bakeryTodayIso,
+  containsWeddingKeyword,
+  CUSTOM_EVENT_TYPES,
+  isEventDateTodayOrLater,
+} from "@shared/bakery";
 import { CLIENT_REVIEW_MODE, REVIEW_FORM_NOTICE } from "@shared/review-mode";
 
 const STEPS = [
@@ -70,6 +75,11 @@ export default function CustomOrders() {
         "We aren't able to take wedding orders right now — but we'd love to help with birthdays, showers, and other celebrations!",
       );
       toast.error("Wedding orders aren't accepted.");
+      return;
+    }
+    if (!isEventDateTodayOrLater(form.eventDate)) {
+      setFieldError("Please choose an event date of today or later.");
+      toast.error("Please choose an event date of today or later.");
       return;
     }
     const quantity = parseInt(form.quantity, 10);
@@ -253,6 +263,7 @@ export default function CustomOrders() {
                   id="eventDate"
                   type="date"
                   required
+                  min={bakeryTodayIso()}
                   value={form.eventDate}
                   onChange={e => setForm(f => ({ ...f, eventDate: e.target.value }))}
                 />

@@ -3,7 +3,11 @@ import { nanoid } from "nanoid";
 import Stripe from "stripe";
 import { z } from "zod";
 import { COOKIE_NAME } from "@shared/const";
-import { containsWeddingKeyword, PICKUP_INSTRUCTIONS } from "@shared/bakery";
+import {
+  containsWeddingKeyword,
+  isEventDateTodayOrLater,
+  PICKUP_INSTRUCTIONS,
+} from "@shared/bakery";
 import {
   CLIENT_REVIEW_MODE,
   REVIEW_CHECKOUT_NOTICE,
@@ -286,7 +290,11 @@ export const appRouter = router({
           email: z.string().email().max(320),
           phone: z.string().max(40).optional(),
           eventType: z.string().min(1).max(100),
-          eventDate: z.string().min(1).max(20),
+          eventDate: z
+            .string()
+            .refine(value => isEventDateTodayOrLater(value), {
+              message: "Please choose an event date of today or later.",
+            }),
           quantity: z.number().int().min(1).max(10000),
           details: z.string().max(3000).optional(),
         }),
