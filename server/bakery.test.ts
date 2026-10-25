@@ -62,6 +62,13 @@ vi.mock("./db-features", () => ({
   listContactMessages: vi.fn().mockResolvedValue([]),
 }));
 
+const { retrieveSession } = vi.hoisted(() => ({ retrieveSession: vi.fn() }));
+vi.mock("stripe", () => ({
+  default: class {
+    checkout = { sessions: { retrieve: retrieveSession } };
+  },
+}));
+
 function createContext(user: TrpcContext["user"] = null): TrpcContext {
   return {
     user,
@@ -234,6 +241,27 @@ describe("checkout.confirmation protection", () => {
   it("requires a non-empty session id", async () => {
     const caller = appRouter.createCaller(createContext());
     await expect(caller.checkout.confirmation({ sessionId: "" })).rejects.toThrow();
+  });
+
+  it("does not confirm an order cancelled while Stripe was being checked", async () => {
+    const dbf = await import("./db-features");
+    const order = {
+      id: 7,
+      orderRef: "TAS-RACE01",
+      totalCents: 500,
+      stripeSessionId: "cs_test_race",
+    };
+    vi.mocked(dbf.getOrderBySessionId)
+      .mockResolvedValueOnce({ ...order, status: "pending" } as never)
+      .mockResolvedValueOnce({ ...order, status: "cancelled" } as never);
+    retrieveSession.mockResolvedValueOnce({ payment_status: "paid", payment_intent: "pi_1" });
+    process.env.STRIPE_SECRET_KEY = "sk_test_dummy";
+
+    const caller = appRouter.createCaller(createContext());
+    await expect(
+      caller.checkout.confirmation({ sessionId: "cs_test_race" }),
+    ).rejects.toThrow(/has not been completed/i);
+    expect(dbf.markOrderPaid).toHaveBeenCalledWith("cs_test_race", "pi_1");
   });
 });
 

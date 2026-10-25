@@ -257,7 +257,10 @@ export const appRouter = router({
               input.sessionId,
               typeof session.payment_intent === "string" ? session.payment_intent : undefined,
             );
-            order.status = "paid";
+            // Re-read: markOrderPaid only moves pending orders, so the order
+            // may have been cancelled meanwhile.
+            const refreshed = await dbf.getOrderBySessionId(input.sessionId);
+            if (refreshed) order.status = refreshed.status;
           }
         }
 
