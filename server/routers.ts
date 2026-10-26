@@ -17,6 +17,11 @@ import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { protectedProcedure, publicProcedure, router } from "./_core/trpc";
 import * as dbf from "./db-features";
+import {
+  customerFromSession,
+  notifyOrderPaid,
+  notifyOwnerSafely,
+} from "./order-notifications";
 
 let stripe: Stripe | undefined;
 
@@ -268,10 +273,12 @@ export const appRouter = router({
         if (order.status === "pending") {
           const session = await getStripe().checkout.sessions.retrieve(input.sessionId);
           if (session.payment_status === "paid") {
-            await dbf.markOrderPaid(
+            const changed = await dbf.markOrderPaid(
               input.sessionId,
               typeof session.payment_intent === "string" ? session.payment_intent : undefined,
+              customerFromSession(session),
             );
+            if (changed) await notifyOrderPaid(input.sessionId);
             // Re-read: markOrderPaid only moves pending orders, so the order
             // may have been cancelled meanwhile.
             const refreshed = await dbf.getOrderBySessionId(input.sessionId);
@@ -337,6 +344,20 @@ export const appRouter = router({
           quantity: input.quantity,
           details: input.details ?? null,
         });
+        await notifyOwnerSafely({
+          title: `New custom order request from ${input.name}`,
+          content: [
+            `Event: ${input.eventType} on ${input.eventDate}`,
+            `Quantity: ${input.quantity}`,
+            `Name: ${input.name}`,
+            `Email: ${input.email}`,
+            `Phone: ${input.phone || "(not given)"}`,
+            "",
+            input.details || "(no details given)",
+            "",
+            "Review it in the admin panel and reply with a quote.",
+          ].join("\n"),
+        });
         return { success: true } as const;
       }),
   }),
@@ -368,6 +389,10 @@ export const appRouter = router({
       .mutation(async ({ input }) => {
         blockDuringClientReview(REVIEW_FORM_NOTICE);
         await dbf.createContactMessage(input.name, input.email, input.message);
+        await notifyOwnerSafely({
+          title: `New contact message from ${input.name}`,
+          content: `From: ${input.name} <${input.email}>\n\n${input.message}`,
+        });
         return { success: true } as const;
       }),
   }),

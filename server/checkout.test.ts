@@ -8,11 +8,14 @@ vi.mock("../shared/review-mode", async importOriginal => ({
   CLIENT_REVIEW_MODE: false,
 }));
 
-const { createSession, expireSession, createOrder } = vi.hoisted(() => ({
+const { createSession, expireSession, createOrder, notifyOwner } = vi.hoisted(() => ({
   createSession: vi.fn(),
   expireSession: vi.fn(),
   createOrder: vi.fn(),
+  notifyOwner: vi.fn(),
 }));
+
+vi.mock("./_core/notification", () => ({ notifyOwner }));
 
 vi.mock("stripe", () => ({
   default: class {
@@ -33,6 +36,8 @@ vi.mock("./db-features", () => ({
     },
   ]),
   createOrder: (...args: unknown[]) => createOrder(...args),
+  createCustomOrderRequest: vi.fn().mockResolvedValue(undefined),
+  createContactMessage: vi.fn().mockResolvedValue(undefined),
 }));
 
 import { appRouter } from "./routers";
@@ -84,5 +89,50 @@ describe("checkout.createSession order persistence", () => {
       caller.checkout.createSession({ items: [{ productId: 1, quantity: 1 }] }),
     ).rejects.toThrow(/couldn't start checkout/i);
     expect(expireSession).toHaveBeenCalledWith("cs_test_new");
+  });
+});
+
+describe("owner notifications for form submissions", () => {
+  beforeEach(() => {
+    notifyOwner.mockReset().mockResolvedValue(true);
+  });
+
+  it("notifies the owner about a new custom order request", async () => {
+    const caller = appRouter.createCaller(createContext());
+    await caller.customOrders.submit({
+      name: "Jamie",
+      email: "jamie@example.com",
+      eventType: "Birthday party",
+      eventDate: "2099-08-01",
+      quantity: 24,
+      details: "Pink sprinkles please",
+    });
+
+    const { title, content } = notifyOwner.mock.calls[0][0];
+    expect(title).toBe("New custom order request from Jamie");
+    expect(content).toContain("Birthday party on 2099-08-01");
+    expect(content).toContain("jamie@example.com");
+    expect(content).toContain("Pink sprinkles please");
+  });
+
+  it("notifies the owner about a new contact message", async () => {
+    const caller = appRouter.createCaller(createContext());
+    await caller.contact.submit({
+      name: "Jamie",
+      email: "jamie@example.com",
+      message: "Do you have nut-free cookies?",
+    });
+
+    const { title, content } = notifyOwner.mock.calls[0][0];
+    expect(title).toBe("New contact message from Jamie");
+    expect(content).toContain("Do you have nut-free cookies?");
+  });
+
+  it("still accepts the request when the notification fails", async () => {
+    notifyOwner.mockRejectedValue(new Error("Notification service URL is not configured."));
+    const caller = appRouter.createCaller(createContext());
+    await expect(
+      caller.contact.submit({ name: "Jamie", email: "jamie@example.com", message: "Hi" }),
+    ).resolves.toEqual({ success: true });
   });
 });

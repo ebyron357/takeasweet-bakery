@@ -10,6 +10,15 @@ vi.mock("./db-features", () => ({
   cancelOrderBySessionId: (...args: unknown[]) => cancelOrderBySessionId(...args),
 }));
 
+const notifyOrderPaid = vi.fn();
+vi.mock("./order-notifications", () => ({
+  customerFromSession: (session: { customer_details?: { name?: string; email?: string } }) => ({
+    name: session.customer_details?.name ?? null,
+    email: session.customer_details?.email ?? null,
+  }),
+  notifyOrderPaid: (...args: unknown[]) => notifyOrderPaid(...args),
+}));
+
 const constructEvent = vi.fn();
 vi.mock("stripe", () => ({
   default: class {
@@ -57,7 +66,8 @@ const req = {
 
 describe("stripe webhook order status handling", () => {
   beforeEach(() => {
-    markOrderPaid.mockReset();
+    markOrderPaid.mockReset().mockResolvedValue(true);
+    notifyOrderPaid.mockReset();
     cancelOrderBySessionId.mockReset();
     constructEvent.mockReset();
     process.env.STRIPE_WEBHOOK_SECRET = "whsec_test";
@@ -73,6 +83,7 @@ describe("stripe webhook order status handling", () => {
           id: "cs_test_123",
           payment_status: "paid",
           payment_intent: "pi_test_123",
+          customer_details: { name: "Jamie Guest", email: "jamie@example.com" },
           metadata: { order_ref: "TAS-ABC123" },
         },
       },
@@ -81,9 +92,27 @@ describe("stripe webhook order status handling", () => {
     const res = createRes();
     await handler(req, res);
 
-    expect(markOrderPaid).toHaveBeenCalledWith("cs_test_123", "pi_test_123");
+    expect(markOrderPaid).toHaveBeenCalledWith("cs_test_123", "pi_test_123", {
+      name: "Jamie Guest",
+      email: "jamie@example.com",
+    });
+    expect(notifyOrderPaid).toHaveBeenCalledWith("cs_test_123");
     expect(cancelOrderBySessionId).not.toHaveBeenCalled();
     expect(res.body).toEqual({ received: true });
+  });
+
+  it("does not notify again when the order was already paid", async () => {
+    markOrderPaid.mockResolvedValue(false);
+    constructEvent.mockReturnValue({
+      id: "evt_6",
+      type: "checkout.session.completed",
+      data: { object: { id: "cs_test_dup", payment_status: "paid", metadata: {} } },
+    });
+    const handler = captureHandler();
+    await handler(req, createRes());
+
+    expect(markOrderPaid).toHaveBeenCalled();
+    expect(notifyOrderPaid).not.toHaveBeenCalled();
   });
 
   it("does not mark paid when payment_status is unpaid", async () => {
@@ -115,7 +144,10 @@ describe("stripe webhook order status handling", () => {
     const res = createRes();
     await handler(req, res);
 
-    expect(markOrderPaid).toHaveBeenCalledWith("cs_test_async", "pi_test_async");
+    expect(markOrderPaid).toHaveBeenCalledWith("cs_test_async", "pi_test_async", {
+      name: null,
+      email: null,
+    });
     expect(res.body).toEqual({ received: true });
   });
 
