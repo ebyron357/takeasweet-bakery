@@ -221,18 +221,33 @@ export const appRouter = router({
           cancel_url: `${origin}/order/canceled`,
         });
 
-        await dbf.createOrder(
-          {
-            orderRef,
-            userId: ctx.user?.id ?? null,
-            customerName: ctx.user?.name ?? null,
-            customerEmail: ctx.user?.email ?? null,
-            stripeSessionId: session.id,
-            totalCents,
-            status: "pending",
-          },
-          orderItemsData,
-        );
+        try {
+          await dbf.createOrder(
+            {
+              orderRef,
+              userId: ctx.user?.id ?? null,
+              customerName: ctx.user?.name ?? null,
+              customerEmail: ctx.user?.email ?? null,
+              stripeSessionId: session.id,
+              totalCents,
+              status: "pending",
+            },
+            orderItemsData,
+          );
+        } catch (error) {
+          // Without a saved order a payment could not be matched, so close the
+          // session before the customer can pay.
+          console.error("[Checkout] Failed to save order; expiring session:", error);
+          await getStripe()
+            .checkout.sessions.expire(session.id)
+            .catch(expireError =>
+              console.error("[Checkout] Failed to expire session:", expireError),
+            );
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "We couldn't start checkout. Please try again.",
+          });
+        }
 
         return { url: session.url };
       }),
