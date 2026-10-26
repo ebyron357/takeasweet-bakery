@@ -261,7 +261,10 @@ describe("checkout.confirmation protection", () => {
     await expect(
       caller.checkout.confirmation({ sessionId: "cs_test_race" }),
     ).rejects.toThrow(/has not been completed/i);
-    expect(dbf.markOrderPaid).toHaveBeenCalledWith("cs_test_race", "pi_1");
+    expect(dbf.markOrderPaid).toHaveBeenCalledWith("cs_test_race", "pi_1", {
+      name: null,
+      email: null,
+    });
   });
 });
 

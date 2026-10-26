@@ -114,7 +114,9 @@ export default function OrderConfirmation() {
 
       <div className="mt-8 flex items-center justify-center gap-2">
         <CheckCircle2 className="text-primary size-4" />
-        <p className="text-muted-foreground text-sm">A confirmation email is on its way.</p>
+        <p className="text-muted-foreground text-sm">
+          Keep an eye on your email — we&apos;ll be in touch about pickup.
+        </p>
       </div>
 
       {!PAYMENTS_LIVE && (

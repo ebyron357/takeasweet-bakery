@@ -1,6 +1,7 @@
 import express, { type Express, type Request, type Response } from "express";
 import Stripe from "stripe";
 import { cancelOrderBySessionId, markOrderPaid } from "./db-features";
+import { customerFromSession, notifyOrderPaid } from "./order-notifications";
 
 let stripe: Stripe | undefined;
 
@@ -56,10 +57,13 @@ export function registerStripeWebhook(app: Express) {
             // via async_payment_succeeded.
             const session = event.data.object as Stripe.Checkout.Session;
             if (session.payment_status === "paid") {
-              await markOrderPaid(
+              const changed = await markOrderPaid(
                 session.id,
                 typeof session.payment_intent === "string" ? session.payment_intent : undefined,
+                customerFromSession(session),
               );
+              // Only the call that marked it paid notifies, so repeats stay quiet.
+              if (changed) await notifyOrderPaid(session.id);
               console.log(
                 `[Stripe Webhook] Order paid: session=${session.id} ref=${session.metadata?.order_ref}`,
               );

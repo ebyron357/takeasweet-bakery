@@ -1,4 +1,4 @@
-import { and, asc, desc, eq, inArray } from "drizzle-orm";
+import { and, asc, desc, eq, inArray, sql } from "drizzle-orm";
 import {
   contactMessages,
   customOrderRequests,
@@ -99,17 +99,35 @@ export async function getOrderItems(orderId: number) {
   return db.select().from(orderItems).where(eq(orderItems.orderId, orderId));
 }
 
+export type CheckoutCustomer = { name?: string | null; email?: string | null };
+
 /**
  * Marks a pending order paid. Only "pending" orders move, so a repeated or
  * late Stripe event can never reset a fulfilled or cancelled order.
+ * Stores the name and email collected by Stripe Checkout when the order has
+ * none (guest checkout). Returns true only for the call that made the change.
  */
-export async function markOrderPaid(sessionId: string, paymentIntentId?: string) {
+export async function markOrderPaid(
+  sessionId: string,
+  paymentIntentId?: string,
+  customer?: CheckoutCustomer,
+): Promise<boolean> {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
-  await db
+  const [result] = await db
     .update(orders)
-    .set({ status: "paid", stripePaymentIntentId: paymentIntentId })
+    .set({
+      status: "paid",
+      stripePaymentIntentId: paymentIntentId,
+      ...(customer?.name
+        ? { customerName: sql`COALESCE(${orders.customerName}, ${customer.name})` }
+        : {}),
+      ...(customer?.email
+        ? { customerEmail: sql`COALESCE(${orders.customerEmail}, ${customer.email})` }
+        : {}),
+    })
     .where(and(eq(orders.stripeSessionId, sessionId), eq(orders.status, "pending")));
+  return result.affectedRows > 0;
 }
 
 /** Marks a pending order cancelled when its checkout session expires or fails. */
