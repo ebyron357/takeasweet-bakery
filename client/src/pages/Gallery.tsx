@@ -1,10 +1,13 @@
 import { Images } from "lucide-react";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
 import NotFound from "@/pages/NotFound";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 /** Authentic photos of TakeASweet's work, managed in the admin settings. */
 export default function Gallery() {
   const { settings, isLoading } = useSiteSettings();
+  // An empty gallery renders the 404 page, which sets its own title.
+  usePageTitle(settings.gallery.length > 0 ? "Gallery" : undefined);
   if (isLoading) return null;
   if (settings.gallery.length === 0) return <NotFound />;
 

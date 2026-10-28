@@ -9,7 +9,10 @@ import {
 import { Button } from "@/components/ui/button";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
 
+import { usePageTitle } from "@/hooks/usePageTitle";
+
 export default function Faq() {
+  usePageTitle("FAQ");
   const { settings } = useSiteSettings();
   return (
     <div className="container max-w-3xl py-12 md:py-16">
@@ -26,6 +29,7 @@ export default function Faq() {
         </p>
       </div>
 
+      <h2 className="sr-only">Questions and answers</h2>
       <Accordion type="single" collapsible className="mt-10 w-full">
         {settings.faq.map((item, i) => (
           <AccordionItem key={i} value={`faq-${i}`}>

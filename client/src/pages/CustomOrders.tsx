@@ -21,6 +21,7 @@ import {
 } from "@shared/bakery";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
 import { REVIEW_FORM_NOTICE } from "@shared/site-settings";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 const STEPS = [
   {
@@ -46,6 +47,7 @@ const STEPS = [
 ];
 
 export default function CustomOrders() {
+  usePageTitle("Custom Orders");
   const [form, setForm] = useState({
     name: "",
     email: "",

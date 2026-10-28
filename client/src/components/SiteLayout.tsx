@@ -72,15 +72,19 @@ function AnnouncementBanner() {
   const copy = useSiteSettings().settings.announcement;
   if (!copy) return null;
   return (
-    <div className="bg-foreground text-background overflow-hidden py-1.5 text-xs font-semibold tracking-wide">
+    <aside
+      aria-label="Announcement"
+      className="bg-foreground text-background overflow-hidden py-1.5 text-xs font-semibold tracking-wide"
+    >
       <div className="animate-marquee flex w-max whitespace-nowrap">
         {Array.from({ length: 6 }).map((_, i) => (
-          <span key={i} className="mx-8">
+          // Repeats exist only for the scrolling effect; screen readers hear the copy once.
+          <span key={i} className="mx-8" aria-hidden={i > 0 || undefined}>
             {copy}
           </span>
         ))}
       </div>
-    </div>
+    </aside>
   );
 }
 
@@ -357,9 +361,9 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
             )}
           </div>
           <div>
-            <h3 className="font-display mb-3 text-sm font-bold tracking-widest uppercase">
+            <h2 className="font-display mb-3 text-sm font-bold tracking-widest uppercase">
               Explore
-            </h3>
+            </h2>
             <ul className="space-y-0.5 text-sm">
               {navLinks.map(link => (
                 <li key={link.href}>
@@ -369,9 +373,9 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
                 </li>
               ))}
             </ul>
-            <h3 className="font-display mt-5 mb-2 text-sm font-bold tracking-widest uppercase">
+            <h2 className="font-display mt-5 mb-2 text-sm font-bold tracking-widest uppercase">
               Policies
-            </h3>
+            </h2>
             <ul className="space-y-0.5 text-sm">
               <li>
                 <Link href="/order-info" className="hover:text-secondary-foreground inline-block py-1 hover:underline">
@@ -391,9 +395,9 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
             </ul>
           </div>
           <div>
-            <h3 className="font-display mb-3 text-sm font-bold tracking-widest uppercase">
+            <h2 className="font-display mb-3 text-sm font-bold tracking-widest uppercase">
               Stay in the Sweet Loop
-            </h3>
+            </h2>
             <p className="text-muted-foreground mb-3 text-sm">
               New flavors, seasonal drops, and restock alerts — right to your inbox.
             </p>

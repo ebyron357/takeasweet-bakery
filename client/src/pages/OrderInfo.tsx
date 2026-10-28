@@ -3,6 +3,7 @@ import { Link } from "wouter";
 import { CalendarHeart, MapPin, PackageX, ReceiptText, Store, Truck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 const SECTIONS = [
   {
@@ -33,6 +34,7 @@ const SECTIONS = [
 ];
 
 export default function OrderInfo() {
+  usePageTitle("Order Information");
   const { settings } = useSiteSettings();
   return (
     <div className="container max-w-2xl py-12 md:py-16">

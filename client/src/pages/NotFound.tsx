@@ -1,8 +1,10 @@
 import { Link } from "wouter";
 import { Home, UtensilsCrossed } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 export default function NotFound() {
+  usePageTitle("Page Not Found");
   return (
     <div className="container flex flex-col items-center justify-center py-24 text-center">
       <p className="text-6xl" aria-hidden>

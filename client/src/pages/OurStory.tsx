@@ -2,6 +2,7 @@ import { Link } from "wouter";
 import { ArrowRight, Cookie, Handshake, Heart, Lightbulb, Rocket, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 
 const VALUES = [
@@ -28,6 +29,7 @@ const VALUES = [
 ];
 
 export default function OurStory() {
+  usePageTitle("Our Story");
   const { settings } = useSiteSettings();
   const { founderPortrait, community, storyFeature } = settings.images;
   return (

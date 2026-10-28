@@ -132,3 +132,17 @@
 - [x] Home page built from the catalog: featured products, categories with products, and the multi-flavor signature item.
 - [x] Removed placeholders: generic social links, "Flavor Coming Soon" cards, camera-icon image stand-ins, the empty gallery page, and "CLIENT APPROVAL REQUIRED" markers (missing product details are now empty and listed per product in Admin).
 - [x] Migration `0004` creates the settings table seeded with the previously approved copy and images, and clears the old marker values.
+
+## Polish & Hidden-Issue Audit — 2026-10-28
+- [x] Audit all 16 routes (desktop 1366px + mobile 375px) with browser console capture and axe-core WCAG 2.1 AA scan.
+- [x] Re-enable pinch-zoom (viewport no longer sets `maximum-scale=1`).
+- [x] Inject the analytics script only when its env vars are set (no more broken `%VITE_ANALYTICS_ENDPOINT%` request on every page).
+- [x] Give every page its own browser-tab title (products use their name).
+- [x] Fix heading order: footer headings are now `h2`; FAQ list has a screen-reader heading.
+- [x] Put the announcement banner in a labeled landmark; screen readers read it once; reduced-motion users see one full, wrapped line.
+- [x] Raise footer credit-line contrast to pass AA.
+- [x] Give product-card image links an accessible name (includes "sold out" when applicable).
+- [x] Hide the Stripe test-card hint while checkout is disabled (also covered by the new `CheckoutButton`).
+- [x] Fall back to same-tab redirect when the browser blocks the checkout tab.
+- [x] Merged with Owner-Managed Settings; fixes carried into `CheckoutButton` and settings-driven pages (empty gallery keeps the 404 title).
+- Result: typecheck and build pass, 53/53 tests pass, `scripts/site-qa.mjs` passes (32 checks with backend, 22 without), scroll-craft QA 6/6, 0 console errors.

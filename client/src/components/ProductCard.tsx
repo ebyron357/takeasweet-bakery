@@ -53,6 +53,7 @@ export default function ProductCard({ product }: { product: ProductCardData }) {
       {product.imageUrl && (
         <Link
           href={`/product/${product.slug}`}
+          aria-label={product.inStock ? product.name : `${product.name} (sold out)`}
           className="relative block w-32 shrink-0 overflow-hidden sm:w-auto"
         >
           <div className="bg-secondary/30 h-full min-h-32 w-full overflow-hidden sm:aspect-[4/3] sm:h-auto sm:min-h-0">

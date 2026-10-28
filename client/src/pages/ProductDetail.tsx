@@ -19,6 +19,7 @@ import { useCart } from "@/contexts/CartContext";
 import { trpc } from "@/lib/trpc";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
 import { CATEGORY_LABELS, formatPrice } from "@shared/bakery";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 export default function ProductDetail() {
   const { slug } = useParams<{ slug: string }>();
@@ -26,6 +27,7 @@ export default function ProductDetail() {
     { slug: slug ?? "" },
     { enabled: !!slug, retry: false },
   );
+  usePageTitle(product?.name);
   const { addItem } = useCart();
   const [quantity, setQuantityState] = useState(1);
   const { settings } = useSiteSettings();

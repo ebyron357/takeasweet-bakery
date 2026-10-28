@@ -7,8 +7,10 @@ import { Button } from "@/components/ui/button";
 import { useCart } from "@/contexts/CartContext";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
 import { formatPrice } from "@shared/bakery";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 export default function CartPage() {
+  usePageTitle("Your Bag");
   const { items, totalCents, setQuantity, removeItem } = useCart();
   const search = useSearch();
   const { settings } = useSiteSettings();

@@ -8,8 +8,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { trpc } from "@/lib/trpc";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
 import { REVIEW_FORM_NOTICE } from "@shared/site-settings";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 export default function Contact() {
+  usePageTitle("Contact");
   const [form, setForm] = useState({ name: "", email: "", message: "" });
   const [submitted, setSubmitted] = useState(false);
   const { settings } = useSiteSettings();

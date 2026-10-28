@@ -2,7 +2,10 @@ import { Link } from "wouter";
 import { ShieldCheck } from "lucide-react";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
 
+import { usePageTitle } from "@/hooks/usePageTitle";
+
 export default function Privacy() {
+  usePageTitle("Privacy Policy");
   const { settings } = useSiteSettings();
   return (
     <div className="container max-w-2xl py-12 md:py-16">

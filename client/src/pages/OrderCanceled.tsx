@@ -4,7 +4,10 @@ import { Button } from "@/components/ui/button";
 import { useCart } from "@/contexts/CartContext";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
 
+import { usePageTitle } from "@/hooks/usePageTitle";
+
 export default function OrderCanceled() {
+  usePageTitle("Checkout Canceled");
   const { settings } = useSiteSettings();
   const { itemCount } = useCart();
 

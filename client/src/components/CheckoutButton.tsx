@@ -13,7 +13,8 @@ export default function CheckoutButton({ compact = false }: { compact?: boolean 
     onSuccess: data => {
       if (data.url) {
         toast.success("Taking you to secure checkout…");
-        window.open(data.url, "_blank");
+        // Safari can block a new tab opened after an async call; fall back to this tab.
+        if (!window.open(data.url, "_blank")) window.location.assign(data.url);
       }
     },
     onError: err => toast.error(err.message || "Could not start checkout. Please try again."),

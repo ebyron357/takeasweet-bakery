@@ -5,6 +5,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import CategorySection from "@/components/CategorySection";
 import { trpc } from "@/lib/trpc";
 import { CATEGORY_LABELS, formatPrice } from "@shared/bakery";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 const CATEGORY_ORDER = ["limber", "treat-cups", "cookies", "cheesecake", "seasonal"] as const;
 const FILTERS = ["all", ...CATEGORY_ORDER] as const;
@@ -22,6 +23,7 @@ function priceNoteFor(products: { priceCents: number; size: string | null }[]): 
 }
 
 export default function Shop() {
+  usePageTitle("Menu");
   const { data: products, isLoading } = trpc.products.list.useQuery();
   const [activeFilter, setActiveFilter] = useState<(typeof FILTERS)[number]>("all");
   const [query, setQuery] = useState("");
