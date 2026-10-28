@@ -19,7 +19,8 @@ import {
   CUSTOM_EVENT_TYPES,
   isEventDateTodayOrLater,
 } from "@shared/bakery";
-import { CLIENT_REVIEW_MODE, REVIEW_FORM_NOTICE } from "@shared/review-mode";
+import { useSiteSettings } from "@/hooks/useSiteSettings";
+import { REVIEW_FORM_NOTICE } from "@shared/site-settings";
 
 const STEPS = [
   {
@@ -55,6 +56,7 @@ export default function CustomOrders() {
     details: "",
   });
   const [submitted, setSubmitted] = useState(false);
+  const { settings } = useSiteSettings();
 
   const submit = trpc.customOrders.submit.useMutation({
     onSuccess: () => {
@@ -88,7 +90,7 @@ export default function CustomOrders() {
       toast.error("Please enter how many treats you need.");
       return;
     }
-    if (CLIENT_REVIEW_MODE) {
+    if (settings.reviewMode) {
       // Review mode: show the success state without transmitting any data.
       setSubmitted(true);
       toast.info(REVIEW_FORM_NOTICE);
@@ -156,14 +158,16 @@ export default function CustomOrders() {
               <strong>wedding orders</strong> at this time.
             </p>
           </div>
-          <div className="mx-auto w-full max-w-md overflow-hidden rounded-3xl shadow-md">
-            <img
-              src="/manus-storage/cat-treat-cups_6ff55c37.png"
-              alt="Layered dessert cups for celebrations"
-              loading="lazy"
-              className="aspect-[4/3] w-full object-cover"
-            />
-          </div>
+          {settings.images.customOrders && (
+            <div className="mx-auto w-full max-w-md overflow-hidden rounded-3xl shadow-md">
+              <img
+                src={settings.images.customOrders.url}
+                alt={settings.images.customOrders.alt}
+                loading="lazy"
+                className="aspect-[4/3] w-full object-cover"
+              />
+            </div>
+          )}
         </div>
       </section>
 
@@ -193,7 +197,7 @@ export default function CustomOrders() {
             order — we review every request first. Custom desserts welcome; no wedding orders,
             please!
           </p>
-          {CLIENT_REVIEW_MODE && (
+          {settings.reviewMode && (
             <p
               role="status"
               className="bg-accent/60 text-accent-foreground mt-3 rounded-xl px-4 py-3 text-sm font-semibold"

@@ -6,12 +6,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { trpc } from "@/lib/trpc";
-import { SERVICE_AREA_COPY } from "@shared/bakery";
-import { CLIENT_REVIEW_MODE, REVIEW_FORM_NOTICE } from "@shared/review-mode";
+import { useSiteSettings } from "@/hooks/useSiteSettings";
+import { REVIEW_FORM_NOTICE } from "@shared/site-settings";
 
 export default function Contact() {
   const [form, setForm] = useState({ name: "", email: "", message: "" });
   const [submitted, setSubmitted] = useState(false);
+  const { settings } = useSiteSettings();
 
   const submit = trpc.contact.submit.useMutation({
     onSuccess: () => {
@@ -32,10 +33,20 @@ export default function Contact() {
           Questions about the menu, an order, or anything else? Drop us a note and we'll get back
           to you.
         </p>
-        <div className="bg-accent text-accent-foreground mt-4 inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 text-sm font-bold">
-          <MapPin className="size-4" />
-          {SERVICE_AREA_COPY}
-        </div>
+        {settings.serviceArea && (
+          <div className="bg-accent text-accent-foreground mt-4 inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 text-sm font-bold">
+            <MapPin className="size-4" />
+            {settings.serviceArea}
+          </div>
+        )}
+        {settings.contactEmail && (
+          <p className="mt-4 text-sm">
+            Prefer email?{" "}
+            <a href={`mailto:${settings.contactEmail}`} className="font-semibold underline">
+              {settings.contactEmail}
+            </a>
+          </p>
+        )}
       </div>
 
       {submitted ? (
@@ -62,7 +73,7 @@ export default function Contact() {
           className="bg-card border-border/60 mt-10 space-y-4 rounded-3xl border p-6 shadow-sm sm:p-8"
           onSubmit={e => {
             e.preventDefault();
-            if (CLIENT_REVIEW_MODE) {
+            if (settings.reviewMode) {
               // Review mode: show the success state without transmitting any data.
               setSubmitted(true);
               toast.info(REVIEW_FORM_NOTICE);

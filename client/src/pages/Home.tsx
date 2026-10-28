@@ -20,58 +20,52 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import ProductCard, { type ProductCardData } from "@/components/ProductCard";
 import { Button } from "@/components/ui/button";
-import { CATEGORY_LABELS, FAQ_ITEMS, SERVICE_AREA_COPY } from "@shared/bakery";
+import { useSiteSettings } from "@/hooks/useSiteSettings";
+import { trpc } from "@/lib/trpc";
+import { CATEGORY_LABELS, formatPrice, PRODUCT_CATEGORIES } from "@shared/bakery";
+import type { SiteImage } from "@shared/site-settings";
 
-const FOUNDER_PORTRAIT = "/manus-storage/founder-portrait_084f259e.webp";
-const FOUNDER_FAMILY = "/manus-storage/founder-family_f9035642.webp";
+const CATEGORY_ICONS: Record<string, typeof Cookie> = {
+  limber: CupSoda,
+  "treat-cups": IceCream,
+  cookies: Cookie,
+  cheesecake: CakeSlice,
+  seasonal: Sparkles,
+};
 
-const FEATURED_FAVORITES = [
-  {
-    name: "Banana Pudding",
-    href: "/product/banana-pudding",
-    image: "/manus-storage/cat-treat-cups_6ff55c37.png",
-  },
-  {
-    name: "Cookies",
-    href: "/shop#cookies",
-    image: "/manus-storage/cat-cookies_e5f3f90b.png",
-  },
-  {
-    name: "Four Corners Cheesecake",
-    href: "/product/four-corners-cheesecake",
-    image: "/manus-storage/cat-cheesecake_85fb2916.png",
-  },
-  {
-    name: "Treat Cups",
-    href: "/shop#treat-cups",
-    image: "/manus-storage/cat-treat-cups_6ff55c37.png",
-  },
-];
+/** How many menu items the home page highlights. */
+const FEATURED_COUNT = 4;
 
-const CATEGORY_CARDS = [
-  { key: "limber", Icon: CupSoda },
-  { key: "treat-cups", Icon: IceCream },
-  { key: "cookies", Icon: Cookie },
-  { key: "cheesecake", Icon: CakeSlice },
-  { key: "seasonal", Icon: Sparkles },
-];
+type SignatureProduct = ProductCardData & {
+  flavorOptions: string[];
+  maxFlavorSelections: number;
+};
 
-const FLAVOR_CARDS = [
-  { label: "Strawberry", available: true },
-  { label: "Oreo", available: true },
-  { label: "Flavor Coming Soon", available: false },
-  { label: "Flavor Coming Soon", available: false },
-];
+/** An image from the admin settings, with its optional caption. */
+function SettingsImage({ image, className }: { image: SiteImage; className: string }) {
+  return (
+    <figure>
+      <img src={image.url} alt={image.alt} loading="lazy" decoding="async" className={className} />
+      {image.caption && (
+        <figcaption className="text-muted-foreground mt-2 text-center text-xs">
+          {image.caption}
+        </figcaption>
+      )}
+    </figure>
+  );
+}
 
-function FourCornersPreview() {
+function FlavorPreview({ product }: { product: SignatureProduct }) {
   const [selected, setSelected] = useState<string[]>([]);
+  const max = product.maxFlavorSelections;
 
   const toggle = (flavor: string) => {
     setSelected(prev =>
       prev.includes(flavor)
         ? prev.filter(item => item !== flavor)
-        : prev.length < 4
+        : prev.length < max
           ? [...prev, flavor]
           : prev,
     );
@@ -79,30 +73,17 @@ function FourCornersPreview() {
 
   return (
     <div className="bg-card border-border/60 rounded-3xl border p-6 shadow-sm">
-      <p className="mb-4 text-sm font-bold">Choose your corners:</p>
+      <p className="mb-4 text-sm font-bold">
+        Choose up to {max} flavors ({selected.length}/{max}):
+      </p>
       <div className="grid grid-cols-2 gap-3">
-        {FLAVOR_CARDS.map((flavor, index) => {
-          const active = selected.includes(flavor.label);
-          const key = `${flavor.label}-${index}`;
-
-          if (!flavor.available) {
-            return (
-              <div
-                key={key}
-                aria-disabled="true"
-                className="bg-muted text-muted-foreground border-border/60 flex aspect-[2/1] flex-col items-center justify-center gap-2 rounded-2xl border p-3 text-center shadow-sm"
-              >
-                <CakeSlice className="size-5 stroke-[1.5]" aria-hidden="true" />
-                <span className="text-xs font-semibold italic">{flavor.label}</span>
-              </div>
-            );
-          }
-
+        {product.flavorOptions.map(flavor => {
+          const active = selected.includes(flavor);
           return (
             <button
-              key={key}
+              key={flavor}
               type="button"
-              onClick={() => toggle(flavor.label)}
+              onClick={() => toggle(flavor)}
               aria-pressed={active}
               className={`border-border/60 focus-visible:ring-ring flex aspect-[2/1] flex-col items-center justify-center gap-2 rounded-2xl border p-3 text-center shadow-sm transition-all focus-visible:ring-2 focus-visible:ring-offset-2 ${
                 active
@@ -113,7 +94,7 @@ function FourCornersPreview() {
               <CakeSlice className="size-5 stroke-[1.5]" aria-hidden="true" />
               <span className="inline-flex items-center gap-1 text-xs font-bold">
                 {active && <Check className="size-3" aria-hidden="true" />}
-                {flavor.label}
+                {flavor}
               </span>
             </button>
           );
@@ -128,6 +109,19 @@ function FourCornersPreview() {
 }
 
 export default function Home() {
+  const { settings } = useSiteSettings();
+  const { data: products = [] } = trpc.products.list.useQuery();
+  const { images } = settings;
+
+  const available = products.filter(p => p.inStock);
+  const flagged = available.filter(p => p.featured);
+  const featured = (flagged.length > 0 ? flagged : available).slice(0, FEATURED_COUNT);
+  const categories = PRODUCT_CATEGORIES.filter(c => products.some(p => p.category === c));
+  const signature = products.find(
+    (p): p is typeof p & SignatureProduct =>
+      (p.maxFlavorSelections ?? 0) > 1 && (p.flavorOptions?.length ?? 0) > 1,
+  );
+
   return (
     <div>
       <section className="relative overflow-hidden">
@@ -135,7 +129,8 @@ export default function Home() {
           <div className="fade-up order-2 md:order-1">
             <div className="bg-accent text-accent-foreground mb-4 inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold">
               <MapPin className="size-3.5" />
-              Kid-owned bakery serving Charlotte, North Carolina.
+              Kid-owned bakery
+              {settings.serviceArea ? ` · ${settings.serviceArea}` : ""}
             </div>
             <h1 className="font-display text-4xl leading-tight font-extrabold sm:text-5xl lg:text-6xl">
               Big Dreams.
@@ -163,125 +158,112 @@ export default function Home() {
               </Button>
             </div>
           </div>
-          <div className="fade-up order-1 md:order-2">
-            <div className="border-primary/40 mx-auto max-w-lg overflow-hidden rounded-3xl border-4 shadow-md">
-              <img
-                src="/manus-storage/cat-cookies_e5f3f90b.png"
-                alt="Illustrative assortment of colorful cookies"
-                className="aspect-[4/3] w-full object-cover"
+          {images.hero && (
+            <div className="fade-up order-1 mx-auto w-full max-w-lg md:order-2">
+              <SettingsImage
+                image={images.hero}
+                className="border-primary/40 aspect-[4/3] w-full rounded-3xl border-4 object-cover shadow-md"
               />
             </div>
-            <p className="text-muted-foreground mt-2 text-center text-xs">
-              Illustrative menu image.
-            </p>
-          </div>
+          )}
         </div>
         <div className="sprinkle-dots w-full" />
       </section>
 
-      <section className="container py-12 md:py-16">
-        <div className="mb-6 flex items-end justify-between gap-4">
-          <div>
-            <p className="text-secondary-foreground flex items-center gap-1.5 text-sm font-bold tracking-widest uppercase">
-              <Sparkles className="size-4" /> Menu highlights
-            </p>
-            <h2 className="font-display mt-1 text-3xl font-extrabold sm:text-4xl">
-              Featured Favorites
-            </h2>
-          </div>
-          <Button asChild variant="ghost" className="hidden rounded-full font-bold sm:inline-flex">
-            <Link href="/shop">
-              View menu <ArrowRight className="size-4" />
-            </Link>
-          </Button>
-        </div>
-        <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-          {FEATURED_FAVORITES.map(item => (
-            <Link
-              key={item.name}
-              href={item.href}
-              className="group bg-card border-border/60 overflow-hidden rounded-xl border shadow-sm transition-shadow hover:shadow-md"
+      {featured.length > 0 && (
+        <section className="container py-12 md:py-16">
+          <div className="mb-6 flex items-end justify-between gap-4">
+            <div>
+              <p className="text-secondary-foreground flex items-center gap-1.5 text-sm font-bold tracking-widest uppercase">
+                <Sparkles className="size-4" /> Menu highlights
+              </p>
+              <h2 className="font-display mt-1 text-3xl font-extrabold sm:text-4xl">
+                Featured Favorites
+              </h2>
+            </div>
+            <Button
+              asChild
+              variant="ghost"
+              className="hidden rounded-full font-bold sm:inline-flex"
             >
-              <div className="bg-secondary/30 aspect-[4/3] w-full overflow-hidden">
-                <img
-                  src={item.image}
-                  alt={item.name}
-                  loading="lazy"
-                  className="size-full object-cover transition-transform duration-300 group-hover:scale-105"
-                />
-              </div>
-              <div className="p-3.5">
-                <h3 className="text-sm font-bold group-hover:underline sm:text-base">
-                  {item.name}
-                </h3>
-                <p className="text-muted-foreground text-xs">See details on the menu</p>
-              </div>
-            </Link>
-          ))}
-        </div>
-      </section>
-
-      <section className="bg-muted/60 py-12 md:py-14">
-        <div className="container">
-          <h2 className="font-display mb-6 text-center text-3xl font-extrabold sm:text-4xl">
-            Shop by Category
-          </h2>
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
-            {CATEGORY_CARDS.map(cat => (
-              <Link
-                key={cat.key}
-                href={`/shop#${cat.key}`}
-                className="bg-card border-border/60 hover:border-primary flex flex-col items-center gap-2 rounded-2xl border p-5 text-center shadow-sm transition-colors"
-              >
-                <cat.Icon className="text-foreground size-8 stroke-[1.5]" aria-hidden="true" />
-                <span className="font-display font-bold">{CATEGORY_LABELS[cat.key]}</span>
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="container py-12 md:py-16">
-        <div className="grid items-center gap-8 md:grid-cols-2">
-          <div>
-            <p className="text-secondary-foreground flex items-center gap-1.5 text-sm font-bold tracking-widest uppercase">
-              <CakeSlice className="size-4" /> Signature item
-            </p>
-            <h2 className="font-display mt-1 text-3xl font-extrabold sm:text-4xl">
-              Four Corners Cheesecake
-            </h2>
-            <p className="text-muted-foreground mt-4 leading-relaxed">
-              One cheesecake, four corners, your call. For <strong>$20</strong>, pick up to{" "}
-              <strong>four flavors</strong> for a single cheesecake — perfect when everyone at the
-              table wants something different. Flavors are chosen before checkout so your bake is
-              exactly how you want it.
-            </p>
-            <Button asChild size="lg" className="mt-6 rounded-full text-base font-bold">
-              <Link href="/product/four-corners-cheesecake">
-                Build Your Cheesecake <ArrowRight className="size-4" />
+              <Link href="/shop">
+                View menu <ArrowRight className="size-4" />
               </Link>
             </Button>
           </div>
-          <FourCornersPreview />
-        </div>
-      </section>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {featured.map(product => (
+              <ProductCard key={product.id} product={product} />
+            ))}
+          </div>
+        </section>
+      )}
+
+      {categories.length > 0 && (
+        <section className="bg-muted/60 py-12 md:py-14">
+          <div className="container">
+            <h2 className="font-display mb-6 text-center text-3xl font-extrabold sm:text-4xl">
+              Shop by Category
+            </h2>
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+              {categories.map(category => {
+                const Icon = CATEGORY_ICONS[category] ?? Cookie;
+                return (
+                  <Link
+                    key={category}
+                    href={`/shop#${category}`}
+                    className="bg-card border-border/60 hover:border-primary flex flex-col items-center gap-2 rounded-2xl border p-5 text-center shadow-sm transition-colors"
+                  >
+                    <Icon className="text-foreground size-8 stroke-[1.5]" aria-hidden="true" />
+                    <span className="font-display font-bold">{CATEGORY_LABELS[category]}</span>
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {signature && (
+        <section className="container py-12 md:py-16">
+          <div className="grid items-center gap-8 md:grid-cols-2">
+            <div>
+              <p className="text-secondary-foreground flex items-center gap-1.5 text-sm font-bold tracking-widest uppercase">
+                <CakeSlice className="size-4" /> Signature item
+              </p>
+              <h2 className="font-display mt-1 text-3xl font-extrabold sm:text-4xl">
+                {signature.name}
+              </h2>
+              <p className="text-muted-foreground mt-4 leading-relaxed">
+                For <strong>{formatPrice(signature.priceCents)}</strong>, pick up to{" "}
+                <strong>{signature.maxFlavorSelections} flavors</strong> — perfect when everyone at
+                the table wants something different. Flavors are chosen before checkout so your
+                order is exactly how you want it.
+              </p>
+              <Button asChild size="lg" className="mt-6 rounded-full text-base font-bold">
+                <Link href={`/product/${signature.slug}`}>
+                  Choose Your Flavors <ArrowRight className="size-4" />
+                </Link>
+              </Button>
+            </div>
+            <FlavorPreview product={signature} />
+          </div>
+        </section>
+      )}
 
       <section className="bg-secondary/40 py-12 md:py-16">
         <div className="container grid items-center gap-8 md:grid-cols-2">
-          <div className="relative mx-auto w-full max-w-sm">
-            <img
-              src={FOUNDER_PORTRAIT}
-              alt="Portrait of the young founder of TakeASweet Cookies & Treats smiling in a bright blue blazer"
-              width={900}
-              height={1350}
-              loading="lazy"
-              decoding="async"
-              className="aspect-[2/3] w-full rounded-3xl object-cover object-top shadow-md"
-            />
-            <div className="bg-primary text-primary-foreground absolute -right-3 -bottom-3 rotate-3 rounded-2xl px-4 py-2 shadow-md">
-               <span className="font-display text-sm font-extrabold">Kid-owned & proud!</span>
+          {images.founderPortrait && (
+            <div className="relative mx-auto w-full max-w-sm">
+              <SettingsImage
+                image={images.founderPortrait}
+                className="aspect-[2/3] w-full rounded-3xl object-cover object-top shadow-md"
+              />
+              <div className="bg-primary text-primary-foreground absolute -right-3 -bottom-3 rotate-3 rounded-2xl px-4 py-2 shadow-md">
+                <span className="font-display text-sm font-extrabold">Kid-owned & proud!</span>
+              </div>
             </div>
-          </div>
+          )}
           <div>
             <p className="text-secondary-foreground flex items-center gap-1.5 text-sm font-bold tracking-widest uppercase">
               <Heart className="size-4" /> Our story
@@ -291,8 +273,8 @@ export default function Home() {
             </h2>
             <p className="text-muted-foreground mt-4 leading-relaxed">
               TakeASweet started when a young Charlotte entrepreneur decided to turn creativity and
-              hard work into something real. With family support and a lot of practice batches,
-              that big idea grew into a bakery known for colorful, handmade treats — and it is still
+              hard work into something real. With family support and a lot of practice batches, that
+              big idea grew into a bakery known for colorful, handmade treats — and it is still
               growing.
             </p>
             <Button asChild className="mt-6 rounded-full font-bold" size="lg">
@@ -314,58 +296,58 @@ export default function Home() {
               Made in Charlotte, shared with Charlotte
             </h2>
             <p className="text-muted-foreground mt-4 leading-relaxed">
-              From local events to special celebrations, TakeASweet brings colorful, handmade
-              treats to the Charlotte community.
+              From local events to special celebrations, TakeASweet brings colorful, handmade treats
+              to the Charlotte community.
             </p>
           </div>
-          <img
-            src={FOUNDER_FAMILY}
-            alt="The TakeASweet founder and her mother smiling together at a Charlotte community event in matching bakery shirts and pink caps"
-            width={1200}
-            height={900}
-            loading="lazy"
-            decoding="async"
-            className="order-1 aspect-[4/3] w-full rounded-3xl object-cover object-center shadow-md md:order-2"
-          />
+          {images.community && (
+            <div className="order-1 md:order-2">
+              <SettingsImage
+                image={images.community}
+                className="aspect-[4/3] w-full rounded-3xl object-cover object-center shadow-md"
+              />
+            </div>
+          )}
         </div>
       </section>
 
-      <section className="bg-muted/60 py-12 md:py-14">
-        <div className="container">
-          <div className="mb-6 flex items-end justify-between gap-4">
-            <h2 className="font-display text-3xl font-extrabold sm:text-4xl">
-              Illustrated menu inspiration
-            </h2>
-            <Button asChild variant="ghost" className="hidden rounded-full font-bold sm:inline-flex">
-              <Link href="/shop">
-                View the Menu <ArrowRight className="size-4" aria-hidden="true" />
-              </Link>
-            </Button>
-          </div>
-          <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-            {[
-              { label: "Cookies", image: "/manus-storage/cat-cookies_e5f3f90b.png" },
-              { label: "Treat cups", image: "/manus-storage/cat-treat-cups_6ff55c37.png" },
-              { label: "Cheesecake", image: "/manus-storage/cat-cheesecake_85fb2916.png" },
-              { label: "Limber", image: "/manus-storage/cat-limber_9edac5a4.png" },
-            ].map(item => (
-              <div key={item.label} className="overflow-hidden rounded-xl">
+      {settings.gallery.length > 0 && (
+        <section className="bg-muted/60 py-12 md:py-14">
+          <div className="container">
+            <div className="mb-6 flex items-end justify-between gap-4">
+              <h2 className="font-display text-3xl font-extrabold sm:text-4xl">
+                Fresh from our kitchen
+              </h2>
+              <Button
+                asChild
+                variant="ghost"
+                className="hidden rounded-full font-bold sm:inline-flex"
+              >
+                <Link href="/gallery">
+                  See the Gallery <ArrowRight className="size-4" aria-hidden="true" />
+                </Link>
+              </Button>
+            </div>
+            <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+              {settings.gallery.slice(0, 4).map(image => (
                 <img
-                  src={item.image}
-                  alt={`Illustrative ${item.label.toLowerCase()} menu image`}
+                  key={image.url}
+                  src={image.url}
+                  alt={image.alt}
                   loading="lazy"
-                  className="aspect-square w-full object-cover"
+                  decoding="async"
+                  className="aspect-square w-full rounded-xl object-cover"
                 />
-              </div>
-            ))}
+              ))}
+            </div>
+            <div className="mt-6 text-center sm:hidden">
+              <Button asChild variant="outline" className="bg-card rounded-full font-bold">
+                <Link href="/gallery">See the Gallery</Link>
+              </Button>
+            </div>
           </div>
-          <div className="mt-6 text-center sm:hidden">
-            <Button asChild variant="outline" className="bg-card rounded-full font-bold">
-              <Link href="/shop">View the Menu</Link>
-            </Button>
-          </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       <section className="bg-accent/40 py-12 md:py-14">
         <div className="container max-w-3xl text-center">
@@ -376,9 +358,9 @@ export default function Home() {
             Something special for your celebration
           </h2>
           <p className="text-muted-foreground mx-auto mt-4 max-w-xl leading-relaxed">
-            Custom desserts are available for birthdays, showers, and celebrations. Every request
-            is reviewed before payment, and large orders may require a deposit. Please note: we
-            are not able to accept wedding orders.
+            Custom desserts are available for birthdays, showers, and celebrations. Every request is
+            reviewed before payment, and large orders may require a deposit. Please note: we are not
+            able to accept wedding orders.
           </p>
           <Button asChild size="lg" className="mt-6 rounded-full text-base font-bold">
             <Link href="/custom-orders">
@@ -392,9 +374,17 @@ export default function Home() {
         <h2 className="font-display mb-8 text-center text-3xl font-extrabold sm:text-4xl">
           Pickup & Delivery
         </h2>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-[repeat(auto-fit,minmax(0,1fr))]">
           {[
-            { icon: MapPin, title: "Local to Charlotte", text: SERVICE_AREA_COPY },
+            ...(settings.serviceArea
+              ? [
+                  {
+                    icon: MapPin,
+                    title: "Local to Charlotte",
+                    text: settings.serviceArea,
+                  },
+                ]
+              : []),
             {
               icon: Check,
               title: "Pickup",
@@ -425,27 +415,28 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ---------- 13. FAQ preview ---------- */}
-      <section className="container max-w-3xl py-12 md:py-16">
-        <h2 className="font-display mb-6 text-center text-3xl font-extrabold sm:text-4xl">
-          Good to know
-        </h2>
-        <Accordion type="single" collapsible className="w-full">
-          {FAQ_ITEMS.slice(0, 4).map((item, index) => (
-            <AccordionItem key={item.question} value={`faq-${index}`}>
-              <AccordionTrigger className="text-left font-bold">{item.question}</AccordionTrigger>
-              <AccordionContent className="text-muted-foreground">{item.answer}</AccordionContent>
-            </AccordionItem>
-          ))}
-        </Accordion>
-        <div className="mt-6 text-center">
-          <Button asChild variant="outline" className="bg-card rounded-full font-bold">
-            <Link href="/faq">
-              See All FAQs <ArrowRight className="size-4" />
-            </Link>
-          </Button>
-        </div>
-      </section>
+      {settings.faq.length > 0 && (
+        <section className="container max-w-3xl py-12 md:py-16">
+          <h2 className="font-display mb-6 text-center text-3xl font-extrabold sm:text-4xl">
+            Good to know
+          </h2>
+          <Accordion type="single" collapsible className="w-full">
+            {settings.faq.slice(0, 4).map((item, index) => (
+              <AccordionItem key={item.question} value={`faq-${index}`}>
+                <AccordionTrigger className="text-left font-bold">{item.question}</AccordionTrigger>
+                <AccordionContent className="text-muted-foreground">{item.answer}</AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
+          <div className="mt-6 text-center">
+            <Button asChild variant="outline" className="bg-card rounded-full font-bold">
+              <Link href="/faq">
+                See All FAQs <ArrowRight className="size-4" />
+              </Link>
+            </Button>
+          </div>
+        </section>
+      )}
     </div>
   );
 }

@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { Camera, Plus, Store, Truck } from "lucide-react";
+import { Plus, Store, Truck } from "lucide-react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -33,11 +33,24 @@ export default function ProductCard({ product }: { product: ProductCardData }) {
   // Products with selectable flavors must be configured on their detail page.
   const requiresOptions = (product.flavorOptions?.length ?? 0) > 0;
 
+  const badges = (
+    <div className="flex flex-wrap gap-1">
+      {product.isSeasonal && (
+        <Badge className="bg-accent text-accent-foreground rounded-full font-bold">Seasonal</Badge>
+      )}
+      {!product.inStock && (
+        <Badge variant="secondary" className="rounded-full font-bold">
+          Sold Out
+        </Badge>
+      )}
+    </div>
+  );
+
   return (
     <article className="group bg-card border-border/60 flex flex-col overflow-hidden rounded-xl border shadow-sm transition-shadow hover:shadow-md">
-      <Link href={`/product/${product.slug}`} className="relative block overflow-hidden">
-        <div className="bg-secondary/30 aspect-[4/3] w-full overflow-hidden">
-          {product.imageUrl ? (
+      {product.imageUrl ? (
+        <Link href={`/product/${product.slug}`} className="relative block overflow-hidden">
+          <div className="bg-secondary/30 aspect-[4/3] w-full overflow-hidden">
             <img
               src={product.imageUrl}
               alt={product.name}
@@ -46,28 +59,12 @@ export default function ProductCard({ product }: { product: ProductCardData }) {
                 !product.inStock ? "opacity-60 grayscale-[35%]" : ""
               }`}
             />
-          ) : (
-            <div
-              aria-hidden
-              className="text-secondary-foreground/50 flex size-full items-center justify-center"
-            >
-              <Camera className="size-7" />
-            </div>
-          )}
-        </div>
-        <div className="absolute top-2 left-2 flex flex-wrap gap-1">
-          {product.isSeasonal && (
-            <Badge className="bg-accent text-accent-foreground rounded-full font-bold">
-              Seasonal
-            </Badge>
-          )}
-          {!product.inStock && (
-            <Badge variant="secondary" className="rounded-full font-bold">
-              Sold Out
-            </Badge>
-          )}
-        </div>
-      </Link>
+          </div>
+          <div className="absolute top-2 left-2">{badges}</div>
+        </Link>
+      ) : (
+        (product.isSeasonal || !product.inStock) && <div className="px-3.5 pt-3.5">{badges}</div>
+      )}
       <div className="flex flex-1 flex-col gap-1 p-3.5">
         <Link href={`/product/${product.slug}`}>
           <h3 className="text-sm leading-snug font-bold hover:underline sm:text-base">

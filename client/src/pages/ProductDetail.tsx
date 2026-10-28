@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Link, useParams } from "wouter";
 import {
   ArrowLeft,
-  Camera,
   Check,
   Clock,
   Minus,
@@ -18,7 +17,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import ProductCard from "@/components/ProductCard";
 import { useCart } from "@/contexts/CartContext";
 import { trpc } from "@/lib/trpc";
-import { CATEGORY_LABELS, formatPrice, SERVICE_AREA_COPY } from "@shared/bakery";
+import { useSiteSettings } from "@/hooks/useSiteSettings";
+import { CATEGORY_LABELS, formatPrice } from "@shared/bakery";
 
 export default function ProductDetail() {
   const { slug } = useParams<{ slug: string }>();
@@ -28,6 +28,7 @@ export default function ProductDetail() {
   );
   const { addItem } = useCart();
   const [quantity, setQuantityState] = useState(1);
+  const { settings } = useSiteSettings();
   const [flavors, setFlavors] = useState<string[]>([]);
 
   const flavorOptions = product?.flavorOptions ?? [];
@@ -85,23 +86,18 @@ export default function ProductDetail() {
         <ArrowLeft className="size-4" aria-hidden /> Back to Menu
       </Link>
 
-      <div className="grid gap-8 md:grid-cols-2 md:gap-12">
-        <div className="border-border/60 overflow-hidden rounded-3xl border shadow-sm">
-          {product.imageUrl ? (
+      <div
+        className={`grid gap-8 md:gap-12 ${product.imageUrl ? "md:grid-cols-2" : "max-w-2xl"}`}
+      >
+        {product.imageUrl && (
+          <div className="border-border/60 overflow-hidden rounded-3xl border shadow-sm">
             <img
               src={product.imageUrl}
               alt={product.name}
               className="aspect-square w-full object-cover"
             />
-          ) : (
-            <div
-              aria-hidden
-              className="bg-secondary/30 text-secondary-foreground/50 flex aspect-square items-center justify-center"
-            >
-              <Camera className="size-10" />
-            </div>
-          )}
-        </div>
+          </div>
+        )}
 
         <div className="flex flex-col">
           <div className="flex flex-wrap items-center gap-2">
@@ -271,8 +267,8 @@ export default function ProductDetail() {
               </p>
             )}
             <p className="text-muted-foreground text-sm">
-              {SERVICE_AREA_COPY} Pickup details are shared once your order is confirmed. Questions
-              about allergens or ingredients?{" "}
+              {settings.serviceArea} Pickup details are shared once your order is confirmed.
+              Questions about allergens or ingredients?{" "}
               <Link href="/contact" className="underline">
                 Contact us
               </Link>

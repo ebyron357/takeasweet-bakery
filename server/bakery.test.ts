@@ -5,13 +5,9 @@ import {
   bakeryTodayIso,
   containsWeddingKeyword,
   isEventDateTodayOrLater,
-  SERVICE_AREA_COPY,
 } from "../shared/bakery";
-import {
-  CLIENT_REVIEW_MODE,
-  PAYMENTS_ENABLED,
-  PAYMENTS_LIVE,
-} from "../shared/review-mode";
+import { parseSiteSettings } from "../shared/site-settings";
+import { clearSiteSettingsCache, isStripeTestMode } from "./site-settings";
 
 vi.mock("./db-features", () => ({
   listActiveProducts: vi.fn().mockResolvedValue([
@@ -24,10 +20,10 @@ vi.mock("./db-features", () => ({
       inStock: true,
       isSeasonalActive: true,
       description: null,
-      leadTime: "CLIENT APPROVAL REQUIRED",
-      ingredients: "CLIENT APPROVAL REQUIRED",
-      allergens: "CLIENT APPROVAL REQUIRED",
-      storageInstructions: "CLIENT APPROVAL REQUIRED",
+      leadTime: null,
+      ingredients: null,
+      allergens: null,
+      storageInstructions: null,
       flavorOptions: [
         "Coconut",
         "Cherry",
@@ -60,6 +56,9 @@ vi.mock("./db-features", () => ({
   subscribeNewsletter: vi.fn().mockResolvedValue(undefined),
   createContactMessage: vi.fn().mockResolvedValue(undefined),
   listContactMessages: vi.fn().mockResolvedValue([]),
+  // No stored settings: everything falls back to the fail-closed defaults.
+  getSiteSettingsData: vi.fn().mockResolvedValue(undefined),
+  saveSiteSettingsData: vi.fn().mockResolvedValue(undefined),
 }));
 
 const { retrieveSession } = vi.hoisted(() => ({ retrieveSession: vi.fn() }));
@@ -90,10 +89,6 @@ const regularUser = {
 };
 
 describe("shared bakery rules", () => {
-  it("exposes the exact service-area copy", () => {
-    expect(SERVICE_AREA_COPY).toBe("Serving Charlotte, North Carolina.");
-  });
-
   it("detects wedding keywords in any casing", () => {
     expect(containsWeddingKeyword("Wedding reception")).toBe(true);
     expect(containsWeddingKeyword("BRIDAL shower cookies")).toBe(true);
@@ -176,17 +171,6 @@ describe("products.list", () => {
     expect(products[0].name).toBe("Limber");
     expect(products[0].flavorOptions).toContain("Tamarin");
   });
-
-  it("never exposes CLIENT APPROVAL REQUIRED placeholders publicly", async () => {
-    const caller = appRouter.createCaller(createContext());
-    const products = await caller.products.list();
-    const serialized = JSON.stringify(products);
-    expect(serialized).not.toContain("CLIENT APPROVAL REQUIRED");
-    expect(products[0].ingredients).toBeNull();
-    expect(products[0].allergens).toBeNull();
-    expect(products[0].leadTime).toBeNull();
-    expect(products[0].storageInstructions).toBeNull();
-  });
 });
 
 describe("admin gating", () => {
@@ -268,16 +252,76 @@ describe("checkout.confirmation protection", () => {
   });
 });
 
-describe("payment mode flags", () => {
-  it("keeps live payments disabled until explicit approval", () => {
-    expect(PAYMENTS_LIVE).toBe(false);
+describe("site settings", () => {
+  const admin = { ...regularUser, id: 1, role: "admin" as const };
+
+  it("fails closed when nothing is stored", () => {
+    const settings = parseSiteSettings(undefined);
+    expect(settings.reviewMode).toBe(true);
+    expect(settings.paymentsEnabled).toBe(false);
+    expect(settings.socialLinks).toEqual({ facebook: "", instagram: "", tiktok: "" });
+    expect(settings.gallery).toEqual([]);
+    expect(settings.faq).toEqual([]);
+    expect(settings.images.hero).toBeNull();
   });
 
-  it("keeps the checkout path disabled during client review", () => {
-    expect(PAYMENTS_ENABLED).toBe(false);
+  it("falls back to the defaults when the stored document is invalid", () => {
+    const settings = parseSiteSettings({ reviewMode: false, socialLinks: { facebook: 42 } });
+    expect(settings.reviewMode).toBe(true);
   });
 
-  it("keeps customer-data collection disabled during review", () => {
-    expect(CLIENT_REVIEW_MODE).toBe(true);
+  it("keeps stored values and fills in missing fields", () => {
+    const settings = parseSiteSettings({
+      reviewMode: false,
+      socialLinks: { instagram: "https://www.instagram.com/takeasweet" },
+    });
+    expect(settings.reviewMode).toBe(false);
+    expect(settings.paymentsEnabled).toBe(false);
+    expect(settings.socialLinks.instagram).toBe("https://www.instagram.com/takeasweet");
+    expect(settings.socialLinks.facebook).toBe("");
+  });
+
+  it("never sends pickup instructions to the public", async () => {
+    const dbf = await import("./db-features");
+    vi.mocked(dbf.getSiteSettingsData).mockResolvedValueOnce({
+      pickupInstructions: "Private pickup details",
+    });
+    clearSiteSettingsCache();
+    const settings = await appRouter.createCaller(createContext()).site.settings();
+    expect(settings).not.toHaveProperty("pickupInstructions");
+    expect(JSON.stringify(settings)).not.toContain("Private pickup details");
+    clearSiteSettingsCache();
+  });
+
+  it("detects Stripe test keys", () => {
+    expect(isStripeTestMode("sk_test_abc")).toBe(true);
+    expect(isStripeTestMode("rk_test_abc")).toBe(true);
+    expect(isStripeTestMode("sk_live_abc")).toBe(false);
+    expect(isStripeTestMode(undefined)).toBe(true);
+  });
+
+  it("only lets admins change settings", async () => {
+    const caller = appRouter.createCaller(createContext(regularUser));
+    await expect(caller.admin.updateSettings(parseSiteSettings(undefined))).rejects.toThrow(
+      /admin/i,
+    );
+  });
+
+  it("saves valid settings from an admin", async () => {
+    const dbf = await import("./db-features");
+    const settings = { ...parseSiteSettings(undefined), serviceArea: "Serving Charlotte" };
+    await appRouter.createCaller(createContext(admin)).admin.updateSettings(settings);
+    expect(dbf.saveSiteSettingsData).toHaveBeenCalledWith(settings);
+    clearSiteSettingsCache();
+  });
+
+  it("rejects social links that are not https", async () => {
+    const caller = appRouter.createCaller(createContext(admin));
+    await expect(
+      caller.admin.updateSettings({
+        ...parseSiteSettings(undefined),
+        socialLinks: { facebook: "javascript:alert(1)", instagram: "", tiktok: "" },
+      }),
+    ).rejects.toThrow(/https/);
   });
 });

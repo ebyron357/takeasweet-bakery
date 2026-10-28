@@ -3,16 +3,13 @@ import { nanoid } from "nanoid";
 import Stripe from "stripe";
 import { z } from "zod";
 import { COOKIE_NAME } from "@shared/const";
+import { containsWeddingKeyword, isEventDateTodayOrLater } from "@shared/bakery";
 import {
-  containsWeddingKeyword,
-  isEventDateTodayOrLater,
-  PICKUP_INSTRUCTIONS,
-} from "@shared/bakery";
-import {
-  CLIENT_REVIEW_MODE,
   REVIEW_CHECKOUT_NOTICE,
   REVIEW_FORM_NOTICE,
-} from "@shared/review-mode";
+  siteSettingsSchema,
+  type PublicSiteSettings,
+} from "@shared/site-settings";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { protectedProcedure, publicProcedure, router } from "./_core/trpc";
@@ -22,6 +19,7 @@ import {
   notifyOrderPaid,
   notifyOwnerSafely,
 } from "./order-notifications";
+import { getSiteSettings, isStripeTestMode, saveSiteSettings } from "./site-settings";
 
 let stripe: Stripe | undefined;
 
@@ -37,50 +35,29 @@ function getStripe() {
   return stripe;
 }
 
-function blockDuringClientReview(message: string) {
-  if (CLIENT_REVIEW_MODE) {
+async function blockDuringClientReview(message: string) {
+  const settings = await getSiteSettings();
+  if (settings.reviewMode) {
     throw new TRPCError({ code: "FORBIDDEN", message });
+  }
+}
+
+async function blockUnlessCheckoutOpen() {
+  const settings = await getSiteSettings();
+  if (settings.reviewMode || !settings.paymentsEnabled) {
+    throw new TRPCError({ code: "FORBIDDEN", message: REVIEW_CHECKOUT_NOTICE });
   }
 }
 
 const adminProcedure = protectedProcedure.use(({ ctx, next }) => {
   if (ctx.user.role !== "admin") {
-    throw new TRPCError({ code: "FORBIDDEN", message: "Admin access required" });
+    throw new TRPCError({
+      code: "FORBIDDEN",
+      message: "Admin access required",
+    });
   }
   return next({ ctx });
 });
-
-/**
- * Strips internal-only fields (which may contain "CLIENT APPROVAL REQUIRED"
- * placeholders) from products before sending to the public storefront.
- * Fields whose values equal the placeholder are nulled; genuinely approved
- * content passes through.
- */
-const INTERNAL_PLACEHOLDER = "CLIENT APPROVAL REQUIRED";
-
-function cleanField(value: string | null): string | null {
-  if (!value) return null;
-  return value.trim() === INTERNAL_PLACEHOLDER ? null : value;
-}
-
-export function sanitizeProduct<
-  T extends {
-    description: string | null;
-    leadTime: string | null;
-    ingredients: string | null;
-    allergens: string | null;
-    storageInstructions: string | null;
-  },
->(product: T): T {
-  return {
-    ...product,
-    description: cleanField(product.description),
-    leadTime: cleanField(product.leadTime),
-    ingredients: cleanField(product.ingredients),
-    allergens: cleanField(product.allergens),
-    storageInstructions: cleanField(product.storageInstructions),
-  };
-}
 
 const productInputSchema = z.object({
   name: z.string().min(1).max(200),
@@ -89,20 +66,20 @@ const productInputSchema = z.object({
     .min(1)
     .max(220)
     .regex(/^[a-z0-9-]+$/),
-  description: z.string().max(2000).optional(),
+  description: z.string().max(2000).nullable().optional(),
   priceCents: z.number().int().min(50),
   category: z.enum(["limber", "treat-cups", "cookies", "cheesecake", "seasonal"]),
-  imageUrl: z.string().max(500).optional(),
-  size: z.string().max(60).optional(),
+  imageUrl: z.string().max(500).nullable().optional(),
+  size: z.string().max(60).nullable().optional(),
   flavorOptions: z.array(z.string().max(100)).optional(),
   maxFlavorSelections: z.number().int().min(1).max(20).nullable().optional(),
   quantityOptions: z.array(z.number().int().min(1)).optional(),
-  leadTime: z.string().max(200).optional(),
+  leadTime: z.string().max(200).nullable().optional(),
   pickupEligible: z.boolean().optional(),
   deliveryEligible: z.boolean().optional(),
-  ingredients: z.string().max(3000).optional(),
-  allergens: z.string().max(3000).optional(),
-  storageInstructions: z.string().max(3000).optional(),
+  ingredients: z.string().max(3000).nullable().optional(),
+  allergens: z.string().max(3000).nullable().optional(),
+  storageInstructions: z.string().max(3000).nullable().optional(),
   relatedSlugs: z.array(z.string().max(220)).optional(),
   inStock: z.boolean().optional(),
   isSeasonal: z.boolean().optional(),
@@ -124,12 +101,17 @@ export const appRouter = router({
     }),
   }),
 
-  products: router({
-    /** Public storefront list — only seasonal-active products, internal fields stripped. */
-    list: publicProcedure.query(async () => {
-      const rows = await dbf.listActiveProducts();
-      return rows.map(sanitizeProduct);
+  site: router({
+    /** Everything the storefront needs except private fields like pickup instructions. */
+    settings: publicProcedure.query(async (): Promise<PublicSiteSettings> => {
+      const { pickupInstructions: _private, ...settings } = await getSiteSettings();
+      return { ...settings, paymentsTestMode: isStripeTestMode() };
     }),
+  }),
+
+  products: router({
+    /** Public storefront list — only seasonal-active products. */
+    list: publicProcedure.query(() => dbf.listActiveProducts()),
     bySlug: publicProcedure
       .input(z.object({ slug: z.string() }))
       .query(async ({ input }) => {
@@ -139,11 +121,11 @@ export const appRouter = router({
         }
         const related =
           product.relatedSlugs && product.relatedSlugs.length > 0
-            ? (await dbf.getProductsBySlugs(product.relatedSlugs))
-                .filter(p => p.isSeasonalActive)
-                .map(sanitizeProduct)
+            ? (await dbf.getProductsBySlugs(product.relatedSlugs)).filter(
+                p => p.isSeasonalActive,
+              )
             : [];
-        return { ...sanitizeProduct(product), related };
+        return { ...product, related };
       }),
   }),
 
@@ -162,7 +144,7 @@ export const appRouter = router({
         }),
       )
       .mutation(async ({ ctx, input }) => {
-        blockDuringClientReview(REVIEW_CHECKOUT_NOTICE);
+        await blockUnlessCheckoutOpen();
         const ids = input.items.map(item => item.productId);
         const productRows = await dbf.getProductsByIds(ids);
         const productMap = new Map(productRows.map(p => [p.id, p]));
@@ -179,7 +161,10 @@ export const appRouter = router({
         for (const item of input.items) {
           const product = productMap.get(item.productId);
           if (!product) {
-            throw new TRPCError({ code: "BAD_REQUEST", message: "Product not found" });
+            throw new TRPCError({
+              code: "BAD_REQUEST",
+              message: "Product not found",
+            });
           }
           if (!product.inStock || !product.isSeasonalActive) {
             throw new TRPCError({
@@ -266,7 +251,10 @@ export const appRouter = router({
       .query(async ({ input }) => {
         const order = await dbf.getOrderBySessionId(input.sessionId);
         if (!order) {
-          throw new TRPCError({ code: "NOT_FOUND", message: "Order not found" });
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Order not found",
+          });
         }
 
         // Verify payment status with Stripe directly (webhook may lag).
@@ -294,6 +282,7 @@ export const appRouter = router({
         }
 
         const items = await dbf.getOrderItems(order.id);
+        const settings = await getSiteSettings();
         return {
           orderRef: order.orderRef,
           totalCents: order.totalCents,
@@ -302,7 +291,7 @@ export const appRouter = router({
             quantity: item.quantity,
             unitPriceCents: item.unitPriceCents,
           })),
-          pickupInstructions: PICKUP_INSTRUCTIONS,
+          pickupInstructions: settings.pickupInstructions,
         };
       }),
   }),
@@ -325,7 +314,7 @@ export const appRouter = router({
         }),
       )
       .mutation(async ({ input }) => {
-        blockDuringClientReview(REVIEW_FORM_NOTICE);
+        await blockDuringClientReview(REVIEW_FORM_NOTICE);
         // Wedding orders are not accepted — enforce server-side.
         const combined = `${input.eventType} ${input.details ?? ""}`;
         if (containsWeddingKeyword(combined)) {
@@ -371,7 +360,7 @@ export const appRouter = router({
         }),
       )
       .mutation(async ({ input }) => {
-        blockDuringClientReview(REVIEW_FORM_NOTICE);
+        await blockDuringClientReview(REVIEW_FORM_NOTICE);
         await dbf.subscribeNewsletter(input.email, input.firstName);
         return { success: true } as const;
       }),
@@ -387,7 +376,7 @@ export const appRouter = router({
         }),
       )
       .mutation(async ({ input }) => {
-        blockDuringClientReview(REVIEW_FORM_NOTICE);
+        await blockDuringClientReview(REVIEW_FORM_NOTICE);
         await dbf.createContactMessage(input.name, input.email, input.message);
         await notifyOwnerSafely({
           title: `New contact message from ${input.name}`,
@@ -443,6 +432,15 @@ export const appRouter = router({
         return { success: true } as const;
       }),
     listContactMessages: adminProcedure.query(() => dbf.listContactMessages()),
+    getSettings: adminProcedure.query(async () => ({
+      settings: await getSiteSettings(),
+      stripeConfigured: Boolean(process.env.STRIPE_SECRET_KEY),
+      stripeTestMode: isStripeTestMode(),
+    })),
+    updateSettings: adminProcedure.input(siteSettingsSchema).mutation(async ({ input }) => {
+      await saveSiteSettings(input);
+      return { success: true } as const;
+    }),
   }),
 });
 

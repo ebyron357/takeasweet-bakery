@@ -58,11 +58,11 @@ export const products = mysqlTable("products", {
   maxFlavorSelections: int("maxFlavorSelections"),
   /** Quantity options offered (JSON array of numbers), e.g. [1,6,12]. */
   quantityOptions: json("quantityOptions").$type<number[]>(),
-  /** Lead time text, e.g. "48 hours notice". Internal placeholder until confirmed. */
+  /** Lead time text, e.g. "48 hours notice". Null until the owner provides it. */
   leadTime: varchar("leadTime", { length: 200 }),
   pickupEligible: boolean("pickupEligible").default(true).notNull(),
   deliveryEligible: boolean("deliveryEligible").default(true).notNull(),
-  /** Internal-only fields — may contain "CLIENT APPROVAL REQUIRED"; never render publicly. */
+  /** Product details shown publicly once filled in; null until the owner provides them. */
   ingredients: text("ingredients"),
   allergens: text("allergens"),
   storageInstructions: text("storageInstructions"),
@@ -164,3 +164,10 @@ export const contactMessages = mysqlTable("contact_messages", {
 });
 
 export type ContactMessage = typeof contactMessages.$inferSelect;
+
+/** Owner-editable site settings. A single row (id 1) holding a JSON document. */
+export const siteSettings = mysqlTable("site_settings", {
+  id: int("id").primaryKey(),
+  data: json("data").notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});

@@ -2,6 +2,8 @@ import { describe, expect, it, vi } from "vitest";
 
 vi.mock("./db-features", () => ({
   listActiveProducts: vi.fn().mockResolvedValue([]),
+  // No stored settings: review mode stays on.
+  getSiteSettingsData: vi.fn().mockResolvedValue(undefined),
 }));
 
 import {
@@ -62,7 +64,7 @@ describe("sitemap.xml", () => {
 });
 
 describe("security headers", () => {
-  function run(headers: Record<string, string> = {}) {
+  async function run(headers: Record<string, string> = {}) {
     const set: Record<string, string> = {};
     const res = {
       setHeader: (name: string, value: string) => {
@@ -71,22 +73,22 @@ describe("security headers", () => {
       removeHeader: vi.fn(),
     };
     const next = vi.fn();
-    securityHeaders({ secure: false, headers } as never, res as never, next);
+    await securityHeaders({ secure: false, headers } as never, res as never, next);
     expect(next).toHaveBeenCalled();
     return set;
   }
 
-  it("sets baseline headers and noindex during review", () => {
-    const set = run();
+  it("sets baseline headers and noindex during review", async () => {
+    const set = await run();
     expect(set["X-Content-Type-Options"]).toBe("nosniff");
     expect(set["Referrer-Policy"]).toBe("strict-origin-when-cross-origin");
     expect(set["X-Robots-Tag"]).toBe("noindex, nofollow");
     expect(set["Strict-Transport-Security"]).toBeUndefined();
   });
 
-  it("adds HSTS only behind https", () => {
+  it("adds HSTS only behind https", async () => {
     expect(
-      run({ "x-forwarded-proto": "https" })["Strict-Transport-Security"]
+      (await run({ "x-forwarded-proto": "https" }))["Strict-Transport-Security"]
     ).toBe("max-age=15552000");
   });
 });

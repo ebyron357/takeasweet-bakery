@@ -1,10 +1,7 @@
 import { Link } from "wouter";
 import { ArrowRight, Cookie, Handshake, Heart, Lightbulb, Rocket, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { SERVICE_AREA_COPY } from "@shared/bakery";
-
-const FOUNDER_PORTRAIT = "/manus-storage/founder-portrait_084f259e.webp";
-const FOUNDER_FAMILY = "/manus-storage/founder-family_f9035642.webp";
+import { useSiteSettings } from "@/hooks/useSiteSettings";
 
 
 const VALUES = [
@@ -31,6 +28,8 @@ const VALUES = [
 ];
 
 export default function OurStory() {
+  const { settings } = useSiteSettings();
+  const { founderPortrait, community, storyFeature } = settings.images;
   return (
     <div>
       <section className="bg-secondary/40">
@@ -46,21 +45,27 @@ export default function OurStory() {
 
       {/* Founder portrait beside the story */}
       <section className="container py-12">
-        <div className="grid items-start gap-8 md:grid-cols-[minmax(0,22rem)_1fr] md:gap-10">
-          <figure className="mx-auto w-full max-w-sm">
-            <img
-              src={FOUNDER_PORTRAIT}
-              alt="Portrait of the young founder of TakeASweet Cookies & Treats, smiling in a bright blue blazer in front of green hedges"
-              width={900}
-              height={1350}
-              loading="eager"
-              decoding="async"
-              className="aspect-[2/3] w-full rounded-3xl object-cover object-top shadow-md"
-            />
-            <figcaption className="text-muted-foreground mt-3 text-center text-sm">
-              Our founder — the baker behind every batch.
-            </figcaption>
-          </figure>
+        <div
+          className={`grid items-start gap-8 md:gap-10 ${
+            founderPortrait ? "md:grid-cols-[minmax(0,22rem)_1fr]" : ""
+          }`}
+        >
+          {founderPortrait && (
+            <figure className="mx-auto w-full max-w-sm">
+              <img
+                src={founderPortrait.url}
+                alt={founderPortrait.alt}
+                loading="eager"
+                decoding="async"
+                className="aspect-[2/3] w-full rounded-3xl object-cover object-top shadow-md"
+              />
+              {founderPortrait.caption && (
+                <figcaption className="text-muted-foreground mt-3 text-center text-sm">
+                  {founderPortrait.caption}
+                </figcaption>
+              )}
+            </figure>
+          )}
           <div className="prose prose-lg max-w-none">
             <p className="text-lg leading-relaxed">
               TakeASweet Cookies & Treats began the summer our founder aged out of summer camp. With
@@ -87,18 +92,25 @@ export default function OurStory() {
 
       {/* Family support */}
       <section className="bg-secondary/30 py-12 md:py-14">
-        <div className="container grid items-center gap-8 md:grid-cols-2 md:gap-10">
-          <figure className="mx-auto w-full max-w-xl">
-            <img
-              src={FOUNDER_FAMILY}
-              alt="The founder of TakeASweet and her mother smiling together at a Charlotte community event, both wearing pink TakeASweet Cookies & Treats caps and logo shirts"
-              width={1200}
-              height={900}
-              loading="lazy"
-              decoding="async"
-              className="aspect-[4/3] w-full rounded-3xl object-cover object-center shadow-md"
-            />
-          </figure>
+        <div
+          className={`container grid items-center gap-8 md:gap-10 ${community ? "md:grid-cols-2" : ""}`}
+        >
+          {community && (
+            <figure className="mx-auto w-full max-w-xl">
+              <img
+                src={community.url}
+                alt={community.alt}
+                loading="lazy"
+                decoding="async"
+                className="aspect-[4/3] w-full rounded-3xl object-cover object-center shadow-md"
+              />
+              {community.caption && (
+                <figcaption className="text-muted-foreground mt-3 text-center text-sm">
+                  {community.caption}
+                </figcaption>
+              )}
+            </figure>
+          )}
           <div>
             <p className="text-secondary-foreground flex items-center gap-1.5 text-sm font-bold tracking-widest uppercase">
               <Users className="size-4" aria-hidden /> Family support
@@ -132,20 +144,24 @@ export default function OurStory() {
       </section>
 
       <section className="bg-secondary/40 py-14">
-        <div className="container grid items-center gap-8 md:grid-cols-2">
-          <div className="mx-auto w-full max-w-md overflow-hidden rounded-3xl shadow-md">
-            <img
-              src="/manus-storage/cat-cheesecake_85fb2916.png"
-              alt="Four Corners cheesecake with assorted toppings"
-              loading="lazy"
-              className="aspect-[4/3] w-full object-cover"
-            />
-          </div>
+        <div
+          className={`container grid items-center gap-8 ${storyFeature ? "md:grid-cols-2" : ""}`}
+        >
+          {storyFeature && (
+            <div className="mx-auto w-full max-w-md overflow-hidden rounded-3xl shadow-md">
+              <img
+                src={storyFeature.url}
+                alt={storyFeature.alt}
+                loading="lazy"
+                className="aspect-[4/3] w-full object-cover"
+              />
+            </div>
+          )}
           <div className="text-center md:text-left">
             <Cookie className="text-primary mx-auto size-10 md:mx-0" />
             <h2 className="font-display mt-3 text-3xl font-extrabold">Taste the dream</h2>
             <p className="text-muted-foreground mx-auto mt-2 max-w-md md:mx-0">
-              The best way to support a young baker? Try the cookies. {SERVICE_AREA_COPY}
+              The best way to support a young baker? Try the cookies. {settings.serviceArea}
             </p>
             <Button asChild size="lg" className="mt-5 rounded-full text-base font-bold">
               <Link href="/shop">
