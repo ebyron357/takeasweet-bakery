@@ -49,15 +49,19 @@ function LogoMark({ className = "size-9" }: { className?: string }) {
 function AnnouncementBanner() {
   const copy = ANNOUNCEMENT_COPY;
   return (
-    <div className="bg-foreground text-background overflow-hidden py-1.5 text-xs font-semibold tracking-wide">
+    <aside
+      aria-label="Announcement"
+      className="bg-foreground text-background overflow-hidden py-1.5 text-xs font-semibold tracking-wide"
+    >
       <div className="animate-marquee flex w-max whitespace-nowrap">
         {Array.from({ length: 6 }).map((_, i) => (
-          <span key={i} className="mx-8">
+          // Repeats exist only for the scrolling effect; screen readers hear the copy once.
+          <span key={i} className="mx-8" aria-hidden={i > 0 || undefined}>
             {copy}
           </span>
         ))}
       </div>
-    </div>
+    </aside>
   );
 }
 
@@ -68,7 +72,8 @@ function CartDrawer() {
     onSuccess: data => {
       if (data.url) {
         toast.success("Taking you to secure checkout…");
-        window.open(data.url, "_blank");
+        // Safari can block a new tab opened after an async call; fall back to this tab.
+        if (!window.open(data.url, "_blank")) window.location.assign(data.url);
       }
     },
     onError: err => {
@@ -369,9 +374,9 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
             </div>
           </div>
           <div>
-            <h3 className="font-display mb-3 text-sm font-bold tracking-widest uppercase">
+            <h2 className="font-display mb-3 text-sm font-bold tracking-widest uppercase">
               Explore
-            </h3>
+            </h2>
             <ul className="space-y-2 text-sm">
               {NAV_LINKS.filter(link => !link.key).map(link => (
                 <li key={link.href}>
@@ -381,9 +386,9 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
                 </li>
               ))}
             </ul>
-            <h3 className="font-display mt-5 mb-2 text-sm font-bold tracking-widest uppercase">
+            <h2 className="font-display mt-5 mb-2 text-sm font-bold tracking-widest uppercase">
               Policies
-            </h3>
+            </h2>
             <ul className="space-y-2 text-sm">
               <li>
                 <Link href="/order-info" className="hover:text-secondary-foreground hover:underline">
@@ -403,9 +408,9 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
             </ul>
           </div>
           <div>
-            <h3 className="font-display mb-3 text-sm font-bold tracking-widest uppercase">
+            <h2 className="font-display mb-3 text-sm font-bold tracking-widest uppercase">
               Stay in the Sweet Loop
-            </h3>
+            </h2>
             <p className="text-muted-foreground mb-3 text-sm">
               New flavors, seasonal drops, and restock alerts — right to your inbox.
             </p>
@@ -416,7 +421,7 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
           <p className="text-muted-foreground container text-center text-xs">
             © {new Date().getFullYear()} TakeASweet Cookies & Treats · {SERVICE_AREA_COPY}
           </p>
-          <p className="text-muted-foreground/75 container mt-2 text-center text-[11px] leading-relaxed">
+          <p className="text-muted-foreground container mt-2 text-center text-[11px] leading-relaxed">
             Website designed and maintained by{" "}
             <a
               href="https://clientverse.io"

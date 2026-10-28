@@ -35,7 +35,11 @@ export default function ProductCard({ product }: { product: ProductCardData }) {
 
   return (
     <article className="group bg-card border-border/60 flex flex-col overflow-hidden rounded-xl border shadow-sm transition-shadow hover:shadow-md">
-      <Link href={`/product/${product.slug}`} className="relative block overflow-hidden">
+      <Link
+        href={`/product/${product.slug}`}
+        aria-label={product.inStock ? product.name : `${product.name} (sold out)`}
+        className="relative block overflow-hidden"
+      >
         <div className="bg-secondary/30 aspect-[4/3] w-full overflow-hidden">
           {product.imageUrl ? (
             <img

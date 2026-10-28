@@ -20,6 +20,7 @@ import {
   isEventDateTodayOrLater,
 } from "@shared/bakery";
 import { CLIENT_REVIEW_MODE, REVIEW_FORM_NOTICE } from "@shared/review-mode";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 const STEPS = [
   {
@@ -45,6 +46,7 @@ const STEPS = [
 ];
 
 export default function CustomOrders() {
+  usePageTitle("Custom Orders");
   const [form, setForm] = useState({
     name: "",
     email: "",

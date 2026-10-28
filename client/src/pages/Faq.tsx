@@ -8,8 +8,10 @@ import {
 } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import { FAQ_ITEMS } from "@shared/bakery";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 export default function Faq() {
+  usePageTitle("FAQ");
   return (
     <div className="container max-w-3xl py-12 md:py-16">
       <div className="text-center">
@@ -25,6 +27,7 @@ export default function Faq() {
         </p>
       </div>
 
+      <h2 className="sr-only">Questions and answers</h2>
       <Accordion type="single" collapsible className="mt-10 w-full">
         {FAQ_ITEMS.map((item, i) => (
           <AccordionItem key={i} value={`faq-${i}`}>

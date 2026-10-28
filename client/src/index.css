@@ -218,8 +218,16 @@
   animation: marquee 28s linear infinite;
 }
 @media (prefers-reduced-motion: reduce) {
+  /* Static banner: show one full, wrapped copy instead of a clipped strip. */
   .animate-marquee {
     animation: none;
+    width: auto;
+    justify-content: center;
+    white-space: normal;
+    text-align: center;
+  }
+  .animate-marquee > :not(:first-child) {
+    display: none;
   }
 }
 

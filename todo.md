@@ -124,3 +124,16 @@
 - [x] Live reduced-motion and missing-observer fallback.
 - Verification and limits: `docs/SCROLL_CRAFT_IMPLEMENTATION.md`.
 - Existing payment/review-mode settings and order workflows unchanged.
+
+## Polish & Hidden-Issue Audit — 2026-10-28
+- [x] Audit all 16 routes (desktop 1366px + mobile 375px) with browser console capture and axe-core WCAG 2.1 AA scan.
+- [x] Re-enable pinch-zoom (viewport no longer sets `maximum-scale=1`).
+- [x] Inject the analytics script only when its env vars are set (no more broken `%VITE_ANALYTICS_ENDPOINT%` request on every page).
+- [x] Give every page its own browser-tab title (products use their name).
+- [x] Fix heading order: footer headings are now `h2`; FAQ list has a screen-reader heading.
+- [x] Put the announcement banner in a labeled landmark; screen readers read it once; reduced-motion users see one full, wrapped line.
+- [x] Raise footer credit-line contrast to pass AA.
+- [x] Give product-card image links an accessible name (includes "sold out" when applicable).
+- [x] Hide the Stripe test-card hint while checkout is disabled.
+- [x] Fall back to same-tab redirect when the browser blocks the checkout tab.
+- Result: 0 axe violations, 0 console errors on all audited routes; typecheck, build, and 49/49 tests pass.

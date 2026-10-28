@@ -150,7 +150,35 @@ function vitePluginManusDebugCollector(): Plugin {
   };
 }
 
-const plugins = [react(), tailwindcss(), jsxLocPlugin(), vitePluginManusRuntime(), vitePluginManusDebugCollector()];
+/**
+ * Adds the Umami analytics script only when both analytics env vars are set.
+ * A hard-coded tag would request a literal "%VITE_ANALYTICS_ENDPOINT%" URL
+ * (and log a console error on every page) wherever they are missing.
+ */
+function vitePluginAnalytics(): Plugin {
+  // Resolved env includes .env files as well as process.env, like %VAR% replacement did.
+  let env: Record<string, string> = {};
+  return {
+    name: "analytics-script",
+    configResolved(config) {
+      env = config.env;
+    },
+    transformIndexHtml() {
+      const endpoint = env.VITE_ANALYTICS_ENDPOINT;
+      const websiteId = env.VITE_ANALYTICS_WEBSITE_ID;
+      if (!endpoint || !websiteId) return [];
+      return [
+        {
+          tag: "script",
+          attrs: { defer: true, src: `${endpoint}/umami`, "data-website-id": websiteId },
+          injectTo: "body",
+        },
+      ];
+    },
+  };
+}
+
+const plugins = [react(), tailwindcss(), jsxLocPlugin(), vitePluginManusRuntime(), vitePluginManusDebugCollector(), vitePluginAnalytics()];
 
 export default defineConfig({
   plugins,

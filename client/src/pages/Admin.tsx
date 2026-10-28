@@ -28,6 +28,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { trpc } from "@/lib/trpc";
 import { CATEGORY_LABELS, formatPrice } from "@shared/bakery";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 type ProductFormState = {
   id?: number;
@@ -691,6 +692,7 @@ function MessagesTab() {
 }
 
 export default function Admin() {
+  usePageTitle("Admin");
   const { user, loading } = useAuth();
 
   if (loading) {

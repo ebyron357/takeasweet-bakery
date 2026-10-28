@@ -1,6 +1,7 @@
 import { Link } from "wouter";
 import { Heart, Images } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 /**
  * The gallery holds only client-approved photographs of TakeASweet's actual
@@ -8,6 +9,7 @@ import { Button } from "@/components/ui/button";
  * or generated imagery is ever presented as the bakery's real work.
  */
 export default function Gallery() {
+  usePageTitle("Gallery");
   return (
     <div className="container py-12 md:py-16">
       <div className="text-center">

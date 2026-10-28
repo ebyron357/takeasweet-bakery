@@ -11,8 +11,10 @@ import {
   PAYMENTS_LIVE,
   REVIEW_CHECKOUT_NOTICE,
 } from "@shared/review-mode";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 export default function CartPage() {
+  usePageTitle("Your Bag");
   const { items, totalCents, setQuantity, removeItem } = useCart();
   const search = useSearch();
 
@@ -26,7 +28,8 @@ export default function CartPage() {
     onSuccess: data => {
       if (data.url) {
         toast.success("Taking you to secure checkout…");
-        window.open(data.url, "_blank");
+        // Safari can block a new tab opened after an async call; fall back to this tab.
+        if (!window.open(data.url, "_blank")) window.location.assign(data.url);
       }
     },
     onError: err => toast.error(err.message || "Could not start checkout. Please try again."),
@@ -132,7 +135,7 @@ export default function CartPage() {
                 ? "Checkout Securely"
                 : "Checkout (Test Mode)"}
         </Button>
-        {!PAYMENTS_LIVE && (
+        {PAYMENTS_ENABLED && !PAYMENTS_LIVE && (
           <p className="text-muted-foreground mt-3 text-center text-xs">
             Test card: 4242 4242 4242 4242 · any future expiry · any CVC · any ZIP
           </p>

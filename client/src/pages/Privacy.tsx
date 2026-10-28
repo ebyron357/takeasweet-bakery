@@ -2,8 +2,10 @@ import { Link } from "wouter";
 import { ShieldCheck } from "lucide-react";
 import { SERVICE_AREA_COPY } from "@shared/bakery";
 import { CLIENT_REVIEW_MODE } from "@shared/review-mode";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 export default function Privacy() {
+  usePageTitle("Privacy Policy");
   return (
     <div className="container max-w-2xl py-12 md:py-16">
       <p className="text-secondary-foreground flex items-center gap-1.5 text-sm font-bold tracking-widest uppercase">

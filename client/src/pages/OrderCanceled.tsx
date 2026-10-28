@@ -3,8 +3,10 @@ import { ArrowLeft, ShoppingBag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/contexts/CartContext";
 import { SERVICE_AREA_COPY } from "@shared/bakery";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 export default function OrderCanceled() {
+  usePageTitle("Checkout Canceled");
   const { itemCount } = useCart();
 
   return (

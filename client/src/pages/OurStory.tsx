@@ -2,6 +2,7 @@ import { Link } from "wouter";
 import { ArrowRight, Cookie, Handshake, Heart, Lightbulb, Rocket, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SERVICE_AREA_COPY } from "@shared/bakery";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 const FOUNDER_PORTRAIT = "/manus-storage/founder-portrait_084f259e.webp";
 const FOUNDER_FAMILY = "/manus-storage/founder-family_f9035642.webp";
@@ -31,6 +32,7 @@ const VALUES = [
 ];
 
 export default function OurStory() {
+  usePageTitle("Our Story");
   return (
     <div>
       <section className="bg-secondary/40">

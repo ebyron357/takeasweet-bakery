@@ -7,8 +7,10 @@ import { useCart } from "@/contexts/CartContext";
 import { trpc } from "@/lib/trpc";
 import { formatPrice } from "@shared/bakery";
 import { PAYMENTS_LIVE } from "@shared/review-mode";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 export default function OrderConfirmation() {
+  usePageTitle("Order Confirmation");
   const search = useSearch();
   const sessionId = useMemo(() => new URLSearchParams(search).get("session_id") ?? "", [search]);
   const { clearCart } = useCart();
