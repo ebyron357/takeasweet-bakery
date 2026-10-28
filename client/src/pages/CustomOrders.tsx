@@ -290,6 +290,7 @@ export default function CustomOrders() {
               <Textarea
                 id="details"
                 rows={4}
+                className="min-h-28"
                 value={form.details}
                 onChange={e => setForm(f => ({ ...f, details: e.target.value }))}
                 placeholder="Theme, colors, flavors, allergies to avoid, anything else we should know…"

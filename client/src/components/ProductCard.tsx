@@ -33,6 +33,7 @@ export default function ProductCard({ product }: { product: ProductCardData }) {
   // Products with selectable flavors must be configured on their detail page.
   const requiresOptions = (product.flavorOptions?.length ?? 0) > 0;
 
+  const hasBadges = product.isSeasonal || !product.inStock;
   const badges = (
     <div className="flex flex-wrap gap-1">
       {product.isSeasonal && (
@@ -47,10 +48,14 @@ export default function ProductCard({ product }: { product: ProductCardData }) {
   );
 
   return (
-    <article className="group bg-card border-border/60 flex flex-col overflow-hidden rounded-xl border shadow-sm transition-shadow hover:shadow-md">
-      {product.imageUrl ? (
-        <Link href={`/product/${product.slug}`} className="relative block overflow-hidden">
-          <div className="bg-secondary/30 aspect-[4/3] w-full overflow-hidden">
+    // Phones get a compact row (thumbnail beside the details); larger screens a stacked card.
+    <article className="group bg-card border-border/60 flex overflow-hidden rounded-xl border shadow-sm transition-shadow hover:shadow-md sm:flex-col">
+      {product.imageUrl && (
+        <Link
+          href={`/product/${product.slug}`}
+          className="relative block w-32 shrink-0 overflow-hidden sm:w-auto"
+        >
+          <div className="bg-secondary/30 h-full min-h-32 w-full overflow-hidden sm:aspect-[4/3] sm:h-auto sm:min-h-0">
             <img
               src={product.imageUrl}
               alt={product.name}
@@ -62,10 +67,9 @@ export default function ProductCard({ product }: { product: ProductCardData }) {
           </div>
           <div className="absolute top-2 left-2">{badges}</div>
         </Link>
-      ) : (
-        (product.isSeasonal || !product.inStock) && <div className="px-3.5 pt-3.5">{badges}</div>
       )}
-      <div className="flex flex-1 flex-col gap-1 p-3.5">
+      <div className="flex min-w-0 flex-1 flex-col gap-1 p-3.5">
+        {!product.imageUrl && hasBadges && badges}
         <Link href={`/product/${product.slug}`}>
           <h3 className="text-sm leading-snug font-bold hover:underline sm:text-base">
             {product.name}

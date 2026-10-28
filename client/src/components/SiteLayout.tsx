@@ -141,7 +141,7 @@ function CartDrawer() {
                       <p className="text-sm leading-tight font-semibold">{item.name}</p>
                       <button
                         onClick={() => removeItem(item.productId)}
-                        className="text-muted-foreground hover:text-destructive"
+                        className="text-muted-foreground hover:text-destructive -m-2 flex size-9 items-center justify-center rounded-full"
                         aria-label={`Remove ${item.name}`}
                       >
                         <Trash2 className="size-4" />
@@ -150,7 +150,7 @@ function CartDrawer() {
                     <p className="text-muted-foreground text-xs">{formatPrice(item.priceCents)}</p>
                     <div className="mt-auto flex items-center gap-2">
                       <button
-                        className="border-border hover:bg-muted flex size-6 items-center justify-center rounded-full border"
+                        className="border-border hover:bg-muted flex size-9 items-center justify-center rounded-full border"
                         onClick={() => setQuantity(item.productId, item.quantity - 1)}
                         aria-label="Decrease quantity"
                       >
@@ -158,7 +158,7 @@ function CartDrawer() {
                       </button>
                       <span className="w-6 text-center text-sm font-semibold">{item.quantity}</span>
                       <button
-                        className="border-border hover:bg-muted flex size-6 items-center justify-center rounded-full border"
+                        className="border-border hover:bg-muted flex size-9 items-center justify-center rounded-full border"
                         onClick={() => setQuantity(item.productId, item.quantity + 1)}
                         aria-label="Increase quantity"
                       >
@@ -360,10 +360,10 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
             <h3 className="font-display mb-3 text-sm font-bold tracking-widest uppercase">
               Explore
             </h3>
-            <ul className="space-y-2 text-sm">
+            <ul className="space-y-0.5 text-sm">
               {navLinks.map(link => (
                 <li key={link.href}>
-                  <Link href={link.href} className="hover:text-secondary-foreground hover:underline">
+                  <Link href={link.href} className="hover:text-secondary-foreground inline-block py-1 hover:underline">
                     {link.label}
                   </Link>
                 </li>
@@ -372,14 +372,14 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
             <h3 className="font-display mt-5 mb-2 text-sm font-bold tracking-widest uppercase">
               Policies
             </h3>
-            <ul className="space-y-2 text-sm">
+            <ul className="space-y-0.5 text-sm">
               <li>
-                <Link href="/order-info" className="hover:text-secondary-foreground hover:underline">
+                <Link href="/order-info" className="hover:text-secondary-foreground inline-block py-1 hover:underline">
                   Order Information
                 </Link>
               </li>
               <li>
-                <Link href="/privacy" className="hover:text-secondary-foreground hover:underline">
+                <Link href="/privacy" className="hover:text-secondary-foreground inline-block py-1 hover:underline">
                   Privacy Policy
                 </Link>
               </li>

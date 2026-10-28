@@ -10,7 +10,7 @@ import {
   Heart,
   IceCream,
   MapPin,
-  MessageSquareQuote,
+  PackageX,
   Sparkles,
   Truck,
 } from "lucide-react";
@@ -76,7 +76,7 @@ function FlavorPreview({ product }: { product: SignatureProduct }) {
       <p className="mb-4 text-sm font-bold">
         Choose up to {max} flavors ({selected.length}/{max}):
       </p>
-      <div className="grid grid-cols-2 gap-3">
+      <div className="flex flex-wrap gap-2">
         {product.flavorOptions.map(flavor => {
           const active = selected.includes(flavor);
           return (
@@ -85,17 +85,14 @@ function FlavorPreview({ product }: { product: SignatureProduct }) {
               type="button"
               onClick={() => toggle(flavor)}
               aria-pressed={active}
-              className={`border-border/60 focus-visible:ring-ring flex aspect-[2/1] flex-col items-center justify-center gap-2 rounded-2xl border p-3 text-center shadow-sm transition-all focus-visible:ring-2 focus-visible:ring-offset-2 ${
+              className={`border-border/60 focus-visible:ring-ring inline-flex min-h-11 items-center gap-1.5 rounded-full border px-4 text-sm font-bold shadow-sm transition-all focus-visible:ring-2 focus-visible:ring-offset-2 ${
                 active
                   ? "bg-secondary text-secondary-foreground border-primary"
                   : "bg-card hover:border-primary"
               }`}
             >
-              <CakeSlice className="size-5 stroke-[1.5]" aria-hidden="true" />
-              <span className="inline-flex items-center gap-1 text-xs font-bold">
-                {active && <Check className="size-3" aria-hidden="true" />}
-                {flavor}
-              </span>
+              {active && <Check className="size-3.5" aria-hidden="true" />}
+              {flavor}
             </button>
           );
         })}
@@ -191,7 +188,11 @@ export default function Home() {
               </Link>
             </Button>
           </div>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div
+            className={`grid gap-4 sm:grid-cols-2 ${
+              featured.length >= 4 ? "lg:grid-cols-4" : "lg:grid-cols-3"
+            }`}
+          >
             {featured.map(product => (
               <ProductCard key={product.id} product={product} />
             ))}
@@ -255,8 +256,11 @@ export default function Home() {
         <div className="container grid items-center gap-8 md:grid-cols-2">
           {images.founderPortrait && (
             <div className="relative mx-auto w-full max-w-sm">
-              <SettingsImage
-                image={images.founderPortrait}
+              <img
+                src={images.founderPortrait.url}
+                alt={images.founderPortrait.alt}
+                loading="lazy"
+                decoding="async"
                 className="aspect-[2/3] w-full rounded-3xl object-cover object-top shadow-md"
               />
               <div className="bg-primary text-primary-foreground absolute -right-3 -bottom-3 rotate-3 rounded-2xl px-4 py-2 shadow-md">
@@ -396,7 +400,7 @@ export default function Home() {
               text: "Local delivery is available within the approved service area.",
             },
             {
-              icon: MessageSquareQuote,
+              icon: PackageX,
               title: "No shipping (yet)",
               text: "Shipping is not currently available — local love only for now.",
             },

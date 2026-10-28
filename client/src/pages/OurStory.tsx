@@ -66,7 +66,7 @@ export default function OurStory() {
               )}
             </figure>
           )}
-          <div className="prose prose-lg max-w-none">
+          <div className="max-w-prose space-y-5">
             <p className="text-lg leading-relaxed">
               TakeASweet Cookies & Treats began the summer our founder aged out of summer camp. With
               long days ahead and lots of energy to spend, she decided to do something productive —

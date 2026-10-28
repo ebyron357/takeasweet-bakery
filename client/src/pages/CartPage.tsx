@@ -53,7 +53,7 @@ export default function CartPage() {
                 <p className="font-bold">{item.name}</p>
                 <button
                   onClick={() => removeItem(item.productId)}
-                  className="text-muted-foreground hover:text-destructive"
+                  className="text-muted-foreground hover:text-destructive -m-2 flex size-10 items-center justify-center rounded-full"
                   aria-label={`Remove ${item.name}`}
                 >
                   <Trash2 className="size-4" />
@@ -62,7 +62,7 @@ export default function CartPage() {
               <p className="text-muted-foreground text-sm">{formatPrice(item.priceCents)} each</p>
               <div className="mt-auto flex items-center gap-2 pt-2">
                 <button
-                  className="border-border hover:bg-muted flex size-7 items-center justify-center rounded-full border"
+                  className="border-border hover:bg-muted flex size-10 items-center justify-center rounded-full border sm:size-8"
                   onClick={() => setQuantity(item.productId, item.quantity - 1)}
                   aria-label="Decrease quantity"
                 >
@@ -70,7 +70,7 @@ export default function CartPage() {
                 </button>
                 <span className="w-8 text-center font-bold">{item.quantity}</span>
                 <button
-                  className="border-border hover:bg-muted flex size-7 items-center justify-center rounded-full border"
+                  className="border-border hover:bg-muted flex size-10 items-center justify-center rounded-full border sm:size-8"
                   onClick={() => setQuantity(item.productId, item.quantity + 1)}
                   aria-label="Increase quantity"
                 >
