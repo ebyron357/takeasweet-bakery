@@ -4,6 +4,7 @@ import { Loader2, Lock, Pencil, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { startLogin } from "@/const";
+import SettingsTab from "@/components/SettingsTab";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -83,6 +84,26 @@ function slugify(text: string) {
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "");
+}
+
+/** Customer-facing details the owner has not filled in yet. */
+function missingDetails(p: {
+  description: string | null;
+  imageUrl: string | null;
+  leadTime: string | null;
+  ingredients: string | null;
+  allergens: string | null;
+  storageInstructions: string | null;
+}) {
+  const fields: [string, string | null][] = [
+    ["photo", p.imageUrl],
+    ["description", p.description],
+    ["lead time", p.leadTime],
+    ["ingredients", p.ingredients],
+    ["allergens", p.allergens],
+    ["storage", p.storageInstructions],
+  ];
+  return fields.filter(([, value]) => !value?.trim()).map(([label]) => label);
 }
 
 function ProductsTab() {
@@ -175,23 +196,23 @@ function ProductsTab() {
     const payload = {
       name: form.name.trim(),
       slug: form.slug.trim() || slugify(form.name),
-      description: form.description.trim() || undefined,
+      description: form.description.trim() || null,
       priceCents,
       category: form.category,
-      imageUrl: form.imageUrl.trim() || undefined,
-      size: form.size.trim() || undefined,
+      imageUrl: form.imageUrl.trim() || null,
+      size: form.size.trim() || null,
       flavorOptions: flavorList.length > 0 ? flavorList : undefined,
       maxFlavorSelections: form.maxFlavorSelections
         ? parseInt(form.maxFlavorSelections, 10)
         : null,
-      leadTime: form.leadTime.trim() || undefined,
+      leadTime: form.leadTime.trim() || null,
       quantityOptions: quantityList.length > 0 ? quantityList : undefined,
       relatedSlugs: relatedList.length > 0 ? relatedList : undefined,
       pickupEligible: form.pickupEligible,
       deliveryEligible: form.deliveryEligible,
-      ingredients: form.ingredients.trim() || undefined,
-      allergens: form.allergens.trim() || undefined,
-      storageInstructions: form.storageInstructions.trim() || undefined,
+      ingredients: form.ingredients.trim() || null,
+      allergens: form.allergens.trim() || null,
+      storageInstructions: form.storageInstructions.trim() || null,
       inStock: form.inStock,
       isSeasonal: form.isSeasonal,
       isSeasonalActive: form.isSeasonalActive,
@@ -252,7 +273,10 @@ function ProductsTab() {
                   <Select
                     value={form.category}
                     onValueChange={v =>
-                      setForm(f => ({ ...f, category: v as ProductFormState["category"] }))
+                      setForm(f => ({
+                        ...f,
+                        category: v as ProductFormState["category"],
+                      }))
                     }
                   >
                     <SelectTrigger className="w-full">
@@ -303,7 +327,12 @@ function ProductsTab() {
                     type="number"
                     min={1}
                     value={form.maxFlavorSelections}
-                    onChange={e => setForm(f => ({ ...f, maxFlavorSelections: e.target.value }))}
+                    onChange={e =>
+                      setForm(f => ({
+                        ...f,
+                        maxFlavorSelections: e.target.value,
+                      }))
+                    }
                     placeholder="e.g. 4"
                   />
                 </div>
@@ -324,7 +353,7 @@ function ProductsTab() {
                   id="p-leadtime"
                   value={form.leadTime}
                   onChange={e => setForm(f => ({ ...f, leadTime: e.target.value }))}
-                  placeholder="e.g. 48 hours notice — or CLIENT APPROVAL REQUIRED"
+                  placeholder="e.g. 48 hours notice"
                 />
               </div>
               <div className="grid gap-4 sm:grid-cols-2">
@@ -349,7 +378,7 @@ function ProductsTab() {
               </div>
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-1.5">
-                  <Label htmlFor="p-ingredients">Ingredients (internal until approved)</Label>
+                  <Label htmlFor="p-ingredients">Ingredients</Label>
                   <Textarea
                     id="p-ingredients"
                     rows={2}
@@ -358,7 +387,7 @@ function ProductsTab() {
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <Label htmlFor="p-allergens">Allergens (internal until approved)</Label>
+                  <Label htmlFor="p-allergens">Allergens</Label>
                   <Textarea
                     id="p-allergens"
                     rows={2}
@@ -368,17 +397,21 @@ function ProductsTab() {
                 </div>
               </div>
               <div className="space-y-1.5">
-                <Label htmlFor="p-storage">Storage instructions (internal until approved)</Label>
+                <Label htmlFor="p-storage">Storage instructions</Label>
                 <Textarea
                   id="p-storage"
                   rows={2}
                   value={form.storageInstructions}
-                  onChange={e => setForm(f => ({ ...f, storageInstructions: e.target.value }))}
+                  onChange={e =>
+                    setForm(f => ({
+                      ...f,
+                      storageInstructions: e.target.value,
+                    }))
+                  }
                 />
               </div>
               <p className="text-muted-foreground text-xs">
-                Fields containing exactly “CLIENT APPROVAL REQUIRED” are hidden from customers
-                automatically.
+                Empty fields are simply left off the product page.
               </p>
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
                 <label className="bg-muted flex items-center justify-between gap-2 rounded-xl p-3 text-sm font-semibold">
@@ -465,6 +498,11 @@ function ProductsTab() {
                           <Badge variant="secondary" className="rounded-full text-[10px]">
                             Featured
                           </Badge>
+                        )}
+                        {missingDetails(p).length > 0 && (
+                          <p className="text-muted-foreground text-[11px]">
+                            Missing: {missingDetails(p).join(", ")}
+                          </p>
                         )}
                       </div>
                     </div>
@@ -748,6 +786,9 @@ export default function Admin() {
           <TabsTrigger value="messages" className="rounded-full">
             Messages
           </TabsTrigger>
+          <TabsTrigger value="settings" className="rounded-full">
+            Site Settings
+          </TabsTrigger>
         </TabsList>
         <TabsContent value="products">
           <ProductsTab />
@@ -760,6 +801,9 @@ export default function Admin() {
         </TabsContent>
         <TabsContent value="messages">
           <MessagesTab />
+        </TabsContent>
+        <TabsContent value="settings">
+          <SettingsTab />
         </TabsContent>
       </Tabs>
     </div>

@@ -1,6 +1,6 @@
 import type { Express, NextFunction, Request, Response } from "express";
-import { CLIENT_REVIEW_MODE } from "../shared/review-mode";
 import { listActiveProducts } from "./db-features";
+import { getSiteSettings } from "./site-settings";
 
 /** Public pages listed in the sitemap. Cart, order, and admin routes are excluded. */
 export const SITEMAP_PATHS = [
@@ -20,11 +20,12 @@ export const PRIVATE_PATHS = ["/admin", "/cart", "/order/", "/api/"] as const;
 
 /**
  * Indexing stays off during client review so the preview site is not listed
- * in search results. It turns on automatically once CLIENT_REVIEW_MODE is
- * false and PUBLIC_SITE_URL is set to the final https:// origin.
+ * in search results. It turns on automatically once review mode is switched
+ * off in the admin settings and PUBLIC_SITE_URL is set to the final https://
+ * origin.
  */
 export function getIndexableSiteUrl(
-  reviewMode: boolean = CLIENT_REVIEW_MODE,
+  reviewMode: boolean,
   siteUrl: string | undefined = process.env.PUBLIC_SITE_URL
 ): string | null {
   if (reviewMode || !siteUrl) return null;
@@ -60,10 +61,11 @@ function escapeXml(value: string): string {
 
 export function buildSitemapXml(
   siteUrl: string,
-  productSlugs: readonly string[]
+  productSlugs: readonly string[],
+  pagePaths: readonly string[] = SITEMAP_PATHS
 ): string {
   const paths = [
-    ...SITEMAP_PATHS,
+    ...pagePaths,
     ...productSlugs.map(slug => `/product/${encodeURIComponent(slug)}`),
   ];
   const urls = paths
@@ -77,7 +79,12 @@ export function buildSitemapXml(
  * restrictions yet: the site loads Google Fonts, analytics, and is previewed
  * inside the hosting editor, so those need testing on the final host first.
  */
-export function securityHeaders(
+async function currentIndexableSiteUrl(): Promise<string | null> {
+  const { reviewMode } = await getSiteSettings();
+  return getIndexableSiteUrl(reviewMode);
+}
+
+export async function securityHeaders(
   req: Request,
   res: Response,
   next: NextFunction
@@ -92,7 +99,7 @@ export function securityHeaders(
   if (req.secure || req.headers["x-forwarded-proto"] === "https") {
     res.setHeader("Strict-Transport-Security", "max-age=15552000");
   }
-  if (!getIndexableSiteUrl()) {
+  if (!(await currentIndexableSiteUrl())) {
     res.setHeader("X-Robots-Tag", "noindex, nofollow");
   }
   next();
@@ -103,24 +110,32 @@ export function registerSiteMeta(app: Express) {
   app.disable("x-powered-by");
   app.use(securityHeaders);
 
-  app.get("/robots.txt", (_req, res) => {
-    res.type("text/plain").send(buildRobotsTxt(getIndexableSiteUrl()));
+  app.get("/robots.txt", async (_req, res) => {
+    res
+      .type("text/plain")
+      .send(buildRobotsTxt(await currentIndexableSiteUrl()));
   });
 
   app.get("/sitemap.xml", async (_req, res) => {
-    const siteUrl = getIndexableSiteUrl();
+    const siteUrl = await currentIndexableSiteUrl();
     if (!siteUrl) return res.status(404).type("text/plain").send("Not found");
+    // The gallery page is hidden while it has no photos.
+    const { gallery } = await getSiteSettings();
+    const pagePaths = SITEMAP_PATHS.filter(
+      path => path !== "/gallery" || gallery.length > 0
+    );
     try {
       const products = await listActiveProducts();
       res.type("application/xml").send(
         buildSitemapXml(
           siteUrl,
-          products.map(product => product.slug)
+          products.map(product => product.slug),
+          pagePaths
         )
       );
     } catch (error) {
       console.error("[Sitemap] Failed to load products:", error);
-      res.type("application/xml").send(buildSitemapXml(siteUrl, []));
+      res.type("application/xml").send(buildSitemapXml(siteUrl, [], pagePaths));
     }
   });
 }

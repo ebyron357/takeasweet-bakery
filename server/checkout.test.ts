@@ -1,19 +1,15 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { TrpcContext } from "./_core/context";
 
-// Checkout is blocked during client review; switch review mode off here so
-// the session-creation path itself can be exercised.
-vi.mock("../shared/review-mode", async importOriginal => ({
-  ...(await importOriginal<typeof import("../shared/review-mode")>()),
-  CLIENT_REVIEW_MODE: false,
-}));
-
-const { createSession, expireSession, createOrder, notifyOwner } = vi.hoisted(() => ({
-  createSession: vi.fn(),
-  expireSession: vi.fn(),
-  createOrder: vi.fn(),
-  notifyOwner: vi.fn(),
-}));
+const { createSession, expireSession, createOrder, notifyOwner, getSiteSettingsData } = vi.hoisted(
+  () => ({
+    createSession: vi.fn(),
+    expireSession: vi.fn(),
+    createOrder: vi.fn(),
+    notifyOwner: vi.fn(),
+    getSiteSettingsData: vi.fn(),
+  }),
+);
 
 vi.mock("./_core/notification", () => ({ notifyOwner }));
 
@@ -38,9 +34,20 @@ vi.mock("./db-features", () => ({
   createOrder: (...args: unknown[]) => createOrder(...args),
   createCustomOrderRequest: vi.fn().mockResolvedValue(undefined),
   createContactMessage: vi.fn().mockResolvedValue(undefined),
+  getSiteSettingsData,
 }));
 
 import { appRouter } from "./routers";
+import { clearSiteSettingsCache } from "./site-settings";
+
+// Checkout and forms are blocked during client review; open them here so the
+// session-creation path itself can be exercised.
+const OPEN_FOR_BUSINESS = { reviewMode: false, paymentsEnabled: true };
+
+beforeEach(() => {
+  getSiteSettingsData.mockReset().mockResolvedValue(OPEN_FOR_BUSINESS);
+  clearSiteSettingsCache();
+});
 
 function createContext(): TrpcContext {
   return {
@@ -59,6 +66,17 @@ describe("checkout.createSession order persistence", () => {
     });
     expireSession.mockReset().mockResolvedValue({});
     createOrder.mockReset();
+  });
+
+  it("stays closed when online payments are switched off", async () => {
+    getSiteSettingsData.mockResolvedValue({ reviewMode: false, paymentsEnabled: false });
+    clearSiteSettingsCache();
+    await expect(
+      appRouter.createCaller(createContext()).checkout.createSession({
+        items: [{ productId: 1, quantity: 1 }],
+      }),
+    ).rejects.toThrow(/checkout is disabled/i);
+    expect(createSession).not.toHaveBeenCalled();
   });
 
   it("saves a pending order and returns the checkout URL", async () => {

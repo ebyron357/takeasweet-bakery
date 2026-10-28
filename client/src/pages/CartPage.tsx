@@ -2,35 +2,22 @@ import { useEffect } from "react";
 import { Link, useSearch } from "wouter";
 import { Minus, Plus, ShoppingBag, Trash2 } from "lucide-react";
 import { toast } from "sonner";
+import CheckoutButton from "@/components/CheckoutButton";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/contexts/CartContext";
-import { trpc } from "@/lib/trpc";
-import { formatPrice, SERVICE_AREA_COPY } from "@shared/bakery";
-import {
-  PAYMENTS_ENABLED,
-  PAYMENTS_LIVE,
-  REVIEW_CHECKOUT_NOTICE,
-} from "@shared/review-mode";
+import { useSiteSettings } from "@/hooks/useSiteSettings";
+import { formatPrice } from "@shared/bakery";
 
 export default function CartPage() {
   const { items, totalCents, setQuantity, removeItem } = useCart();
   const search = useSearch();
+  const { settings } = useSiteSettings();
 
   useEffect(() => {
     if (new URLSearchParams(search).get("cancelled") === "1") {
       toast.info("Checkout cancelled — your bag is still saved.");
     }
   }, [search]);
-
-  const checkout = trpc.checkout.createSession.useMutation({
-    onSuccess: data => {
-      if (data.url) {
-        toast.success("Taking you to secure checkout…");
-        window.open(data.url, "_blank");
-      }
-    },
-    onError: err => toast.error(err.message || "Could not start checkout. Please try again."),
-  });
 
   if (items.length === 0) {
     return (
@@ -104,39 +91,9 @@ export default function CartPage() {
           <span className="font-display text-2xl font-extrabold">{formatPrice(totalCents)}</span>
         </div>
         <p className="text-muted-foreground mt-2 text-sm">
-          {SERVICE_AREA_COPY} Pickup details are shared after your order is confirmed.
+          {settings.serviceArea} Pickup details are shared after your order is confirmed.
         </p>
-        {!PAYMENTS_LIVE && (
-          <p
-            role="status"
-            className="bg-accent/60 text-accent-foreground mt-3 rounded-xl px-4 py-3 text-sm font-semibold"
-          >
-            {REVIEW_CHECKOUT_NOTICE}
-          </p>
-        )}
-        <Button
-          size="lg"
-          className="mt-4 min-h-12 w-full rounded-full text-base font-bold"
-          disabled={!PAYMENTS_ENABLED || checkout.isPending}
-          onClick={() =>
-            checkout.mutate({
-              items: items.map(i => ({ productId: i.productId, quantity: i.quantity })),
-            })
-          }
-        >
-          {!PAYMENTS_ENABLED
-            ? "Checkout Disabled (Preview)"
-            : checkout.isPending
-              ? "Preparing checkout…"
-              : PAYMENTS_LIVE
-                ? "Checkout Securely"
-                : "Checkout (Test Mode)"}
-        </Button>
-        {!PAYMENTS_LIVE && (
-          <p className="text-muted-foreground mt-3 text-center text-xs">
-            Test card: 4242 4242 4242 4242 · any future expiry · any CVC · any ZIP
-          </p>
-        )}
+        <CheckoutButton />
       </div>
     </div>
   );

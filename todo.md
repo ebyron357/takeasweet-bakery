@@ -124,3 +124,11 @@
 - [x] Live reduced-motion and missing-observer fallback.
 - Verification and limits: `docs/SCROLL_CRAFT_IMPLEMENTATION.md`.
 - Existing payment/review-mode settings and order workflows unchanged.
+
+## Owner-Managed Settings — 2026-10-28
+- [x] Site settings stored in the database and edited in Admin → Site Settings: review mode, online payments, announcement, service area, contact email, social links, logo, page images, gallery, FAQ, private pickup instructions.
+- [x] Fail-closed defaults: with no settings saved, review mode stays on, payments stay off, and empty sections are hidden.
+- [x] Stripe test vs. live mode detected from the installed key instead of a code flag.
+- [x] Home page built from the catalog: featured products, categories with products, and the multi-flavor signature item.
+- [x] Removed placeholders: generic social links, "Flavor Coming Soon" cards, camera-icon image stand-ins, the empty gallery page, and "CLIENT APPROVAL REQUIRED" markers (missing product details are now empty and listed per product in Admin).
+- [x] Migration `0004` creates the settings table seeded with the previously approved copy and images, and clears the old marker values.

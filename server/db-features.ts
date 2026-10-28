@@ -10,6 +10,7 @@ import {
   orderItems,
   orders,
   products,
+  siteSettings,
 } from "../drizzle/schema";
 import { getDb } from "./db";
 
@@ -120,10 +121,14 @@ export async function markOrderPaid(
       status: "paid",
       stripePaymentIntentId: paymentIntentId,
       ...(customer?.name
-        ? { customerName: sql`COALESCE(${orders.customerName}, ${customer.name})` }
+        ? {
+            customerName: sql`COALESCE(${orders.customerName}, ${customer.name})`,
+          }
         : {}),
       ...(customer?.email
-        ? { customerEmail: sql`COALESCE(${orders.customerEmail}, ${customer.email})` }
+        ? {
+            customerEmail: sql`COALESCE(${orders.customerEmail}, ${customer.email})`,
+          }
         : {}),
     })
     .where(and(eq(orders.stripeSessionId, sessionId), eq(orders.status, "pending")));
@@ -201,4 +206,29 @@ export async function listContactMessages() {
   const db = await getDb();
   if (!db) return [];
   return db.select().from(contactMessages).orderBy(desc(contactMessages.createdAt));
+}
+
+// ---------- Site settings ----------
+
+const SITE_SETTINGS_ID = 1;
+
+/** Raw stored settings document, or undefined when no row exists yet. */
+export async function getSiteSettingsData(): Promise<unknown> {
+  const db = await getDb();
+  if (!db) return undefined;
+  const rows = await db
+    .select()
+    .from(siteSettings)
+    .where(eq(siteSettings.id, SITE_SETTINGS_ID))
+    .limit(1);
+  return rows[0]?.data;
+}
+
+export async function saveSiteSettingsData(data: unknown) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db
+    .insert(siteSettings)
+    .values({ id: SITE_SETTINGS_ID, data })
+    .onDuplicateKeyUpdate({ set: { data } });
 }
