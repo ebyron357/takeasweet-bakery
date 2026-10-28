@@ -7,11 +7,13 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
-import { FAQ_ITEMS } from "@shared/bakery";
+import { useSiteSettings } from "@/hooks/useSiteSettings";
+
 import { usePageTitle } from "@/hooks/usePageTitle";
 
 export default function Faq() {
   usePageTitle("FAQ");
+  const { settings } = useSiteSettings();
   return (
     <div className="container max-w-3xl py-12 md:py-16">
       <div className="text-center">
@@ -29,7 +31,7 @@ export default function Faq() {
 
       <h2 className="sr-only">Questions and answers</h2>
       <Accordion type="single" collapsible className="mt-10 w-full">
-        {FAQ_ITEMS.map((item, i) => (
+        {settings.faq.map((item, i) => (
           <AccordionItem key={i} value={`faq-${i}`}>
             <AccordionTrigger className="text-left font-bold">{item.question}</AccordionTrigger>
             <AccordionContent className="text-muted-foreground">{item.answer}</AccordionContent>

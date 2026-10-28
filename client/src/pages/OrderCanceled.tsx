@@ -2,11 +2,13 @@ import { Link } from "wouter";
 import { ArrowLeft, ShoppingBag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/contexts/CartContext";
-import { SERVICE_AREA_COPY } from "@shared/bakery";
+import { useSiteSettings } from "@/hooks/useSiteSettings";
+
 import { usePageTitle } from "@/hooks/usePageTitle";
 
 export default function OrderCanceled() {
   usePageTitle("Checkout Canceled");
+  const { settings } = useSiteSettings();
   const { itemCount } = useCart();
 
   return (
@@ -48,7 +50,7 @@ export default function OrderCanceled() {
         <Link href="/contact" className="underline">
           Contact us
         </Link>
-        . {SERVICE_AREA_COPY}
+        . {settings.serviceArea}
       </p>
     </div>
   );

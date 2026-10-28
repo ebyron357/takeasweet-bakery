@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation } from "wouter";
-import { Facebook, Instagram, Menu, Minus, Plus, ShoppingBag, Trash2, X } from "lucide-react";
+import { Facebook, Instagram, Menu, Minus, Music2, Plus, ShoppingBag, Trash2, X } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,18 +12,14 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { Separator } from "@/components/ui/separator";
+import CheckoutButton from "@/components/CheckoutButton";
 import { useCart } from "@/contexts/CartContext";
+import { useSiteSettings } from "@/hooks/useSiteSettings";
 import { trpc } from "@/lib/trpc";
-import { ANNOUNCEMENT_COPY, SERVICE_AREA_COPY, formatPrice } from "@shared/bakery";
-import {
-  CLIENT_REVIEW_MODE,
-  PAYMENTS_ENABLED,
-  PAYMENTS_LIVE,
-  REVIEW_CHECKOUT_NOTICE,
-  REVIEW_FORM_NOTICE,
-} from "@shared/review-mode";
+import { formatPrice } from "@shared/bakery";
+import type { PublicSiteSettings } from "@shared/site-settings";
 
-const NAV_LINKS: { href: string; label: string; key?: string }[] = [
+const NAV_LINKS: { href: string; label: string }[] = [
   { href: "/", label: "Home" },
   { href: "/shop", label: "Menu" },
   { href: "/custom-orders", label: "Custom Orders" },
@@ -33,8 +29,34 @@ const NAV_LINKS: { href: string; label: string; key?: string }[] = [
   { href: "/contact", label: "Contact" },
 ];
 
-/** Wordmark-style brand lockup — replace with the real TakeASweet logo file when provided. */
+/** Pages hidden from navigation while they have no content to show. */
+function visibleNavLinks(settings: PublicSiteSettings) {
+  return NAV_LINKS.filter(link => {
+    if (link.href === "/gallery") return settings.gallery.length > 0;
+    if (link.href === "/faq") return settings.faq.length > 0;
+    return true;
+  });
+}
+
+const SOCIAL_LINKS = [
+  { key: "facebook", label: "Facebook", Icon: Facebook },
+  { key: "instagram", label: "Instagram", Icon: Instagram },
+  { key: "tiktok", label: "TikTok", Icon: Music2 },
+] as const;
+
+/** The uploaded logo when one is set in admin settings, otherwise the brand mark. */
 function LogoMark({ className = "size-9" }: { className?: string }) {
+  const { settings } = useSiteSettings();
+  if (settings.logo) {
+    return (
+      <img
+        src={settings.logo.url}
+        alt=""
+        aria-hidden
+        className={`shrink-0 rounded-2xl object-contain ${className}`}
+      />
+    );
+  }
   return (
     <span
       aria-hidden
@@ -47,7 +69,8 @@ function LogoMark({ className = "size-9" }: { className?: string }) {
 }
 
 function AnnouncementBanner() {
-  const copy = ANNOUNCEMENT_COPY;
+  const copy = useSiteSettings().settings.announcement;
+  if (!copy) return null;
   return (
     <aside
       aria-label="Announcement"
@@ -68,18 +91,7 @@ function AnnouncementBanner() {
 function CartDrawer() {
   const { items, itemCount, totalCents, setQuantity, removeItem, isOpen, setIsOpen, clearCart } =
     useCart();
-  const checkout = trpc.checkout.createSession.useMutation({
-    onSuccess: data => {
-      if (data.url) {
-        toast.success("Taking you to secure checkout…");
-        // Safari can block a new tab opened after an async call; fall back to this tab.
-        if (!window.open(data.url, "_blank")) window.location.assign(data.url);
-      }
-    },
-    onError: err => {
-      toast.error(err.message || "Could not start checkout. Please try again.");
-    },
-  });
+  const { settings } = useSiteSettings();
 
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
@@ -133,7 +145,7 @@ function CartDrawer() {
                       <p className="text-sm leading-tight font-semibold">{item.name}</p>
                       <button
                         onClick={() => removeItem(item.productId)}
-                        className="text-muted-foreground hover:text-destructive"
+                        className="text-muted-foreground hover:text-destructive -m-2 flex size-9 items-center justify-center rounded-full"
                         aria-label={`Remove ${item.name}`}
                       >
                         <Trash2 className="size-4" />
@@ -142,7 +154,7 @@ function CartDrawer() {
                     <p className="text-muted-foreground text-xs">{formatPrice(item.priceCents)}</p>
                     <div className="mt-auto flex items-center gap-2">
                       <button
-                        className="border-border hover:bg-muted flex size-6 items-center justify-center rounded-full border"
+                        className="border-border hover:bg-muted flex size-9 items-center justify-center rounded-full border"
                         onClick={() => setQuantity(item.productId, item.quantity - 1)}
                         aria-label="Decrease quantity"
                       >
@@ -150,7 +162,7 @@ function CartDrawer() {
                       </button>
                       <span className="w-6 text-center text-sm font-semibold">{item.quantity}</span>
                       <button
-                        className="border-border hover:bg-muted flex size-6 items-center justify-center rounded-full border"
+                        className="border-border hover:bg-muted flex size-9 items-center justify-center rounded-full border"
                         onClick={() => setQuantity(item.productId, item.quantity + 1)}
                         aria-label="Increase quantity"
                       >
@@ -170,34 +182,9 @@ function CartDrawer() {
                 <span className="font-display text-lg font-bold">{formatPrice(totalCents)}</span>
               </div>
               <p className="text-muted-foreground mb-3 text-xs">
-                Pickup details are shared after your order is confirmed. {SERVICE_AREA_COPY}
+                Pickup details are shared after your order is confirmed. {settings.serviceArea}
               </p>
-              {!PAYMENTS_LIVE && (
-                <p
-                  role="status"
-                  className="bg-accent/60 text-accent-foreground mb-3 rounded-xl px-3 py-2 text-xs font-semibold"
-                >
-                  {REVIEW_CHECKOUT_NOTICE}
-                </p>
-              )}
-              <Button
-                className="min-h-12 w-full rounded-full text-base font-bold"
-                size="lg"
-                disabled={!PAYMENTS_ENABLED || checkout.isPending}
-                onClick={() =>
-                  checkout.mutate({
-                    items: items.map(i => ({ productId: i.productId, quantity: i.quantity })),
-                  })
-                }
-              >
-                {!PAYMENTS_ENABLED
-                  ? "Checkout Disabled (Preview)"
-                  : checkout.isPending
-                    ? "Preparing checkout…"
-                    : PAYMENTS_LIVE
-                      ? "Checkout Securely"
-                      : "Checkout (Test Mode)"}
-              </Button>
+              <CheckoutButton compact />
               <button
                 onClick={clearCart}
                 className="text-muted-foreground hover:text-foreground mt-2 w-full text-center text-xs underline"
@@ -214,6 +201,7 @@ function CartDrawer() {
 
 function NewsletterForm({ compact = false }: { compact?: boolean }) {
   const [email, setEmail] = useState("");
+  const { settings } = useSiteSettings();
   const subscribe = trpc.newsletter.subscribe.useMutation({
     onSuccess: () => {
       toast.success("You're on the list! Sweet news coming your way.");
@@ -223,7 +211,7 @@ function NewsletterForm({ compact = false }: { compact?: boolean }) {
   });
 
   // During client review, email collection is fully disabled.
-  if (CLIENT_REVIEW_MODE) {
+  if (settings.reviewMode) {
     return (
       <p
         className={`text-muted-foreground text-sm ${compact ? "" : "mx-auto max-w-md text-center"}`}
@@ -267,6 +255,9 @@ export { NewsletterForm };
 export default function SiteLayout({ children }: { children: React.ReactNode }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [location] = useLocation();
+  const { settings } = useSiteSettings();
+  const navLinks = visibleNavLinks(settings);
+  const socialLinks = SOCIAL_LINKS.filter(link => settings.socialLinks[link.key]);
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -296,13 +287,13 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
           </Link>
 
           <nav className="hidden items-center gap-1 md:flex">
-            {NAV_LINKS.map(link => (
+            {navLinks.map(link => (
               <Link
-                key={link.key ?? link.href}
+                key={link.href}
                 href={link.href}
                 aria-current={location === link.href ? "page" : undefined}
                 className={`focus-visible:ring-ring rounded-full px-3 py-2 text-sm font-semibold transition-colors focus-visible:ring-2 focus-visible:outline-none ${
-                  location === link.href && !link.key
+                  location === link.href
                     ? "bg-primary text-primary-foreground"
                     : "hover:bg-muted text-foreground"
                 }`}
@@ -319,16 +310,14 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
 
         {mobileOpen && (
           <nav className="fade-up border-t px-4 pt-2 pb-4 md:hidden">
-            {NAV_LINKS.map(link => (
+            {navLinks.map(link => (
               <Link
-                key={link.key ?? link.href}
+                key={link.href}
                 href={link.href}
                 onClick={() => setMobileOpen(false)}
                 aria-current={location === link.href ? "page" : undefined}
                 className={`focus-visible:ring-ring block min-h-11 rounded-xl px-3 py-2.5 text-base font-semibold focus-visible:ring-2 focus-visible:outline-none ${
-                  location === link.href && !link.key
-                    ? "bg-primary text-primary-foreground"
-                    : "hover:bg-muted"
+                  location === link.href ? "bg-primary text-primary-foreground" : "hover:bg-muted"
                 }`}
               >
                 {link.label}
@@ -351,36 +340,34 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
             <p className="text-muted-foreground mt-3 max-w-xs text-sm">
               Handmade cookies and treats baked with big dreams by a young Charlotte entrepreneur.
             </p>
-            <p className="mt-3 text-sm font-bold">{SERVICE_AREA_COPY}</p>
-            <div className="mt-4 flex gap-2">
-              <a
-                href="https://www.facebook.com/"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="TakeASweet on Facebook"
-                className="bg-card border-border hover:bg-muted flex size-9 items-center justify-center rounded-full border"
-              >
-                <Facebook className="size-4" />
-              </a>
-              <a
-                href="https://www.instagram.com/"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="TakeASweet on Instagram"
-                className="bg-card border-border hover:bg-muted flex size-9 items-center justify-center rounded-full border"
-              >
-                <Instagram className="size-4" />
-              </a>
-            </div>
+            {settings.serviceArea && (
+              <p className="mt-3 text-sm font-bold">{settings.serviceArea}</p>
+            )}
+            {socialLinks.length > 0 && (
+              <div className="mt-4 flex gap-2">
+                {socialLinks.map(({ key, label, Icon }) => (
+                  <a
+                    key={key}
+                    href={settings.socialLinks[key]}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={`TakeASweet on ${label}`}
+                    className="bg-card border-border hover:bg-muted flex size-9 items-center justify-center rounded-full border"
+                  >
+                    <Icon className="size-4" />
+                  </a>
+                ))}
+              </div>
+            )}
           </div>
           <div>
             <h2 className="font-display mb-3 text-sm font-bold tracking-widest uppercase">
               Explore
             </h2>
-            <ul className="space-y-2 text-sm">
-              {NAV_LINKS.filter(link => !link.key).map(link => (
+            <ul className="space-y-0.5 text-sm">
+              {navLinks.map(link => (
                 <li key={link.href}>
-                  <Link href={link.href} className="hover:text-secondary-foreground hover:underline">
+                  <Link href={link.href} className="hover:text-secondary-foreground inline-block py-1 hover:underline">
                     {link.label}
                   </Link>
                 </li>
@@ -389,14 +376,14 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
             <h2 className="font-display mt-5 mb-2 text-sm font-bold tracking-widest uppercase">
               Policies
             </h2>
-            <ul className="space-y-2 text-sm">
+            <ul className="space-y-0.5 text-sm">
               <li>
-                <Link href="/order-info" className="hover:text-secondary-foreground hover:underline">
+                <Link href="/order-info" className="hover:text-secondary-foreground inline-block py-1 hover:underline">
                   Order Information
                 </Link>
               </li>
               <li>
-                <Link href="/privacy" className="hover:text-secondary-foreground hover:underline">
+                <Link href="/privacy" className="hover:text-secondary-foreground inline-block py-1 hover:underline">
                   Privacy Policy
                 </Link>
               </li>
@@ -419,9 +406,10 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
         </div>
         <div className="border-t py-4">
           <p className="text-muted-foreground container text-center text-xs">
-            © {new Date().getFullYear()} TakeASweet Cookies & Treats · {SERVICE_AREA_COPY}
+            © {new Date().getFullYear()} TakeASweet Cookies & Treats
+            {settings.serviceArea && ` · ${settings.serviceArea}`}
           </p>
-          <p className="text-muted-foreground container mt-2 text-center text-[11px] leading-relaxed">
+          <p className="text-muted-foreground container mt-2 text-center text-xs leading-relaxed">
             Website designed and maintained by{" "}
             <a
               href="https://clientverse.io"

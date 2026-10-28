@@ -6,7 +6,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useCart } from "@/contexts/CartContext";
 import { trpc } from "@/lib/trpc";
 import { formatPrice } from "@shared/bakery";
-import { PAYMENTS_LIVE } from "@shared/review-mode";
+import { useSiteSettings } from "@/hooks/useSiteSettings";
 import { usePageTitle } from "@/hooks/usePageTitle";
 
 export default function OrderConfirmation() {
@@ -14,6 +14,7 @@ export default function OrderConfirmation() {
   const search = useSearch();
   const sessionId = useMemo(() => new URLSearchParams(search).get("session_id") ?? "", [search]);
   const { clearCart } = useCart();
+  const { paymentsLive } = useSiteSettings();
 
   const { data, isLoading, error } = trpc.checkout.confirmation.useQuery(
     { sessionId },
@@ -100,19 +101,21 @@ export default function OrderConfirmation() {
       </div>
 
       {/* Pickup details — only revealed post-purchase */}
-      <div className="bg-accent/60 mt-6 rounded-2xl p-5">
-        <div className="flex items-start gap-3">
-          <MapPin className="text-accent-foreground mt-0.5 size-5 shrink-0" />
-          <div>
-            <h2 className="font-display text-accent-foreground text-lg font-bold">
-              Pickup details
-            </h2>
-            <p className="text-accent-foreground/90 mt-1 text-sm leading-relaxed">
-              {data.pickupInstructions}
-            </p>
+      {data.pickupInstructions && (
+        <div className="bg-accent/60 mt-6 rounded-2xl p-5">
+          <div className="flex items-start gap-3">
+            <MapPin className="text-accent-foreground mt-0.5 size-5 shrink-0" />
+            <div>
+              <h2 className="font-display text-accent-foreground text-lg font-bold">
+                Pickup details
+              </h2>
+              <p className="text-accent-foreground/90 mt-1 text-sm leading-relaxed">
+                {data.pickupInstructions}
+              </p>
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       <div className="mt-8 flex items-center justify-center gap-2">
         <CheckCircle2 className="text-primary size-4" />
@@ -121,7 +124,7 @@ export default function OrderConfirmation() {
         </p>
       </div>
 
-      {!PAYMENTS_LIVE && (
+      {!paymentsLive && (
         <p
           role="status"
           className="bg-muted text-muted-foreground mt-4 rounded-xl px-4 py-3 text-center text-xs font-semibold"

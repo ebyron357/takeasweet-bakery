@@ -125,6 +125,14 @@
 - Verification and limits: `docs/SCROLL_CRAFT_IMPLEMENTATION.md`.
 - Existing payment/review-mode settings and order workflows unchanged.
 
+## Owner-Managed Settings — 2026-10-28
+- [x] Site settings stored in the database and edited in Admin → Site Settings: review mode, online payments, announcement, service area, contact email, social links, logo, page images, gallery, FAQ, private pickup instructions.
+- [x] Fail-closed defaults: with no settings saved, review mode stays on, payments stay off, and empty sections are hidden.
+- [x] Stripe test vs. live mode detected from the installed key instead of a code flag.
+- [x] Home page built from the catalog: featured products, categories with products, and the multi-flavor signature item.
+- [x] Removed placeholders: generic social links, "Flavor Coming Soon" cards, camera-icon image stand-ins, the empty gallery page, and "CLIENT APPROVAL REQUIRED" markers (missing product details are now empty and listed per product in Admin).
+- [x] Migration `0004` creates the settings table seeded with the previously approved copy and images, and clears the old marker values.
+
 ## Polish & Hidden-Issue Audit — 2026-10-28
 - [x] Audit all 16 routes (desktop 1366px + mobile 375px) with browser console capture and axe-core WCAG 2.1 AA scan.
 - [x] Re-enable pinch-zoom (viewport no longer sets `maximum-scale=1`).
@@ -134,6 +142,7 @@
 - [x] Put the announcement banner in a labeled landmark; screen readers read it once; reduced-motion users see one full, wrapped line.
 - [x] Raise footer credit-line contrast to pass AA.
 - [x] Give product-card image links an accessible name (includes "sold out" when applicable).
-- [x] Hide the Stripe test-card hint while checkout is disabled.
+- [x] Hide the Stripe test-card hint while checkout is disabled (also covered by the new `CheckoutButton`).
 - [x] Fall back to same-tab redirect when the browser blocks the checkout tab.
-- Result: 0 axe violations, 0 console errors on all audited routes; typecheck, build, and 49/49 tests pass.
+- [x] Merged with Owner-Managed Settings; fixes carried into `CheckoutButton` and settings-driven pages (empty gallery keeps the 404 title).
+- Result: typecheck and build pass, 53/53 tests pass, `scripts/site-qa.mjs` passes (32 checks with backend, 22 without), scroll-craft QA 6/6, 0 console errors.

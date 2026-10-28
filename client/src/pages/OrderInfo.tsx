@@ -2,7 +2,7 @@ import { ScrollCraftGroup } from "@/components/scroll-craft-group";
 import { Link } from "wouter";
 import { CalendarHeart, MapPin, PackageX, ReceiptText, Store, Truck } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { SERVICE_AREA_COPY } from "@shared/bakery";
+import { useSiteSettings } from "@/hooks/useSiteSettings";
 import { usePageTitle } from "@/hooks/usePageTitle";
 
 const SECTIONS = [
@@ -29,12 +29,13 @@ const SECTIONS = [
   {
     icon: ReceiptText,
     title: "Payment",
-    body: "Standard menu items can be paid for online once checkout is active. Custom orders are invoiced after approval.",
+    body: "Standard menu items are paid for online at checkout when online ordering is open. Custom orders are invoiced after approval.",
   },
 ];
 
 export default function OrderInfo() {
   usePageTitle("Order Information");
+  const { settings } = useSiteSettings();
   return (
     <div className="container max-w-2xl py-12 md:py-16">
       <p className="text-secondary-foreground flex items-center gap-1.5 text-sm font-bold tracking-widest uppercase">
@@ -45,10 +46,12 @@ export default function OrderInfo() {
         Everything you need to know about getting TakeASweet treats into your hands.
       </p>
 
-      <div className="bg-accent text-accent-foreground mt-6 inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-bold">
-        <MapPin className="size-4" aria-hidden />
-        {SERVICE_AREA_COPY}
-      </div>
+      {settings.serviceArea && (
+        <div className="bg-accent text-accent-foreground mt-6 inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-bold">
+          <MapPin className="size-4" aria-hidden />
+          {settings.serviceArea}
+        </div>
+      )}
 
       <ScrollCraftGroup className="mt-8 space-y-4">
         {SECTIONS.map(section => (

@@ -1,11 +1,12 @@
 import { Link } from "wouter";
 import { ShieldCheck } from "lucide-react";
-import { SERVICE_AREA_COPY } from "@shared/bakery";
-import { CLIENT_REVIEW_MODE } from "@shared/review-mode";
+import { useSiteSettings } from "@/hooks/useSiteSettings";
+
 import { usePageTitle } from "@/hooks/usePageTitle";
 
 export default function Privacy() {
   usePageTitle("Privacy Policy");
+  const { settings } = useSiteSettings();
   return (
     <div className="container max-w-2xl py-12 md:py-16">
       <p className="text-secondary-foreground flex items-center gap-1.5 text-sm font-bold tracking-widest uppercase">
@@ -13,7 +14,7 @@ export default function Privacy() {
       </p>
       <h1 className="font-display mt-2 text-4xl font-extrabold">Privacy Policy</h1>
 
-      {CLIENT_REVIEW_MODE && (
+      {settings.reviewMode && (
         <div className="bg-accent/50 text-accent-foreground mt-6 rounded-xl p-4 text-sm font-semibold">
           This website is currently in preview. Online checkout and form submissions are disabled,
           and no customer information is collected during this stage.
@@ -60,7 +61,7 @@ export default function Privacy() {
             Our home base
           </h2>
           <p className="mt-2">
-            {SERVICE_AREA_COPY} As a home-based small business, our pickup location is shared
+            {settings.serviceArea} As a home-based small business, our pickup location is shared
             privately with customers after an order is confirmed and is never published on this
             website.
           </p>
