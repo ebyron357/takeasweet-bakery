@@ -3,7 +3,7 @@ name: Client Review CI
 on:
   pull_request:
     paths:
-      - "scripts/scroll-craft-qa.mjs"
+      - "scripts/**"
       - "client/**"
       - "server/**"
       - "shared/**"
@@ -16,7 +16,7 @@ on:
   push:
     branches: [main]
     paths:
-      - "scripts/scroll-craft-qa.mjs"
+      - "scripts/**"
       - "client/**"
       - "server/**"
       - "shared/**"
@@ -72,3 +72,12 @@ jobs:
             sleep 1
           done
           SCROLL_BASE=http://127.0.0.1:3113 node scripts/scroll-craft-qa.mjs
+
+      - name: Site QA (accessibility, layout, page errors)
+        run: |
+          pnpm exec vite preview --host 127.0.0.1 --port 3114 > /tmp/site-qa.log 2>&1 &
+          for attempt in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:3114/ > /dev/null; then break; fi
+            sleep 1
+          done
+          QA_BASE=http://127.0.0.1:3114 node scripts/site-qa.mjs

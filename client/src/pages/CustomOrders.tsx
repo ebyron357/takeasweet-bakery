@@ -71,6 +71,11 @@ export default function CustomOrders() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setFieldError(null);
+    if (!form.eventType) {
+      setFieldError("Please choose your event type.");
+      toast.error("Please choose your event type.");
+      return;
+    }
     // Client-side wedding block for instant feedback
     if (containsWeddingKeyword(`${form.eventType} ${form.details}`)) {
       setFieldError(
@@ -290,6 +295,7 @@ export default function CustomOrders() {
               <Textarea
                 id="details"
                 rows={4}
+                className="min-h-28"
                 value={form.details}
                 onChange={e => setForm(f => ({ ...f, details: e.target.value }))}
                 placeholder="Theme, colors, flavors, allergies to avoid, anything else we should know…"
@@ -311,7 +317,7 @@ export default function CustomOrders() {
               type="submit"
               size="lg"
               className="min-h-12 w-full rounded-full text-base font-bold"
-              disabled={submit.isPending || !form.eventType}
+              disabled={submit.isPending}
             >
               {submit.isPending ? "Sending…" : "Send My Request"}
             </Button>

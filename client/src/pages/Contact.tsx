@@ -115,6 +115,7 @@ export default function Contact() {
               id="message"
               required
               rows={5}
+              className="min-h-32"
               value={form.message}
               onChange={e => setForm(f => ({ ...f, message: e.target.value }))}
               placeholder="How can we help?"
