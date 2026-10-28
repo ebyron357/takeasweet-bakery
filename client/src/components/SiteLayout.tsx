@@ -405,7 +405,7 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
             © {new Date().getFullYear()} TakeASweet Cookies & Treats
             {settings.serviceArea && ` · ${settings.serviceArea}`}
           </p>
-          <p className="text-muted-foreground/75 container mt-2 text-center text-[11px] leading-relaxed">
+          <p className="text-muted-foreground container mt-2 text-center text-xs leading-relaxed">
             Website designed and maintained by{" "}
             <a
               href="https://clientverse.io"
