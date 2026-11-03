@@ -4,6 +4,7 @@ import Stripe from "stripe";
 import { z } from "zod";
 import { COOKIE_NAME } from "@shared/const";
 import { containsWeddingKeyword, isEventDateTodayOrLater } from "@shared/bakery";
+import { MAX_UPLOAD_BYTES } from "@shared/image-upload";
 import {
   REVIEW_CHECKOUT_NOTICE,
   REVIEW_FORM_NOTICE,
@@ -19,6 +20,7 @@ import {
   notifyOrderPaid,
   notifyOwnerSafely,
 } from "./order-notifications";
+import { uploadAdminImage } from "./image-upload";
 import { getSiteSettings, isStripeTestMode, saveSiteSettings } from "./site-settings";
 
 let stripe: Stripe | undefined;
@@ -441,6 +443,16 @@ export const appRouter = router({
       await saveSiteSettings(input);
       return { success: true } as const;
     }),
+    /** Stores a photo chosen in Admin and returns its URL for an image field. */
+    uploadImage: adminProcedure
+      .input(
+        z.object({
+          fileName: z.string().trim().min(1).max(255),
+          // Base64 of at most MAX_UPLOAD_BYTES; the exact size is checked after decoding.
+          dataBase64: z.string().min(1).max(Math.ceil(MAX_UPLOAD_BYTES / 3) * 4),
+        }),
+      )
+      .mutation(({ input }) => uploadAdminImage(input)),
   }),
 });
 
