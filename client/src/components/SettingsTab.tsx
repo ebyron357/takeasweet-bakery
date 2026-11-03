@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { ArrowDown, ArrowUp, Loader2, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
+import ImageUploadButton from "@/components/ImageUploadButton";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -116,14 +117,24 @@ function ImageFields({
         )}
       </div>
       <div className="space-y-2">
+        <div className="flex flex-col gap-2 sm:flex-row">
+          <Input
+            id={`${id}-url`}
+            aria-label="Image URL"
+            value={value.url}
+            onChange={e => onChange({ ...value, url: e.target.value })}
+            placeholder="Image URL (/manus-storage/… or https://…)"
+          />
+          <ImageUploadButton
+            onUploaded={url => {
+              onChange({ ...value, url });
+              // The photo can't be saved without a description, so go there next.
+              document.getElementById(`${id}-alt`)?.focus();
+            }}
+          />
+        </div>
         <Input
-          id={`${id}-url`}
-          aria-label="Image URL"
-          value={value.url}
-          onChange={e => onChange({ ...value, url: e.target.value })}
-          placeholder="Image URL (/manus-storage/… or https://…)"
-        />
-        <Input
+          id={`${id}-alt`}
           aria-label="Image description (alt text)"
           value={value.alt}
           onChange={e => onChange({ ...value, alt: e.target.value })}
@@ -312,7 +323,7 @@ export default function SettingsTab() {
 
       <Section
         title="Images"
-        description="Clear an image URL to remove that image; its section adjusts automatically."
+        description="Upload a photo or paste an image link. Clear it to remove the image; its section adjusts automatically."
       >
         <div className="space-y-1.5">
           <Label htmlFor="s-logo-url">Logo</Label>

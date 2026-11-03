@@ -154,3 +154,10 @@
 - [x] All migrations applied to a fresh MySQL 8 and read back through the running app; site QA passed (32 checks, incl. product pages, `/admin`, `/gallery`).
 - Finding: the product catalog exists only in the hosted database — back it up before any account transfer.
 - Open: hosting ownership decision, Stripe account, domain, and client facts listed in the handoff checklist.
+
+## Admin Photo Upload — 2026-11-03
+- [x] "Upload photo" button on every image field (logo, page images, gallery, products), 44px tall on phones.
+- [x] Browser turns photos upright, resizes to 2000px max, and re-saves them (smaller files, metadata dropped).
+- [x] Server (`admin.uploadImage`, admin only): checks the real file type by its bytes (JPEG/PNG/WebP only; SVG refused), 8 MB cap, strips EXIF/GPS/XMP/IPTC and data after the image, refuses uploads when storage isn't configured.
+- [x] Fixed: product Edit/Delete icon buttons and the Category select had no accessible names.
+- Result: 70/70 tests; real-image checks (baseline + progressive JPEG, PNG, WebP: metadata gone, pixels identical); browser end-to-end 13/13; axe 0 serious/critical on signed-in Admin; site QA passes.

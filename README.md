@@ -17,12 +17,11 @@ page — no code changes needed for day-to-day updates.
 | Public pages | Home, Menu (`/shop`), product pages, Cart, Custom Orders, Our Story, FAQ, Gallery (shown once it has photos), Order Information, Privacy, Contact, 404 |
 | Ordering | Cart with flavor selection, Stripe Checkout, order confirmation that reveals private pickup instructions only after payment, canceled-payment page |
 | Custom orders | Request form (wedding orders blocked on client and server); owner reviews, then approves, requests a deposit, confirms, or declines |
-| Admin (`/admin`) | Products, Orders, Custom Requests, Messages, Site Settings (launch switches, business details, images, gallery, FAQ, private pickup instructions) |
-| Safety | Review mode and payments are off by default and stay off if settings can't load; no pickup address on public pages; security headers; Stripe webhook signature check |
+| Admin (`/admin`) | Products, Orders, Custom Requests, Messages, Site Settings (launch switches, business details, images, gallery, FAQ, private pickup instructions); photo upload from the owner's phone or computer |
+| Safety | Review mode and payments are off by default and stay off if settings can't load; no pickup address on public pages; uploaded photos are stripped of location and camera data; security headers; Stripe webhook signature check |
 
 **Not built** (planned in `SKILL.md`, not part of this release): guided cake
-builder, customer accounts and order portal, AI bakery concierge, photo upload
-from Admin (images are added by URL).
+builder, customer accounts and order portal, AI bakery concierge.
 
 ## Tech stack
 

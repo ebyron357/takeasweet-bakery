@@ -103,9 +103,16 @@ within about a minute.
 
 - **Leave a field empty to hide it** on the site — nothing shows a blank or a
   placeholder.
-- **Images** are added by URL (an `https://…` link or an uploaded
-  `/manus-storage/…` path). Each needs a short description (alt text) for
-  screen readers. Clear the URL to remove an image; the page adjusts.
+- **Images:** tap **Upload photo** next to any image to pick one from your
+  phone or computer, or paste an `https://…` link. Then write a short
+  description (alt text) for screen readers and press **Save Settings** — the
+  photo isn't public until you save. Clear the link to remove an image; the
+  page adjusts.
+- **About uploads:** JPEG, PNG, or WebP. Photos are turned upright and resized
+  automatically, and location and camera details are removed, so a photo
+  taken at home never reveals where it was taken. If an iPhone photo is
+  refused as the wrong type, it was saved in Apple's HEIC format: choose it
+  from the Photos library on the iPhone itself, or export it as JPEG first.
 - **Gallery** — authentic photos only; use the arrows to reorder.
 - **FAQ** — the first four questions also appear on the home page.
 - **Pickup instructions** are private: customers see them only on the order
@@ -113,7 +120,8 @@ within about a minute.
 
 ### Products (Admin → Products)
 
-- Add or edit a product: name, category, price, description, image, size,
+- Add or edit a product: name, category, price, description, photo (**Upload
+  photo**, then **Save**), size,
   flavor options (comma-separated), max flavor selections (e.g. 4 for Four
   Corners), quantity options, lead time, ingredients, allergens, storage.
 - **In Stock** off shows the product as sold out. **Seasonal Active** off
@@ -146,6 +154,10 @@ custom requests, and messages through Manus notifications.
 - **A section disappeared** — its content is empty in Site Settings; a menu
   category appears only while it has at least one product (seasonal items
   with Seasonal Active off don't count).
+- **A photo won't upload** — the message says why: wrong file type, too
+  large, or a damaged file. "Photo upload isn't set up on this server" means
+  the hosting storage service isn't connected; paste an image link instead
+  and contact your web developer.
 - **Settings won't save** — the page explains which field is invalid (for
   example, links must start with `https://`, every image needs alt text, and
   every FAQ entry needs a question and an answer).
