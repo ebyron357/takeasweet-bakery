@@ -50,6 +50,9 @@ export const ORDER_INFO_ICONS = [
 ] as const;
 export type OrderInfoIcon = (typeof ORDER_INFO_ICONS)[number];
 
+/** Sections with these icons also appear in the home page's Pickup & Delivery block. */
+const PICKUP_DELIVERY_ICONS: readonly OrderInfoIcon[] = ["pickup", "delivery", "noShipping"];
+
 export const orderInfoSectionSchema = z.object({
   icon: z.enum(ORDER_INFO_ICONS).default("info"),
   title: z.string().trim().min(1).max(100),
@@ -97,6 +100,11 @@ export type FaqItem = z.infer<typeof faqItemSchema>;
 export type OrderInfoSection = z.infer<typeof orderInfoSectionSchema>;
 export type SiteSettings = z.infer<typeof siteSettingsSchema>;
 export type SiteImageKey = keyof SiteSettings["images"];
+
+/** Order Information sections shown in the home page's Pickup & Delivery block, in order. */
+export function pickupDeliverySections(orderInfo: OrderInfoSection[]): OrderInfoSection[] {
+  return orderInfo.filter(section => PICKUP_DELIVERY_ICONS.includes(section.icon));
+}
 
 /** Settings safe to send to every visitor, plus payment state derived on the server. */
 export type PublicSiteSettings = Omit<SiteSettings, "pickupInstructions"> & {

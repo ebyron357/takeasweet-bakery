@@ -1,18 +1,5 @@
 import { useEffect, useState } from "react";
-import {
-  ArrowDown,
-  ArrowUp,
-  CalendarHeart,
-  Info,
-  Loader2,
-  PackageX,
-  Plus,
-  ReceiptText,
-  Store,
-  Trash2,
-  Truck,
-  type LucideIcon,
-} from "lucide-react";
+import { ArrowDown, ArrowUp, Loader2, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -27,6 +14,7 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
+import { ORDER_INFO_ICON_OPTIONS } from "@/lib/order-info-icons";
 import { trpc } from "@/lib/trpc";
 import {
   ORDER_INFO_ICONS,
@@ -72,16 +60,6 @@ const SOCIAL_FIELDS = [
   { key: "instagram", label: "Instagram profile" },
   { key: "tiktok", label: "TikTok profile" },
 ] as const;
-
-/** Icon choices for Order Information sections; the same icons the public page uses. */
-const ORDER_INFO_ICON_OPTIONS: Record<OrderInfoIcon, { label: string; Icon: LucideIcon }> = {
-  pickup: { label: "Pickup", Icon: Store },
-  delivery: { label: "Delivery", Icon: Truck },
-  noShipping: { label: "No shipping", Icon: PackageX },
-  customOrders: { label: "Custom orders", Icon: CalendarHeart },
-  payment: { label: "Payment", Icon: ReceiptText },
-  info: { label: "General", Icon: Info },
-};
 
 /** Editable image: empty strings are allowed while typing, cleaned up on save. */
 type ImageDraft = { url: string; alt: string; caption: string };
@@ -518,7 +496,7 @@ export default function SettingsTab() {
 
       <Section
         title="Order information"
-        description="Ordering policies on the Order Information page. The page and its footer link are hidden while this list is empty."
+        description="Ordering policies on the Order Information page. Sections with the Pickup, Delivery, or No shipping icon also appear on the home page. The page and its footer link are hidden while this list is empty."
       >
         {draft.orderInfo.map((section, index) => {
           const change = (patch: Partial<OrderInfoSection>) =>

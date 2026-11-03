@@ -68,17 +68,23 @@ describe("sitemap.xml", () => {
 describe("sitemap pages", () => {
   const section = { icon: "info" as const, title: "Pickup", body: "Details" };
   const photo = { url: "/a.jpg", alt: "Cookies", caption: "" };
+  const question = { question: "Do you deliver?", answer: "Yes, locally." };
 
-  it("leaves out the gallery and order information while they are empty", () => {
-    const paths = visibleSitemapPaths({ gallery: [], orderInfo: [] });
+  it("leaves out the FAQ, gallery, and order information while they are empty", () => {
+    const paths = visibleSitemapPaths({ faq: [], gallery: [], orderInfo: [] });
+    expect(paths).not.toContain("/faq");
     expect(paths).not.toContain("/gallery");
     expect(paths).not.toContain("/order-info");
-    expect(paths).toContain("/faq");
+    expect(paths).toContain("/shop");
   });
 
   it("lists every page once they have content", () => {
     expect(
-      visibleSitemapPaths({ gallery: [photo], orderInfo: [section] })
+      visibleSitemapPaths({
+        faq: [question],
+        gallery: [photo],
+        orderInfo: [section],
+      })
     ).toEqual([...SITEMAP_PATHS]);
   });
 });

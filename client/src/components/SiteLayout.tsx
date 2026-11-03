@@ -390,11 +390,6 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
                 </Link>
               </li>
             </ul>
-            <ul className="text-muted-foreground mt-3 space-y-1.5 text-xs">
-              <li>Custom orders are reviewed before payment.</li>
-              <li>Wedding orders are not accepted.</li>
-              <li>No shipping — local pickup and delivery only.</li>
-            </ul>
           </div>
           <div>
             <h2 className="font-display mb-3 text-sm font-bold tracking-widest uppercase">

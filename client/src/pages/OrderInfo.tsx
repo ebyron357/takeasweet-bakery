@@ -1,29 +1,11 @@
 import { ScrollCraftGroup } from "@/components/scroll-craft-group";
 import { Link } from "wouter";
-import {
-  CalendarHeart,
-  Info,
-  MapPin,
-  PackageX,
-  ReceiptText,
-  Store,
-  Truck,
-  type LucideIcon,
-} from "lucide-react";
+import { MapPin, ReceiptText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
 import { usePageTitle } from "@/hooks/usePageTitle";
+import { ORDER_INFO_ICON_OPTIONS } from "@/lib/order-info-icons";
 import NotFound from "@/pages/NotFound";
-import type { OrderInfoIcon } from "@shared/site-settings";
-
-const ICONS: Record<OrderInfoIcon, LucideIcon> = {
-  pickup: Store,
-  delivery: Truck,
-  noShipping: PackageX,
-  customOrders: CalendarHeart,
-  payment: ReceiptText,
-  info: Info,
-};
 
 export default function OrderInfo() {
   const { settings, isLoading } = useSiteSettings();
@@ -52,7 +34,7 @@ export default function OrderInfo() {
 
       <ScrollCraftGroup className="mt-8 space-y-4">
         {sections.map((section, index) => {
-          const Icon = ICONS[section.icon];
+          const { Icon } = ORDER_INFO_ICON_OPTIONS[section.icon];
           return (
             <section
               data-sc-entry

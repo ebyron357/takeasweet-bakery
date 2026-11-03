@@ -18,9 +18,10 @@ export const SITEMAP_PATHS = [
 
 /** Sitemap pages, minus the ones hidden while their settings content is empty. */
 export function visibleSitemapPaths(
-  settings: Pick<SiteSettings, "gallery" | "orderInfo">
+  settings: Pick<SiteSettings, "faq" | "gallery" | "orderInfo">
 ): string[] {
   return SITEMAP_PATHS.filter(path => {
+    if (path === "/faq") return settings.faq.length > 0;
     if (path === "/gallery") return settings.gallery.length > 0;
     if (path === "/order-info") return settings.orderInfo.length > 0;
     return true;

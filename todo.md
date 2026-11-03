@@ -154,3 +154,15 @@
 - [x] While the list is empty: `/order-info` shows the 404 page, its footer link is hidden, and it is left out of the sitemap.
 - Result: 64/64 tests (11 new); migration applied to a fresh MySQL 8 and read back through `site.settings`; browser end-to-end 14/14 (edit, validation, reorder, save, empty state); site QA passes with content and with the list empty.
 - Open: client to confirm the Order Information copy (delivery area, deposits, payment wording).
+
+## Fail-Closed Content Cleanup — 2026-11-03
+- [x] Removed three hard-coded policy lines from the footer; the owner-managed Order Information page covers them.
+- [x] Home "Pickup & Delivery" block now shows the Order Information sections with the Pickup, Delivery, or No shipping icon (plus the service area), links to the full page, and hides when there are none. Its hard-coded copy is gone.
+- [x] Empty FAQ now shows the 404 page and is left out of the sitemap (the nav link was already hidden).
+- [x] Order Information icons and labels live in one shared map (`client/src/lib/order-info-icons.ts`).
+- Result: 65/65 tests; build passes; site QA passes with content and with FAQ and Order Information empty; live sitemap checked with review mode off; Admin browser run 14/14.
+- Open for the client — still hard-coded business claims (need confirmation, or a later move to settings):
+  - Home custom-orders banner and Custom Orders page: deposit terms, "quote within a few days", no wedding orders (also enforced in code).
+  - Shop intro: "Handmade in small batches. The menu changes with the seasons."
+  - Home, Our Story, footer tagline: founder and family story ("kid-owned", "young Charlotte entrepreneur", local events and markets).
+  - Privacy page: "home-based small business".

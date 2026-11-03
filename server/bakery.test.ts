@@ -6,7 +6,7 @@ import {
   containsWeddingKeyword,
   isEventDateTodayOrLater,
 } from "../shared/bakery";
-import { parseSiteSettings } from "../shared/site-settings";
+import { parseSiteSettings, pickupDeliverySections } from "../shared/site-settings";
 import { clearSiteSettingsCache, isStripeTestMode } from "./site-settings";
 
 vi.mock("./db-features", () => ({
@@ -337,6 +337,25 @@ describe("site settings", () => {
     const settings = await appRouter.createCaller(createContext()).site.settings();
     expect(settings.orderInfo).toEqual([pickupSection]);
     clearSiteSettingsCache();
+  });
+
+  it("shows only pickup, delivery, and shipping sections on the home page, in order", () => {
+    const section = (icon: string, title: string) => ({ ...pickupSection, icon, title });
+    const orderInfo = parseSiteSettings({
+      orderInfo: [
+        section("payment", "Payment"),
+        section("noShipping", "No shipping"),
+        section("pickup", "Pickup"),
+        section("info", "Allergens"),
+        section("delivery", "Delivery"),
+      ],
+    }).orderInfo;
+    expect(pickupDeliverySections(orderInfo).map(s => s.title)).toEqual([
+      "No shipping",
+      "Pickup",
+      "Delivery",
+    ]);
+    expect(pickupDeliverySections([])).toEqual([]);
   });
 
   it("gives a stored section without an icon the general icon", () => {
