@@ -39,6 +39,23 @@ export const faqItemSchema = z.object({
   answer: z.string().trim().min(1).max(2000),
 });
 
+/** Icons the owner can pick for an Order Information section. */
+export const ORDER_INFO_ICONS = [
+  "pickup",
+  "delivery",
+  "noShipping",
+  "customOrders",
+  "payment",
+  "info",
+] as const;
+export type OrderInfoIcon = (typeof ORDER_INFO_ICONS)[number];
+
+export const orderInfoSectionSchema = z.object({
+  icon: z.enum(ORDER_INFO_ICONS).default("info"),
+  title: z.string().trim().min(1).max(100),
+  body: z.string().trim().min(1).max(2000),
+});
+
 export const siteSettingsSchema = z.object({
   /**
    * While true, the custom order, contact, and newsletter forms transmit
@@ -68,6 +85,8 @@ export const siteSettingsSchema = z.object({
   /** Authentic photos of the bakery's work. The gallery is hidden while empty. */
   gallery: z.array(siteImageSchema).max(60).default([]),
   faq: z.array(faqItemSchema).max(40).default([]),
+  /** Ordering policies on the Order Information page, which is hidden while empty. */
+  orderInfo: z.array(orderInfoSectionSchema).max(20).default([]),
 
   /** Private: shown only on the confirmation page after a paid order. */
   pickupInstructions: text(2000),
@@ -75,6 +94,7 @@ export const siteSettingsSchema = z.object({
 
 export type SiteImage = z.infer<typeof siteImageSchema>;
 export type FaqItem = z.infer<typeof faqItemSchema>;
+export type OrderInfoSection = z.infer<typeof orderInfoSectionSchema>;
 export type SiteSettings = z.infer<typeof siteSettingsSchema>;
 export type SiteImageKey = keyof SiteSettings["images"];
 

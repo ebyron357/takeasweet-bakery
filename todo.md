@@ -146,3 +146,11 @@
 - [x] Fall back to same-tab redirect when the browser blocks the checkout tab.
 - [x] Merged with Owner-Managed Settings; fixes carried into `CheckoutButton` and settings-driven pages (empty gallery keeps the 404 title).
 - Result: typecheck and build pass, 53/53 tests pass, `scripts/site-qa.mjs` passes (32 checks with backend, 22 without), scroll-craft QA 6/6, 0 console errors.
+
+## Order Information in Site Settings — 2026-11-03
+- [x] Order Information sections (title, description, icon from a fixed set) moved from `OrderInfo.tsx` into site settings (`orderInfo`, fail-closed empty default, max 20, validated with zod on the server).
+- [x] Migration `0005` seeds the five sections with the copy previously in code (byte-identical), and only fills the setting if it is not already set.
+- [x] Admin → Site Settings → Order information: add, edit, pick icon, reorder, remove; incomplete sections block saving with a clear message.
+- [x] While the list is empty: `/order-info` shows the 404 page, its footer link is hidden, and it is left out of the sitemap.
+- Result: 64/64 tests (11 new); migration applied to a fresh MySQL 8 and read back through `site.settings`; browser end-to-end 14/14 (edit, validation, reorder, save, empty state); site QA passes with content and with the list empty.
+- Open: client to confirm the Order Information copy (delivery area, deposits, payment wording).

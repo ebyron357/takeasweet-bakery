@@ -11,6 +11,8 @@ import {
   buildSitemapXml,
   getIndexableSiteUrl,
   securityHeaders,
+  SITEMAP_PATHS,
+  visibleSitemapPaths,
 } from "./site-meta";
 
 describe("search indexing gate", () => {
@@ -60,6 +62,24 @@ describe("sitemap.xml", () => {
       "<loc>https://takeasweet.example/product/a%26b</loc>"
     );
     expect(xml).not.toMatch(/\/(cart|admin|order\/)/);
+  });
+});
+
+describe("sitemap pages", () => {
+  const section = { icon: "info" as const, title: "Pickup", body: "Details" };
+  const photo = { url: "/a.jpg", alt: "Cookies", caption: "" };
+
+  it("leaves out the gallery and order information while they are empty", () => {
+    const paths = visibleSitemapPaths({ gallery: [], orderInfo: [] });
+    expect(paths).not.toContain("/gallery");
+    expect(paths).not.toContain("/order-info");
+    expect(paths).toContain("/faq");
+  });
+
+  it("lists every page once they have content", () => {
+    expect(
+      visibleSitemapPaths({ gallery: [photo], orderInfo: [section] })
+    ).toEqual([...SITEMAP_PATHS]);
   });
 });
 

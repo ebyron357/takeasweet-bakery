@@ -377,11 +377,13 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
               Policies
             </h2>
             <ul className="space-y-0.5 text-sm">
-              <li>
-                <Link href="/order-info" className="hover:text-secondary-foreground inline-block py-1 hover:underline">
-                  Order Information
-                </Link>
-              </li>
+              {settings.orderInfo.length > 0 && (
+                <li>
+                  <Link href="/order-info" className="hover:text-secondary-foreground inline-block py-1 hover:underline">
+                    Order Information
+                  </Link>
+                </li>
+              )}
               <li>
                 <Link href="/privacy" className="hover:text-secondary-foreground inline-block py-1 hover:underline">
                   Privacy Policy
