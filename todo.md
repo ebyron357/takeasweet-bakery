@@ -161,6 +161,8 @@
 - [x] Empty FAQ now shows the 404 page and is left out of the sitemap (the nav link was already hidden).
 - [x] Order Information icons and labels live in one shared map (`client/src/lib/order-info-icons.ts`).
 - Result: 65/65 tests; build passes; site QA passes with content and with FAQ and Order Information empty; live sitemap checked with review mode off; Admin browser run 14/14.
+- [x] CI fix: Scroll Craft QA now serves its own QA-only Order Information settings (CI previews the static build with no backend, so the page correctly failed closed and the check found 0 sections).
+- [x] Fixed: when settings can't load, the Gallery, FAQ, and Order Information pages stayed blank for ~8 seconds of retries before failing closed; the settings query no longer retries, so they fail closed at once.
 - Open for the client — still hard-coded business claims (need confirmation, or a later move to settings):
   - Home custom-orders banner and Custom Orders page: deposit terms, "quote within a few days", no wedding orders (also enforced in code).
   - Shop intro: "Handmade in small batches. The menu changes with the seasons."
