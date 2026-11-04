@@ -3,6 +3,33 @@ import { mkdir } from 'node:fs/promises';
 const { chromium } = await import(process.env.PLAYWRIGHT_MODULE || 'playwright');
 const base = process.env.SCROLL_BASE || 'http://127.0.0.1:3111';
 const route = '/order-info';
+
+// Order Information sections are owner-managed settings, and this check runs against a static
+// preview with no backend (settings would fail closed and hide the page). Serve QA-only settings
+// so the scroll effect has five sections to animate; every other API call fails as it would
+// without a backend.
+const QA_SETTINGS = {
+  reviewMode: true, paymentsEnabled: false, paymentsTestMode: true,
+  announcement: '', serviceArea: '', contactEmail: '',
+  socialLinks: {facebook: '', instagram: '', tiktok: ''},
+  logo: null,
+  images: {hero: null, founderPortrait: null, community: null, customOrders: null, storyFeature: null},
+  gallery: [], faq: [],
+  orderInfo: ['pickup', 'delivery', 'noShipping', 'customOrders', 'payment'].map((icon, i) => ({
+    icon, title: `QA section ${i + 1}`, body: `Test copy for QA section ${i + 1}.`,
+  })),
+};
+async function mockSiteSettings(context) {
+  await context.route('**/api/trpc/**', request => {
+    const procedures = new URL(request.request().url()).pathname.split('/api/trpc/')[1].split(',');
+    const body = procedures.map(path => path === 'site.settings'
+      ? {result: {data: {json: QA_SETTINGS}}}
+      : {error: {json: {message: 'No backend in QA', code: -32603,
+        data: {code: 'INTERNAL_SERVER_ERROR', httpStatus: 500, path}}}});
+    return request.fulfill({status: procedures.length > 1 ? 207 : 200, contentType: 'application/json',
+      body: JSON.stringify(body)});
+  });
+}
 const browser = await chromium.launch({executablePath: process.env.CHROMIUM_PATH || undefined});
 let passed = 0;
 try {
@@ -10,6 +37,7 @@ try {
   for (const width of [1440,390]) {
     for (const mode of ['normal','reduced','no-observer']) {
       const context = await browser.newContext({viewport:{width,height:240},reducedMotion:mode === 'reduced'?'reduce':'no-preference',javaScriptEnabled:mode !== 'no-js'});
+      await mockSiteSettings(context);
       if(mode === 'no-observer') await context.addInitScript(()=>{delete window.IntersectionObserver;});
       const page = await context.newPage();
       const errors=[]; page.on('pageerror',e=>errors.push(e.message));

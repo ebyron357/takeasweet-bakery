@@ -1,5 +1,6 @@
 import type { Express, NextFunction, Request, Response } from "express";
 import { listActiveProducts } from "./db-features";
+import type { SiteSettings } from "../shared/site-settings";
 import { getSiteSettings } from "./site-settings";
 
 /** Public pages listed in the sitemap. Cart, order, and admin routes are excluded. */
@@ -14,6 +15,18 @@ export const SITEMAP_PATHS = [
   "/privacy",
   "/contact",
 ] as const;
+
+/** Sitemap pages, minus the ones hidden while their settings content is empty. */
+export function visibleSitemapPaths(
+  settings: Pick<SiteSettings, "faq" | "gallery" | "orderInfo">
+): string[] {
+  return SITEMAP_PATHS.filter(path => {
+    if (path === "/faq") return settings.faq.length > 0;
+    if (path === "/gallery") return settings.gallery.length > 0;
+    if (path === "/order-info") return settings.orderInfo.length > 0;
+    return true;
+  });
+}
 
 /** Routes that should never be crawled. */
 export const PRIVATE_PATHS = ["/admin", "/cart", "/order/", "/api/"] as const;
@@ -119,11 +132,7 @@ export function registerSiteMeta(app: Express) {
   app.get("/sitemap.xml", async (_req, res) => {
     const siteUrl = await currentIndexableSiteUrl();
     if (!siteUrl) return res.status(404).type("text/plain").send("Not found");
-    // The gallery page is hidden while it has no photos.
-    const { gallery } = await getSiteSettings();
-    const pagePaths = SITEMAP_PATHS.filter(
-      path => path !== "/gallery" || gallery.length > 0
-    );
+    const pagePaths = visibleSitemapPaths(await getSiteSettings());
     try {
       const products = await listActiveProducts();
       res.type("application/xml").send(
