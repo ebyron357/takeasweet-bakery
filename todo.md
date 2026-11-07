@@ -146,3 +146,18 @@
 - [x] Fall back to same-tab redirect when the browser blocks the checkout tab.
 - [x] Merged with Owner-Managed Settings; fixes carried into `CheckoutButton` and settings-driven pages (empty gallery keeps the 404 title).
 - Result: typecheck and build pass, 53/53 tests pass, `scripts/site-qa.mjs` passes (32 checks with backend, 22 without), scroll-craft QA 6/6, 0 console errors.
+
+## Client Handoff Prep — 2026-11-02
+- [x] `.env.example` documenting every environment variable the app reads (names and safe descriptions only).
+- [x] README rewritten to describe the site as built (it described unbuilt features: cake builder, customer portal, AI concierge).
+- [x] `docs/CLIENT_HANDOFF.md`: handoff checklist (accounts, Stripe, database, client facts, launch order) and owner guide for Admin.
+- [x] All migrations applied to a fresh MySQL 8 and read back through the running app; site QA passed (32 checks, incl. product pages, `/admin`, `/gallery`).
+- Finding: the product catalog exists only in the hosted database — back it up before any account transfer.
+- Open: hosting ownership decision, Stripe account, domain, and client facts listed in the handoff checklist.
+
+## Admin Photo Upload — 2026-11-03
+- [x] "Upload photo" button on every image field (logo, page images, gallery, products), 44px tall on phones.
+- [x] Browser turns photos upright, resizes to 2000px max, and re-saves them (smaller files, metadata dropped).
+- [x] Server (`admin.uploadImage`, admin only): checks the real file type by its bytes (JPEG/PNG/WebP only; SVG refused), 8 MB cap, strips EXIF/GPS/XMP/IPTC and data after the image, refuses uploads when storage isn't configured.
+- [x] Fixed: product Edit/Delete icon buttons and the Category select had no accessible names.
+- Result: 70/70 tests; real-image checks (baseline + progressive JPEG, PNG, WebP: metadata gone, pixels identical); browser end-to-end 13/13; axe 0 serious/critical on signed-in Admin; site QA passes.
