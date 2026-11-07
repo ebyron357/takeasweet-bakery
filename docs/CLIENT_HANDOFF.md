@@ -40,7 +40,8 @@ This document has two parts:
       enabled on whichever account owns the database.
 - [ ] **Run `pnpm db:push`** on the production database. Migration `0004`
       creates the Site Settings table; without it the site stays in review
-      mode with payments off.
+      mode with payments off. Migration `0005` fills Order Information with
+      the current page text, unless the owner has already saved some.
 
 ### B. Facts the client must provide or confirm
 
@@ -53,6 +54,9 @@ hidden or general.
 - [ ] **FAQ answers** (7 entries in Admin → Site Settings → FAQ): advance
       notice / weekly batches, pickup, delivery, payment methods, deposits,
       allergens, no wedding orders.
+- [ ] **Order Information text** (5 sections in Admin → Site Settings →
+      Order information): pickup, local delivery, no shipping, custom orders,
+      payment. Confirm the delivery area, deposit, and payment wording.
 - [ ] **Public contact email** (contact links are hidden while empty).
 - [ ] **Social links** — Facebook, Instagram, TikTok (hidden while empty).
 - [ ] **Logo** image.
@@ -66,6 +70,16 @@ hidden or general.
       none are stated on the site today.
 - [ ] **Privacy policy** — the current page is a general draft; have it
       reviewed before launch.
+- [ ] **Wording still built into the pages.** Confirm these, or send new
+      wording. Changing them needs your web developer:
+      - Custom orders (home banner and Custom Orders page): deposit terms,
+        "quote within a few days", and no wedding orders. The no-weddings
+        rule is also enforced when a request is submitted.
+      - Shop intro: "Handmade in small batches. The menu changes with the
+        seasons."
+      - Founder and family story (home, Our Story, footer): "kid-owned",
+        "young Charlotte entrepreneur", local events and markets.
+      - Privacy page: "home-based small business".
 
 ### C. Launch day (in order)
 
@@ -114,7 +128,13 @@ within about a minute.
   refused as the wrong type, it was saved in Apple's HEIC format: choose it
   from the Photos library on the iPhone itself, or export it as JPEG first.
 - **Gallery** — authentic photos only; use the arrows to reorder.
-- **FAQ** — the first four questions also appear on the home page.
+- **FAQ** — the first four questions also appear on the home page. With no
+  questions, the FAQ page and its menu link are hidden.
+- **Order information** — the sections on the Order Information page. Give
+  each one a title, a description, and an icon; use the arrows to reorder.
+  Sections with the **Pickup**, **Delivery**, or **No shipping** icon also
+  appear in the home page's "Pickup & Delivery" block, next to the service
+  area. With no sections, the page and its footer link are hidden.
 - **Pickup instructions** are private: customers see them only on the order
   confirmation page after paying. Never put the pickup address anywhere else.
 
@@ -159,7 +179,8 @@ custom requests, and messages through Manus notifications.
   the hosting storage service isn't connected; paste an image link instead
   and contact your web developer.
 - **Settings won't save** — the page explains which field is invalid (for
-  example, links must start with `https://`, every image needs alt text, and
-  every FAQ entry needs a question and an answer).
+  example, links must start with `https://`, every image needs alt text,
+  every FAQ entry needs a question and an answer, and every Order Information
+  section needs a title and a description).
 - Anything else: contact your web developer with the page address and a
   screenshot.

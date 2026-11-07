@@ -14,10 +14,10 @@ page — no code changes needed for day-to-day updates.
 
 | Area | Included |
 |---|---|
-| Public pages | Home, Menu (`/shop`), product pages, Cart, Custom Orders, Our Story, FAQ, Gallery (shown once it has photos), Order Information, Privacy, Contact, 404 |
+| Public pages | Home, Menu (`/shop`), product pages, Cart, Custom Orders, Our Story, FAQ, Gallery, and Order Information (each shown once it has content), Privacy, Contact, 404 |
 | Ordering | Cart with flavor selection, Stripe Checkout, order confirmation that reveals private pickup instructions only after payment, canceled-payment page |
 | Custom orders | Request form (wedding orders blocked on client and server); owner reviews, then approves, requests a deposit, confirms, or declines |
-| Admin (`/admin`) | Products, Orders, Custom Requests, Messages, Site Settings (launch switches, business details, images, gallery, FAQ, private pickup instructions); photo upload from the owner's phone or computer |
+| Admin (`/admin`) | Products, Orders, Custom Requests, Messages, Site Settings (launch switches, business details, images, gallery, FAQ, Order Information, private pickup instructions); photo upload from the owner's phone or computer |
 | Safety | Review mode and payments are off by default and stay off if settings can't load; no pickup address on public pages; uploaded photos are stripped of location and camera data; security headers; Stripe webhook signature check |
 
 **Not built** (planned in `SKILL.md`, not part of this release): guided cake
