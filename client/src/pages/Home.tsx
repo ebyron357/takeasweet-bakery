@@ -10,9 +10,7 @@ import {
   Heart,
   IceCream,
   MapPin,
-  PackageX,
   Sparkles,
-  Truck,
 } from "lucide-react";
 import {
   Accordion,
@@ -23,9 +21,10 @@ import {
 import ProductCard, { type ProductCardData } from "@/components/ProductCard";
 import { Button } from "@/components/ui/button";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
+import { ORDER_INFO_ICON_OPTIONS } from "@/lib/order-info-icons";
 import { trpc } from "@/lib/trpc";
 import { CATEGORY_LABELS, formatPrice, PRODUCT_CATEGORIES } from "@shared/bakery";
-import type { SiteImage } from "@shared/site-settings";
+import { pickupDeliverySections, type SiteImage } from "@shared/site-settings";
 
 const CATEGORY_ICONS: Record<string, typeof Cookie> = {
   limber: CupSoda,
@@ -109,6 +108,15 @@ export default function Home() {
   const { settings } = useSiteSettings();
   const { data: products = [] } = trpc.products.list.useQuery();
   const { images } = settings;
+  // Pickup, delivery, and shipping policies come from the Order Information settings.
+  const policies = pickupDeliverySections(settings.orderInfo).map(section => ({
+    ...section,
+    Icon: ORDER_INFO_ICON_OPTIONS[section.icon].Icon,
+  }));
+  const pickupDelivery =
+    policies.length > 0 && settings.serviceArea
+      ? [{ Icon: MapPin, title: "Service area", body: settings.serviceArea }, ...policies]
+      : policies;
 
   const available = products.filter(p => p.inStock);
   const flagged = available.filter(p => p.featured);
@@ -374,50 +382,36 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="container py-12 md:py-16">
-        <h2 className="font-display mb-8 text-center text-3xl font-extrabold sm:text-4xl">
-          Pickup & Delivery
-        </h2>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-[repeat(auto-fit,minmax(0,1fr))]">
-          {[
-            ...(settings.serviceArea
-              ? [
-                  {
-                    icon: MapPin,
-                    title: "Local to Charlotte",
-                    text: settings.serviceArea,
-                  },
-                ]
-              : []),
-            {
-              icon: Check,
-              title: "Pickup",
-              text: "Pickup details are shared after your order is confirmed.",
-            },
-            {
-              icon: Truck,
-              title: "Local delivery",
-              text: "Local delivery is available within the approved service area.",
-            },
-            {
-              icon: PackageX,
-              title: "No shipping (yet)",
-              text: "Shipping is not currently available — local love only for now.",
-            },
-          ].map(item => (
-            <div
-              key={item.title}
-              className="bg-card border-border/60 rounded-2xl border p-5 text-center shadow-sm"
-            >
-              <div className="bg-primary/20 mx-auto flex size-11 items-center justify-center rounded-full">
-                <item.icon className="text-primary-foreground size-5" aria-hidden="true" />
+      {pickupDelivery.length > 0 && (
+        <section className="container py-12 md:py-16">
+          <h2 className="font-display mb-8 text-center text-3xl font-extrabold sm:text-4xl">
+            Pickup & Delivery
+          </h2>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-[repeat(auto-fit,minmax(0,1fr))]">
+            {pickupDelivery.map((item, index) => (
+              <div
+                key={index}
+                className="bg-card border-border/60 rounded-2xl border p-5 text-center shadow-sm"
+              >
+                <div className="bg-primary/20 mx-auto flex size-11 items-center justify-center rounded-full">
+                  <item.Icon className="text-primary-foreground size-5" aria-hidden="true" />
+                </div>
+                <h3 className="font-display mt-3 font-bold">{item.title}</h3>
+                <p className="text-muted-foreground mt-1 text-sm whitespace-pre-line">
+                  {item.body}
+                </p>
               </div>
-              <h3 className="font-display mt-3 font-bold">{item.title}</h3>
-              <p className="text-muted-foreground mt-1 text-sm">{item.text}</p>
-            </div>
-          ))}
-        </div>
-      </section>
+            ))}
+          </div>
+          <div className="mt-6 text-center">
+            <Button asChild variant="outline" className="bg-card min-h-11 rounded-full font-bold">
+              <Link href="/order-info">
+                How ordering works <ArrowRight className="size-4" aria-hidden="true" />
+              </Link>
+            </Button>
+          </div>
+        </section>
+      )}
 
       {settings.faq.length > 0 && (
         <section className="container max-w-3xl py-12 md:py-16">

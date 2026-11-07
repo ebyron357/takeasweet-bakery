@@ -6,10 +6,26 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
+import { ORDER_INFO_ICON_OPTIONS } from "@/lib/order-info-icons";
 import { trpc } from "@/lib/trpc";
-import type { FaqItem, SiteImage, SiteImageKey, SiteSettings } from "@shared/site-settings";
+import {
+  ORDER_INFO_ICONS,
+  type FaqItem,
+  type OrderInfoIcon,
+  type OrderInfoSection,
+  type SiteImage,
+  type SiteImageKey,
+  type SiteSettings,
+} from "@shared/site-settings";
 
 /** Image slots used on the public pages, with where each one appears. */
 const IMAGE_SLOTS: { key: SiteImageKey; label: string; hint: string }[] = [
@@ -86,6 +102,16 @@ function fromDraft(draft: Draft): SiteSettings | string {
   if (faq.some(item => !item.question || !item.answer)) {
     problems.push("Every FAQ entry needs both a question and an answer.");
   }
+  const orderInfo: OrderInfoSection[] = draft.orderInfo
+    .map(section => ({
+      icon: section.icon,
+      title: section.title.trim(),
+      body: section.body.trim(),
+    }))
+    .filter(section => section.title || section.body);
+  if (orderInfo.some(section => !section.title || !section.body)) {
+    problems.push("Every Order Information section needs both a title and a description.");
+  }
   const settings: SiteSettings = {
     ...draft,
     logo: image(draft.logo, "Logo"),
@@ -96,6 +122,7 @@ function fromDraft(draft: Draft): SiteSettings | string {
       .map((item, index) => image(item, `Gallery photo ${index + 1}`))
       .filter((item): item is SiteImage => item !== null),
     faq,
+    orderInfo,
   };
   return problems.length > 0 ? problems.join(" ") : settings;
 }
@@ -475,6 +502,105 @@ export default function SettingsTab() {
           onClick={() => update({ faq: [...draft.faq, { question: "", answer: "" }] })}
         >
           <Plus className="size-4" /> Add question
+        </Button>
+      </Section>
+
+      <Section
+        title="Order information"
+        description="Ordering policies on the Order Information page. Sections with the Pickup, Delivery, or No shipping icon also appear on the home page. The page and its footer link are hidden while this list is empty."
+      >
+        {draft.orderInfo.map((section, index) => {
+          const change = (patch: Partial<OrderInfoSection>) =>
+            update({
+              orderInfo: draft.orderInfo.map((s, i) => (i === index ? { ...s, ...patch } : s)),
+            });
+          return (
+            <div key={index} className="flex gap-2 border-t pt-4 first:border-t-0 first:pt-0">
+              <div className="flex-1 space-y-2">
+                <div className="flex flex-col gap-2 sm:flex-row">
+                  <Input
+                    aria-label={`Section ${index + 1} title`}
+                    maxLength={100}
+                    value={section.title}
+                    onChange={e => change({ title: e.target.value })}
+                    placeholder="Title, e.g. Pickup"
+                  />
+                  <Select
+                    value={section.icon}
+                    onValueChange={v => change({ icon: v as OrderInfoIcon })}
+                  >
+                    <SelectTrigger
+                      aria-label={`Section ${index + 1} icon`}
+                      className="w-full sm:w-56"
+                    >
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {ORDER_INFO_ICONS.map(icon => {
+                        const option = ORDER_INFO_ICON_OPTIONS[icon];
+                        return (
+                          <SelectItem key={icon} value={icon}>
+                            <option.Icon aria-hidden /> {option.label}
+                          </SelectItem>
+                        );
+                      })}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <Textarea
+                  aria-label={`Section ${index + 1} description`}
+                  maxLength={2000}
+                  rows={3}
+                  value={section.body}
+                  onChange={e => change({ body: e.target.value })}
+                  placeholder="Description"
+                />
+              </div>
+              <div className="flex flex-col gap-1">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  aria-label="Move section up"
+                  onClick={() => update({ orderInfo: move(draft.orderInfo, index, index - 1) })}
+                >
+                  <ArrowUp className="size-4" />
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  aria-label="Move section down"
+                  onClick={() => update({ orderInfo: move(draft.orderInfo, index, index + 1) })}
+                >
+                  <ArrowDown className="size-4" />
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  aria-label="Remove section"
+                  onClick={() =>
+                    update({ orderInfo: draft.orderInfo.filter((_, i) => i !== index) })
+                  }
+                >
+                  <Trash2 className="size-4" />
+                </Button>
+              </div>
+            </div>
+          );
+        })}
+        <Button
+          type="button"
+          variant="outline"
+          className="rounded-full"
+          onClick={() =>
+            update({
+              orderInfo: [...draft.orderInfo, { icon: "info", title: "", body: "" }],
+            })
+          }
+        >
+          <Plus className="size-4" /> Add section
         </Button>
       </Section>
 

@@ -1,41 +1,20 @@
 import { ScrollCraftGroup } from "@/components/scroll-craft-group";
 import { Link } from "wouter";
-import { CalendarHeart, MapPin, PackageX, ReceiptText, Store, Truck } from "lucide-react";
+import { MapPin, ReceiptText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
 import { usePageTitle } from "@/hooks/usePageTitle";
-
-const SECTIONS = [
-  {
-    icon: Store,
-    title: "Pickup",
-    body: "All standard orders are available for local pickup. Exact pickup details are shared after your order is confirmed — they are not published on the website.",
-  },
-  {
-    icon: Truck,
-    title: "Local delivery",
-    body: "Local delivery is available within our approved Charlotte service area. Delivery arrangements are confirmed when your order is reviewed.",
-  },
-  {
-    icon: PackageX,
-    title: "No shipping",
-    body: "We do not offer nationwide shipping at this time. TakeASweet is local love only — for now!",
-  },
-  {
-    icon: CalendarHeart,
-    title: "Custom orders",
-    body: "Custom dessert requests are welcome for birthdays, showers, and celebrations. A request is not a confirmed order: every request is reviewed first, and large or custom orders may require approval and a deposit. Wedding orders are not accepted.",
-  },
-  {
-    icon: ReceiptText,
-    title: "Payment",
-    body: "Standard menu items are paid for online at checkout when online ordering is open. Custom orders are invoiced after approval.",
-  },
-];
+import { ORDER_INFO_ICON_OPTIONS } from "@/lib/order-info-icons";
+import NotFound from "@/pages/NotFound";
 
 export default function OrderInfo() {
-  usePageTitle("Order Information");
-  const { settings } = useSiteSettings();
+  const { settings, isLoading } = useSiteSettings();
+  const sections = settings.orderInfo;
+  // With no sections the page renders the 404 page, which sets its own title.
+  usePageTitle(sections.length > 0 ? "Order Information" : undefined);
+  if (isLoading) return null;
+  if (sections.length === 0) return <NotFound />;
+
   return (
     <div className="container max-w-2xl py-12 md:py-16">
       <p className="text-secondary-foreground flex items-center gap-1.5 text-sm font-bold tracking-widest uppercase">
@@ -54,23 +33,28 @@ export default function OrderInfo() {
       )}
 
       <ScrollCraftGroup className="mt-8 space-y-4">
-        {SECTIONS.map(section => (
-          <section
-            data-sc-entry
-            key={section.title}
-            aria-label={section.title}
-            className="bg-card border-border/60 flex gap-4 rounded-xl border p-5 shadow-sm"
-          >
-            <span data-sc-rule aria-hidden="true" />
-            <div className="bg-primary/20 flex size-11 shrink-0 items-center justify-center rounded-full">
-              <section.icon className="text-primary-foreground size-5" aria-hidden />
-            </div>
-            <div>
-              <h2 className="font-display text-lg font-bold">{section.title}</h2>
-              <p className="text-muted-foreground mt-1 text-sm leading-relaxed">{section.body}</p>
-            </div>
-          </section>
-        ))}
+        {sections.map((section, index) => {
+          const { Icon } = ORDER_INFO_ICON_OPTIONS[section.icon];
+          return (
+            <section
+              data-sc-entry
+              key={index}
+              aria-label={section.title}
+              className="bg-card border-border/60 flex gap-4 rounded-xl border p-5 shadow-sm"
+            >
+              <span data-sc-rule aria-hidden="true" />
+              <div className="bg-primary/20 flex size-11 shrink-0 items-center justify-center rounded-full">
+                <Icon className="text-primary-foreground size-5" aria-hidden />
+              </div>
+              <div>
+                <h2 className="font-display text-lg font-bold">{section.title}</h2>
+                <p className="text-muted-foreground mt-1 text-sm leading-relaxed whitespace-pre-line">
+                  {section.body}
+                </p>
+              </div>
+            </section>
+          );
+        })}
       </ScrollCraftGroup>
 
       <div className="mt-10 flex flex-wrap gap-3">

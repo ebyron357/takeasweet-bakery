@@ -13,6 +13,9 @@ const FALLBACK: PublicSiteSettings = { ...defaults, paymentsTestMode: true };
 export function useSiteSettings() {
   const { data, isLoading } = trpc.site.settings.useQuery(undefined, {
     staleTime: 60_000,
+    // On failure, fail closed at once instead of leaving gated pages blank through
+    // several seconds of retries. It is fetched again on window focus or reconnect.
+    retry: false,
   });
   const settings = data ?? FALLBACK;
   return {
