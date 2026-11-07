@@ -146,3 +146,40 @@
 - [x] Fall back to same-tab redirect when the browser blocks the checkout tab.
 - [x] Merged with Owner-Managed Settings; fixes carried into `CheckoutButton` and settings-driven pages (empty gallery keeps the 404 title).
 - Result: typecheck and build pass, 53/53 tests pass, `scripts/site-qa.mjs` passes (32 checks with backend, 22 without), scroll-craft QA 6/6, 0 console errors.
+
+## Client Handoff Prep — 2026-11-02
+- [x] `.env.example` documenting every environment variable the app reads (names and safe descriptions only).
+- [x] README rewritten to describe the site as built (it described unbuilt features: cake builder, customer portal, AI concierge).
+- [x] `docs/CLIENT_HANDOFF.md`: handoff checklist (accounts, Stripe, database, client facts, launch order) and owner guide for Admin.
+- [x] All migrations applied to a fresh MySQL 8 and read back through the running app; site QA passed (32 checks, incl. product pages, `/admin`, `/gallery`).
+- Finding: the product catalog exists only in the hosted database — back it up before any account transfer.
+- Open: hosting ownership decision, Stripe account, domain, and client facts listed in the handoff checklist.
+
+## Admin Photo Upload — 2026-11-03
+- [x] "Upload photo" button on every image field (logo, page images, gallery, products), 44px tall on phones.
+- [x] Browser turns photos upright, resizes to 2000px max, and re-saves them (smaller files, metadata dropped).
+- [x] Server (`admin.uploadImage`, admin only): checks the real file type by its bytes (JPEG/PNG/WebP only; SVG refused), 8 MB cap, strips EXIF/GPS/XMP/IPTC and data after the image, refuses uploads when storage isn't configured.
+- [x] Fixed: product Edit/Delete icon buttons and the Category select had no accessible names.
+- Result: 70/70 tests; real-image checks (baseline + progressive JPEG, PNG, WebP: metadata gone, pixels identical); browser end-to-end 13/13; axe 0 serious/critical on signed-in Admin; site QA passes.
+
+## Order Information in Site Settings — 2026-11-03
+- [x] Order Information sections (title, description, icon from a fixed set) moved from `OrderInfo.tsx` into site settings (`orderInfo`, fail-closed empty default, max 20, validated with zod on the server).
+- [x] Migration `0005` seeds the five sections with the copy previously in code (byte-identical), and only fills the setting if it is not already set.
+- [x] Admin → Site Settings → Order information: add, edit, pick icon, reorder, remove; incomplete sections block saving with a clear message.
+- [x] While the list is empty: `/order-info` shows the 404 page, its footer link is hidden, and it is left out of the sitemap.
+- Result: 64/64 tests (11 new); migration applied to a fresh MySQL 8 and read back through `site.settings`; browser end-to-end 14/14 (edit, validation, reorder, save, empty state); site QA passes with content and with the list empty.
+- Open: client to confirm the Order Information copy (delivery area, deposits, payment wording).
+
+## Fail-Closed Content Cleanup — 2026-11-03
+- [x] Removed three hard-coded policy lines from the footer; the owner-managed Order Information page covers them.
+- [x] Home "Pickup & Delivery" block now shows the Order Information sections with the Pickup, Delivery, or No shipping icon (plus the service area), links to the full page, and hides when there are none. Its hard-coded copy is gone.
+- [x] Empty FAQ now shows the 404 page and is left out of the sitemap (the nav link was already hidden).
+- [x] Order Information icons and labels live in one shared map (`client/src/lib/order-info-icons.ts`).
+- Result: 65/65 tests; build passes; site QA passes with content and with FAQ and Order Information empty; live sitemap checked with review mode off; Admin browser run 14/14.
+- [x] CI fix: Scroll Craft QA now serves its own QA-only Order Information settings (CI previews the static build with no backend, so the page correctly failed closed and the check found 0 sections).
+- [x] Fixed: when settings can't load, the Gallery, FAQ, and Order Information pages stayed blank for ~8 seconds of retries before failing closed; the settings query no longer retries, so they fail closed at once.
+- Open for the client — still hard-coded business claims (need confirmation, or a later move to settings):
+  - Home custom-orders banner and Custom Orders page: deposit terms, "quote within a few days", no wedding orders (also enforced in code).
+  - Shop intro: "Handmade in small batches. The menu changes with the seasons."
+  - Home, Our Story, footer tagline: founder and family story ("kid-owned", "young Charlotte entrepreneur", local events and markets).
+  - Privacy page: "home-based small business".

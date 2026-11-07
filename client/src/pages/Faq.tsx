@@ -8,12 +8,16 @@ import {
 } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
-
 import { usePageTitle } from "@/hooks/usePageTitle";
+import NotFound from "@/pages/NotFound";
 
 export default function Faq() {
-  usePageTitle("FAQ");
-  const { settings } = useSiteSettings();
+  const { settings, isLoading } = useSiteSettings();
+  // With no questions the page renders the 404 page, which sets its own title.
+  usePageTitle(settings.faq.length > 0 ? "FAQ" : undefined);
+  if (isLoading) return null;
+  if (settings.faq.length === 0) return <NotFound />;
+
   return (
     <div className="container max-w-3xl py-12 md:py-16">
       <div className="text-center">

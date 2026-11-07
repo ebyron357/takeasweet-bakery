@@ -6,7 +6,7 @@ import {
   containsWeddingKeyword,
   isEventDateTodayOrLater,
 } from "../shared/bakery";
-import { parseSiteSettings } from "../shared/site-settings";
+import { parseSiteSettings, pickupDeliverySections } from "../shared/site-settings";
 import { clearSiteSettingsCache, isStripeTestMode } from "./site-settings";
 
 vi.mock("./db-features", () => ({
@@ -262,6 +262,7 @@ describe("site settings", () => {
     expect(settings.socialLinks).toEqual({ facebook: "", instagram: "", tiktok: "" });
     expect(settings.gallery).toEqual([]);
     expect(settings.faq).toEqual([]);
+    expect(settings.orderInfo).toEqual([]);
     expect(settings.images.hero).toBeNull();
   });
 
@@ -313,6 +314,93 @@ describe("site settings", () => {
     await appRouter.createCaller(createContext(admin)).admin.updateSettings(settings);
     expect(dbf.saveSiteSettingsData).toHaveBeenCalledWith(settings);
     clearSiteSettingsCache();
+  });
+
+  const pickupSection = {
+    icon: "pickup" as const,
+    title: "Pickup",
+    body: "Pickup details are shared after your order is confirmed.",
+  };
+
+  it("saves order information sections from an admin", async () => {
+    const dbf = await import("./db-features");
+    const settings = { ...parseSiteSettings(undefined), orderInfo: [pickupSection] };
+    await appRouter.createCaller(createContext(admin)).admin.updateSettings(settings);
+    expect(dbf.saveSiteSettingsData).toHaveBeenCalledWith(settings);
+    clearSiteSettingsCache();
+  });
+
+  it("sends order information to the public", async () => {
+    const dbf = await import("./db-features");
+    vi.mocked(dbf.getSiteSettingsData).mockResolvedValueOnce({ orderInfo: [pickupSection] });
+    clearSiteSettingsCache();
+    const settings = await appRouter.createCaller(createContext()).site.settings();
+    expect(settings.orderInfo).toEqual([pickupSection]);
+    clearSiteSettingsCache();
+  });
+
+  it("shows only pickup, delivery, and shipping sections on the home page, in order", () => {
+    const section = (icon: string, title: string) => ({ ...pickupSection, icon, title });
+    const orderInfo = parseSiteSettings({
+      orderInfo: [
+        section("payment", "Payment"),
+        section("noShipping", "No shipping"),
+        section("pickup", "Pickup"),
+        section("info", "Allergens"),
+        section("delivery", "Delivery"),
+      ],
+    }).orderInfo;
+    expect(pickupDeliverySections(orderInfo).map(s => s.title)).toEqual([
+      "No shipping",
+      "Pickup",
+      "Delivery",
+    ]);
+    expect(pickupDeliverySections([])).toEqual([]);
+  });
+
+  it("gives a stored section without an icon the general icon", () => {
+    const { icon: _icon, ...withoutIcon } = pickupSection;
+    expect(parseSiteSettings({ orderInfo: [withoutIcon] }).orderInfo).toEqual([
+      { ...withoutIcon, icon: "info" },
+    ]);
+  });
+
+  it.each([
+    ["an empty title", { ...pickupSection, title: "  " }],
+    ["an empty description", { ...pickupSection, body: "" }],
+    ["an unknown icon", { ...pickupSection, icon: "rocket" }],
+    ["an overlong title", { ...pickupSection, title: "x".repeat(101) }],
+  ])("rejects an order information section with %s", async (_case, section) => {
+    const dbf = await import("./db-features");
+    vi.mocked(dbf.saveSiteSettingsData).mockClear();
+    const caller = appRouter.createCaller(createContext(admin));
+    await expect(
+      caller.admin.updateSettings({
+        ...parseSiteSettings(undefined),
+        orderInfo: [section as typeof pickupSection],
+      }),
+    ).rejects.toThrow();
+    expect(dbf.saveSiteSettingsData).not.toHaveBeenCalled();
+  });
+
+  it("rejects more than 20 order information sections", async () => {
+    const caller = appRouter.createCaller(createContext(admin));
+    await expect(
+      caller.admin.updateSettings({
+        ...parseSiteSettings(undefined),
+        orderInfo: Array.from({ length: 21 }, () => pickupSection),
+      }),
+    ).rejects.toThrow();
+  });
+
+  it("only lets admins change order information", async () => {
+    const dbf = await import("./db-features");
+    vi.mocked(dbf.saveSiteSettingsData).mockClear();
+    const caller = appRouter.createCaller(createContext(regularUser));
+    await expect(
+      caller.admin.updateSettings({ ...parseSiteSettings(undefined), orderInfo: [pickupSection] }),
+    ).rejects.toThrow(/admin/i);
+    expect(dbf.saveSiteSettingsData).not.toHaveBeenCalled();
   });
 
   it("rejects social links that are not https", async () => {

@@ -4,6 +4,7 @@ import { Loader2, Lock, Pencil, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { startLogin } from "@/const";
+import ImageUploadButton from "@/components/ImageUploadButton";
 import SettingsTab from "@/components/SettingsTab";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -270,7 +271,7 @@ function ProductsTab() {
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <Label>Category *</Label>
+                  <Label htmlFor="p-category">Category *</Label>
                   <Select
                     value={form.category}
                     onValueChange={v =>
@@ -280,7 +281,7 @@ function ProductsTab() {
                       }))
                     }
                   >
-                    <SelectTrigger className="w-full">
+                    <SelectTrigger id="p-category" className="w-full">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -304,12 +305,22 @@ function ProductsTab() {
               </div>
               <div className="space-y-1.5">
                 <Label htmlFor="p-img">Image URL</Label>
-                <Input
-                  id="p-img"
-                  value={form.imageUrl}
-                  onChange={e => setForm(f => ({ ...f, imageUrl: e.target.value }))}
-                  placeholder="/manus-storage/…"
-                />
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                  {form.imageUrl.trim() && (
+                    <img
+                      src={form.imageUrl.trim()}
+                      alt=""
+                      className="bg-muted size-16 shrink-0 rounded-xl object-cover"
+                    />
+                  )}
+                  <Input
+                    id="p-img"
+                    value={form.imageUrl}
+                    onChange={e => setForm(f => ({ ...f, imageUrl: e.target.value }))}
+                    placeholder="/manus-storage/…"
+                  />
+                  <ImageUploadButton onUploaded={url => setForm(f => ({ ...f, imageUrl: url }))} />
+                </div>
               </div>
               <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-1.5">
@@ -528,13 +539,19 @@ function ProductsTab() {
                   </TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-1">
-                      <Button variant="ghost" size="icon" onClick={() => openEdit(p)}>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        aria-label={`Edit ${p.name}`}
+                        onClick={() => openEdit(p)}
+                      >
                         <Pencil className="size-4" />
                       </Button>
                       <Button
                         variant="ghost"
                         size="icon"
                         className="text-destructive"
+                        aria-label={`Delete ${p.name}`}
                         onClick={() => {
                           if (confirm(`Delete "${p.name}"? This cannot be undone.`)) {
                             deleteProduct.mutate({ id: p.id });

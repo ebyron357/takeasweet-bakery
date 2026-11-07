@@ -36,6 +36,13 @@
       "when": 1793192709456,
       "tag": "0004_plain_the_fury",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1793738804111,
+      "tag": "0005_order_info_settings",
+      "breakpoints": true
     }
   ]
 }
